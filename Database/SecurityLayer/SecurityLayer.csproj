@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="AssemblyConfig.cs" />
     <Compile Include="Modules\AES.cs" />
+    <Compile Include="Modules\DataBaseObjectShell.cs" />
     <Compile Include="Modules\DecryptionModule.cs" />
     <Compile Include="Modules\EncryptionModule.cs" />
     <Compile Include="Modules\SharedCryptingMethods.cs" />

@@ -35,10 +35,8 @@ namespace DataAccessLayer.Modules
         /// <param name="dataBaseToWrite"></param>
         private static void EncryptAndWriteDbToFile(FileStream fileStream, DataBaseInstance dataBaseToWrite)
         {
-            byte[] key = new byte[1] { 1 };
 
-            MemoryStream streamOfEncryptedDataBase = EncryptionModule.EncryptDataBase(dataBaseToWrite, key);
-
+            MemoryStream streamOfEncryptedDataBase = EncryptionModule.EncryptDataBase(dataBaseToWrite);
             streamOfEncryptedDataBase.Position = 0;
             streamOfEncryptedDataBase.WriteTo(fileStream);
         }

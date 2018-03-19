@@ -78,10 +78,8 @@ namespace DataAccessLayer.Modules
         static private DataBaseInstance DecryptDataBaseFromPath(string filePathToDecrypt)
         {
             byte[] _array = File.ReadAllBytes(filePathToDecrypt);
-            //buf key
-            byte[] key = new byte[1] { 1 };
             //
-            return SecurityLayer.Modules.DecryptionModule.DecryptDataBase(_array, key);
+            return SecurityLayer.Modules.DecryptionModule.DecryptDataBase(_array);
         }
     }
 }

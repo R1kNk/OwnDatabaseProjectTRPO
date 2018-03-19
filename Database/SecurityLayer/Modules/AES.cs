@@ -28,26 +28,29 @@ namespace SecurityLayer.Modules
             }
             return encrypted;
         }
-        public static byte[] mydec(byte[] encrypted, byte[] Key, byte[] IV)
+        public static byte[] decryptStream(byte[] encrypted, byte[] Key, byte[] IV)
         {
             byte[] plain;
-            using (MemoryStream mStream = new MemoryStream(encrypted)) //add encrypted
+            int count;
+            using (MemoryStream mStream = new MemoryStream(encrypted))
             {
                 using (AesCryptoServiceProvider aesProvider = new AesCryptoServiceProvider())
                 {
+                    aesProvider.Mode = CipherMode.CBC;
                     using (CryptoStream cryptoStream = new CryptoStream(mStream,
-                        aesProvider.CreateDecryptor(Key, IV), CryptoStreamMode.Read))
+                     aesProvider.CreateDecryptor(Key, IV), CryptoStreamMode.Read))
                     {
-                        //cryptoStream.Read(encrypted, 0, encrypted.Length);
-                        using (StreamReader stream = new StreamReader(cryptoStream))
-                        {
-                            string sf = stream.ReadToEnd();
-                            plain = System.Text.Encoding.Default.GetBytes(sf);
-                        }
+                        plain = new byte[encrypted.Length];
+                        count = cryptoStream.Read(plain, 0, plain.Length);
                     }
                 }
             }
-            return plain;
+
+            // My method was written quite some time ago, and I don't remember why we had to copy the Array
+            // but I'm pretty sure that it's necessary
+            byte[] returnval = new byte[count];
+            Array.Copy(plain, returnval, count);
+            return returnval;
         }
     }
 }
