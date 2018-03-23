@@ -51,6 +51,11 @@ namespace DataLayer.InternalDataBaseInstanceComponents
             else throw new FormatException("There is invalid symbols in column's name!");
 
         }
+
+        public void AddColumn(string name, Type DataType, bool allowsnull, object def)
+        {
+            AddColumn(new Column(name, DataType, allowsnull, def));
+        }
         //
         /// <summary>
         /// Add element to Table!
@@ -75,7 +80,53 @@ namespace DataLayer.InternalDataBaseInstanceComponents
             else throw new IndexOutOfRangeException("Arguments array isn't similar to count of columns in table");
 
         }
-
+        public void DeleteTableElement(int index)
+        {
+            if (isTableContainsData())
+            {
+                for (int i = 0; i < Columns.Count; i++)
+                {
+                    Columns[i].DataList.RemoveAt(index);
+                }
+            }
+            else throw new NullReferenceException("There is no data in table!");
+        }
+        public void EditTableElement(int index, object[] arguments)
+        {
+            if (isTableContainsData())
+            {
+                if (arguments.Length == Columns.Count)
+                {
+                    for (int i = 0; i < Columns.Count; i++)
+                    {
+                        if (Columns[i].DataList[0].GetType() != arguments[i].GetType()) throw new ArgumentException("type of argument isn't the same as type of column!");
+                    }
+                    for (int i = 0; i < Columns.Count; i++)
+                    {
+                        Columns[i].DataList[index].Data = arguments[i];
+                    }
+                }
+            }
+            else throw new NullReferenceException("There is no data in table!");
+        }
+        public void DeleteColumn(string name)
+        {
+            if (Columns.Count == 0) throw new NullReferenceException();
+            if (indexOfColumn(name) != -1)
+            {
+                Columns.RemoveAt(indexOfColumn(name));
+            }
+            else throw new NullReferenceException();
+        }
+        public int indexOfColumn(string name)
+        {
+            if (Columns.Count == 0) throw new NullReferenceException();
+            for (int i = 0; i < Columns.Count; i++)
+            {
+                if (Columns[i].Name == name) return i;
+            }
+            return -1;
+        }
         public object[] GetDataByIndex(int index)
         {
                 if(isTableContainsData())
@@ -86,8 +137,8 @@ namespace DataLayer.InternalDataBaseInstanceComponents
                         dataArray[i] = Columns[i].DataList[index].Data;
                     }
                     return dataArray;
-                }
-            return null;
+                 } else throw new NullReferenceException("There is no data in table!");
+        
         }
 
         public bool isTableContainsData()

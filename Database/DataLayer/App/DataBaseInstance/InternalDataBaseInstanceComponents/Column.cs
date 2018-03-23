@@ -22,7 +22,7 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         /// <param name="isFkey">Is this column a foreign key</param>
         /// <param name="isPkey">Is this column a primary key</param>
         /// <param name="def"> Default object for this column</param>
-        public Column(string name, Type DataType, bool allowsnull, bool isFkey, bool isPkey, object def)
+        public Column(string name, Type DataType, bool allowsnull, object def)
         {
             _name = name;
             dataType = DataType;
@@ -36,8 +36,6 @@ namespace DataLayer.InternalDataBaseInstanceComponents
             }
             _dataList = new List<DataObject>();
 
-            _isForeignKey = isFkey;
-            _isPrimaryKey = isPkey;
         }
         //fields
 
@@ -49,10 +47,6 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         //
         object _Default;
         //
-        bool _isPrimaryKey;
-        //
-        bool _isForeignKey;
-        //
         List<DataObject> _dataList;
 
         //properties
@@ -60,8 +54,7 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         public Type DataType { get => dataType; private set => dataType = value; }
         public bool AllowsNull { get => allowsNull; private set => allowsNull = value; }
         public object Default { get => _Default; private set => _Default = value; }
-        public bool IsPrimaryKey { get => _isPrimaryKey; private set => _isPrimaryKey = value; }
-        public bool IsForeignKey { get => _isForeignKey; private set => _isForeignKey = value; }
+
         public List<DataObject> DataList { get => _dataList; private set => _dataList = value; }
 
         public override bool Equals(object obj)

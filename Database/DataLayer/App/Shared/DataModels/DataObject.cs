@@ -15,7 +15,7 @@ namespace DataLayer.Shared.DataModels
         object _data;
 
         public int DataHashcode { get => _dataHashcode; private set => _dataHashcode = value; }
-        public object Data { get => _data; private set => _data = value; }
+        public object Data { get => _data;  set => _data = value; }
 
         public DataObject(int hash, object data)
         {

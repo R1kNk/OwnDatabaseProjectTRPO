@@ -18,8 +18,6 @@ namespace DataLayer
          public string Name { get => _name; set => _name = value; }
          public List<Table> TablesDB { get => _tablesDB; set => _tablesDB = value; }
          
-         // Now you can't create DataBaseInstance directly because of internal spec.
-         // only through Kernel object
          /// <summary>
          /// DB constructor
          /// </summary>
@@ -38,7 +36,15 @@ namespace DataLayer
             Table bufTable = new Table(name);
             AddTable(bufTable);
         }
-
+        public void DeleteTable(string name)
+        {
+            if(TablesDB.Count==0) throw new NullReferenceException();
+            if (indexOfTable(name) != -1)
+            {
+                TablesDB.RemoveAt(indexOfTable(name));
+            }
+            else throw new NullReferenceException();
+        }
         public void AddTable(Table bufTable)
          {
              if (bufTable.Name.isThereNoUndefinedSymbols())
