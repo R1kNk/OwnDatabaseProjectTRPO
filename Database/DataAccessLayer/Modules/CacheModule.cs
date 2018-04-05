@@ -50,7 +50,11 @@ namespace DataAccessLayer.Modules
             if (listDB.Count != 0)
             {
                 CreateDirectoryForDataBaseIfThereAreNoOne();
-
+                DirectoryInfo dirInfo = new DirectoryInfo("./DataBases/");
+                foreach (FileInfo file in dirInfo.GetFiles())
+                {
+                    file.Delete();
+                }
                 foreach (DataBaseInstance bufInst in listDB)
                     bufInst.SaveDataBaseToFolder();
             }

@@ -55,12 +55,6 @@ namespace DataLayer
             int index = SharedDataAccessMethods.IndexOfDatabase(GetInstance(), name);
             Console.WriteLine(GetInstance()[index].ToString());
         }
-        internal static void AddDBInstance(string name)
-        {
-            DataBaseInstance bufInst = new DataBaseInstance(name);
-            AddDBInstance(bufInst);
-        }
-        
         #endregion
 
         #region NotDone
@@ -88,13 +82,24 @@ namespace DataLayer
         }
         #endregion
 
-        #region NotNeed
+      
         internal static bool isDatabaseExistsInList(string name)
         {
             return SharedDataAccessMethods.isDatabaseExistsInList(GetInstance(), name);
         }
 
-
+        internal static void RenameDatabase(string currentName, string futureName)
+        {
+            if (isDatabaseExists(currentName))
+            {
+                if (futureName.isThereNoUndefinedSymbols())
+                {
+                    GetInstance(currentName).Name = futureName;
+                }
+                else throw new ArgumentException("your name contains undefined symbols!");
+            }
+            else throw new NullReferenceException("There's no such database in list");
+        }
         internal static void AddDBInstance(string name)
         {
             DataBaseInstance bufInst = new DataBaseInstance(name);

@@ -11,7 +11,7 @@ using DataLayer.Shared.ExtentionMethods;
 namespace DataLayer.InternalDataBaseInstanceComponents
 {
     [Serializable]
-    public struct Column
+    public class Column
     {
         /// <summary>
         /// General constructor
@@ -28,6 +28,7 @@ namespace DataLayer.InternalDataBaseInstanceComponents
             dataType = DataType;
             allowsNull = allowsnull;
             _Default = DataType.GetDefaultValue();
+            isFkey = false;
             if (def != null)
             {
                 Type buf = def.GetType();
@@ -47,17 +48,86 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         //
         object _Default;
         //
+        bool isFkey;
+        //
         List<DataObject> _dataList;
 
         //properties
-        public string Name { get => _name; private set => _name = value; }
+        public string Name { get => _name;   set => _name = value; }
         public Type DataType { get => dataType; private set => dataType = value; }
         public bool AllowsNull { get => allowsNull; private set => allowsNull = value; }
         public object Default { get => _Default; private set => _Default = value; }
        
         public List<DataObject> DataList { get => _dataList; private set => _dataList = value; }
         public string TypeToString { get => dataType.ToString();}
+        public bool IsFkey { get => isFkey; private set => isFkey = value; }
 
+        /// <summary>
+        /// Edit type of the column's data
+        /// </summary>
+        /// <param name="newColumnType"></param>
+        public void EditColumnType(Type newColumnType )
+        {
+            if (!IsFkey && !Name.Contains("Id"))
+            {
+                if (newColumnType != DataType)
+                {
+                    DataType = newColumnType;
+                    SetDefaultObject(DataType.GetDefaultValue());
+                    UpdateDataHashCode();
+                }
+            }
+            else throw new ArgumentException("You can't change type of this column!");
+
+        }
+        /// <summary>
+        /// Change Nullable property
+        /// </summary>
+        /// <param name="isNullable"></param>
+        public void SetNullableProperty(bool isNullable)
+        {
+            if (!IsFkey && !Name.Contains("Id"))
+            {
+                AllowsNull = isNullable;
+                UpdateDataHashCode();
+            }
+            else throw new ArgumentException("You can't change nullable property of this column!");
+        }
+        /// <summary>
+        /// set another default object
+        /// </summary>
+        /// <param name="defaultObject"></param>
+        public void SetDefaultObject(object defaultObject)
+        {
+            if (defaultObject.GetType() == DataType) Default = defaultObject;
+            else throw new ArgumentException("Type of your defaultObject isn't similar to type of column");
+        }
+        /// <summary>
+        /// Updates hash code inside DataList
+        /// </summary>
+        public void UpdateDataHashCode()
+       {
+            if (DataList.Count != 0)
+            {
+                if (DataList[0].Data.GetType() != DataType)
+                {
+                    for (int i = 0; i < DataList.Count; i++)
+                    {
+                        DataObject buf = new DataObject(GetHashCode(), Default);
+                        DataList[i] = buf;
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < DataList.Count; i++)
+                    {
+                        DataObject buf = new DataObject(GetHashCode(), DataList[i].Data);
+                        DataList[i] = buf;
+                    }
+                }
+            }
+        }
+        //
         public override bool Equals(object obj)
         {
             return (this.GetHashCode() + DataList.Count == obj.GetHashCode() + DataList.Count);

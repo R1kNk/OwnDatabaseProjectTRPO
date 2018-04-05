@@ -36,6 +36,7 @@ namespace DataLayer
             Table bufTable = new Table(name);
             AddTable(bufTable);
         }
+        //
         /// <summary>
         /// Delete table by name
         /// </summary>
@@ -49,6 +50,22 @@ namespace DataLayer
             }
             else throw new NullReferenceException();
         }
+        //
+        /// <summary>
+        /// Rename table
+        /// </summary>
+        /// <param name="currentName"></param>
+        /// <param name="futureName"></param>
+        public void RenameTable(string currentName, string futureName)
+        {
+            if (isDatabaseContainsSuchTable(currentName))
+            {
+                if (futureName.isThereNoUndefinedSymbols()) GetTableByName(currentName).Name = futureName;
+                else throw new ArgumentException("Your name contains undefined symbols!");
+            }
+            throw new ArgumentNullException("there is no such table in this database!");
+        }
+        //
         /// <summary>
         /// adds table to db
         /// </summary>
@@ -62,6 +79,7 @@ namespace DataLayer
              }
              else throw new FormatException("There is invalid symbols in table's name!");
          }
+        //
         /// <summary>
         /// check if this database already contains table with such name
         /// </summary>
@@ -77,6 +95,7 @@ namespace DataLayer
             }
             return false;
         }
+        //
         int indexOfTable(string name)
         {
             if (TablesDB.Count == 0) throw new NullReferenceException();
@@ -98,6 +117,7 @@ namespace DataLayer
             }
             throw new NullReferenceException("There's no tables in Database");
         }
+
         public override string ToString()
         {
             string info = "|DATABASE| " + Name + " contains " + TablesDB.Count + " tables ";
