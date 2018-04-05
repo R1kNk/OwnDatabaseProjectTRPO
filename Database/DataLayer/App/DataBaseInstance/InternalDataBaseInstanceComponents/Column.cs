@@ -54,8 +54,9 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         public Type DataType { get => dataType; private set => dataType = value; }
         public bool AllowsNull { get => allowsNull; private set => allowsNull = value; }
         public object Default { get => _Default; private set => _Default = value; }
-
+       
         public List<DataObject> DataList { get => _dataList; private set => _dataList = value; }
+        public string TypeToString { get => dataType.ToString();}
 
         public override bool Equals(object obj)
         {

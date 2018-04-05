@@ -36,6 +36,10 @@ namespace DataLayer
             Table bufTable = new Table(name);
             AddTable(bufTable);
         }
+        /// <summary>
+        /// Delete table by name
+        /// </summary>
+        /// <param name="name"></param>
         public void DeleteTable(string name)
         {
             if(TablesDB.Count==0) throw new NullReferenceException();
@@ -45,20 +49,35 @@ namespace DataLayer
             }
             else throw new NullReferenceException();
         }
+        /// <summary>
+        /// adds table to db
+        /// </summary>
+        /// <param name="bufTable"></param>
         public void AddTable(Table bufTable)
          {
              if (bufTable.Name.isThereNoUndefinedSymbols())
              {
-                 foreach (Table tbl in TablesDB)
-                 {
-                     if (tbl.Name == bufTable.Name) throw new FormatException("Invalid table name. Some table in this database have same name!");
-                 }
-                 TablesDB.Add(bufTable);
+                 if(isDatabaseContainsSuchTable(bufTable.Name)) throw new FormatException("Invalid table name. Some table in this database have same name!");
+                TablesDB.Add(bufTable);
              }
              else throw new FormatException("There is invalid symbols in table's name!");
          }
-
-        public int indexOfTable(string name)
+        /// <summary>
+        /// check if this database already contains table with such name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        bool isDatabaseContainsSuchTable(string name)
+        {
+            if (TablesDB.Count == 0) return false;
+            else
+            {
+                foreach (Table tbl in TablesDB)
+                if (tbl.Name == name) return true;
+            }
+            return false;
+        }
+        int indexOfTable(string name)
         {
             if (TablesDB.Count == 0) throw new NullReferenceException();
             for (int i = 0; i < TablesDB.Count; i++)
@@ -67,7 +86,18 @@ namespace DataLayer
             }
             return -1;
         }
-
+        public Table GetTableByName(string name)
+        {
+            if (TablesDB.Count != 0)
+            {
+                if (isDatabaseContainsSuchTable(name))
+                {
+                    return TablesDB[indexOfTable(name)];
+                }
+                throw new NullReferenceException("There's no such table in Database");
+            }
+            throw new NullReferenceException("There's no tables in Database");
+        }
         public override string ToString()
         {
             string info = "|DATABASE| " + Name + " contains " + TablesDB.Count + " tables ";

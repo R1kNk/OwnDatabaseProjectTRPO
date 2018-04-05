@@ -80,6 +80,10 @@ namespace DataLayer.InternalDataBaseInstanceComponents
             else throw new IndexOutOfRangeException("Arguments array isn't similar to count of columns in table");
 
         }
+        /// <summary>
+        /// removes row of data by index
+        /// </summary>
+        /// <param name="index"></param>
         public void DeleteTableElement(int index)
         {
             if (isTableContainsData())
@@ -91,6 +95,11 @@ namespace DataLayer.InternalDataBaseInstanceComponents
             }
             else throw new NullReferenceException("There is no data in table!");
         }
+        /// <summary>
+        /// edit row of table by index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="arguments"></param>
         public void EditTableElement(int index, object[] arguments)
         {
             if (isTableContainsData())
@@ -109,6 +118,10 @@ namespace DataLayer.InternalDataBaseInstanceComponents
             }
             else throw new NullReferenceException("There is no data in table!");
         }
+        /// <summary>
+        /// delete column by name
+        /// </summary>
+        /// <param name="name"></param>
         public void DeleteColumn(string name)
         {
             if (Columns.Count == 0) throw new NullReferenceException();
@@ -118,6 +131,11 @@ namespace DataLayer.InternalDataBaseInstanceComponents
             }
             else throw new NullReferenceException();
         }
+        /// <summary>
+        /// get index of column by name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public int indexOfColumn(string name)
         {
             if (Columns.Count == 0) throw new NullReferenceException();
@@ -127,26 +145,48 @@ namespace DataLayer.InternalDataBaseInstanceComponents
             }
             return -1;
         }
-        public object[] GetDataByIndex(int index)
+        /// <summary>
+        /// returns data by index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public DataObject[] GetDataByIndex(int index)
         {
                 if(isTableContainsData())
                 {
-                    object[] dataArray = new object[Columns.Count];
+                DataObject[] dataArray = new DataObject[Columns.Count];
                     for (int i = 0; i < Columns.Count; i++)
                     {
-                        dataArray[i] = Columns[i].DataList[index].Data;
+                        dataArray[i] = Columns[i].DataList[index];
                     }
                     return dataArray;
                  } else throw new NullReferenceException("There is no data in table!");
         
         }
-
+        /// <summary>
+        /// checks if table contains some data
+        /// </summary>
+        /// <returns></returns>
         public bool isTableContainsData()
         {
             if (Columns.Count != 0)
                 if (Columns[0].DataList.Count != 0) return true;
             return false;
         } 
+
+        public string ColumnType()
+        {
+            string result = default(string);
+            if (Columns.Count != 0)
+            {
+                foreach(Column column in Columns)
+                {
+                    result += column.Name +" - "+column.TypeToString+"\n";
+                }
+                return result;
+            }
+            return "There is no columns in this table";
+        }
 
         public override string ToString()
         {

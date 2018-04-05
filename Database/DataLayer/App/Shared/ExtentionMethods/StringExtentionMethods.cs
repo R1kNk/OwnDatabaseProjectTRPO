@@ -9,7 +9,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 namespace DataLayer.Shared.ExtentionMethods
 {
 
-    internal static class StringExtentionMethods
+    public static class StringExtentionMethods
     {
         static string undefSymbols = "#^&()-=+[]~'//\\.,;|? ";
         

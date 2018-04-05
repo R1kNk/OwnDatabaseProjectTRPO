@@ -74,7 +74,6 @@ namespace DataLayer
         }
 
 
-        // Methods for Sanya (best dev)
         internal static void AddDBInstance(string name)
         {
             DataBaseInstance bufInst = new DataBaseInstance(name);
