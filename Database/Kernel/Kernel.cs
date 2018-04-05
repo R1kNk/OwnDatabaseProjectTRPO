@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.CompilerServices;
 using DataAccessLayer.Modules;
+using DataLayer.Shared.ExtentionMethods;
 
 [assembly: InternalsVisibleTo("FilesLayer")]
 
@@ -40,7 +41,7 @@ namespace DataLayer
                 return element;
             throw new IndexOutOfRangeException("Коля, лови!");
         }
-
+        #region Done
         public static void OutDatabaseInfo()
         {
             if (GetInstance().Count == 0) throw new NullReferenceException("There is no DB's in list!");
@@ -51,12 +52,21 @@ namespace DataLayer
         }
         public static void OutDatabaseInfo(string name)
         {
-           int index =  SharedDataAccessMethods.IndexOfDatabase(GetInstance(), name);
+            int index = SharedDataAccessMethods.IndexOfDatabase(GetInstance(), name);
             Console.WriteLine(GetInstance()[index].ToString());
         }
+        internal static void AddDBInstance(string name)
+        {
+            DataBaseInstance bufInst = new DataBaseInstance(name);
+            AddDBInstance(bufInst);
+        }
+        
+        #endregion
+
+        #region NotDone
         public static void OutNamesOfExistingDBs()
         {
-            if (GetInstance().Count == 0) Console.WriteLine("There is no DB in list!");
+            if (GetInstance().Count == 0) throw new NullReferenceException("There is no DB's in list!");
             else
             {
                 string info = "DB's list:";
@@ -65,12 +75,23 @@ namespace DataLayer
                     info += " " + GetInstance()[i].Name;
                 }
                 Console.WriteLine(info);
-            } 
+            }
         }
+        internal static void LoadDatabase(string name)
+        {
+            DataBaseInstance bufInst = CollectDataModule.LoadDataBase(name);
+            if (bufInst.Name == "nullDB") throw new ArgumentException("THere is no DB with such name in folder");
+            if (GetInstance().isDatabaseExistsInList(bufInst.Name))
+            {
+                GetInstance()[GetInstance().IndexOfDatabase(bufInst.Name)] = bufInst;
+            }
+        }
+        #endregion
 
+        #region NotNeed
         internal static bool isDatabaseExistsInList(string name)
         {
-           return SharedDataAccessMethods.isDatabaseExistsInList(GetInstance(), name);
+            return SharedDataAccessMethods.isDatabaseExistsInList(GetInstance(), name);
         }
 
 
@@ -83,31 +104,18 @@ namespace DataLayer
         internal static void AddDBInstance(DataBaseInstance inst)
         {
             var _instance = Kernel.GetInstance();
-            if (_instance.FindAll(x => x.Name == inst.Name).Count != 0)
-                return;
+            if (_instance.FindAll(x => x.Name == inst.Name).Count != 0 || !inst.Name.isThereNoUndefinedSymbols())
+                throw new ArgumentException("Invalid name of database");
             _instance.Add(inst);
         }
-        
         internal static void SaveDataBaseInstanceToFolder(this DataBaseInstance inst)
         {
             CacheModule.SaveDataBaseToFolder(inst);
         }
-
         public static void SaveAllDatabases()
         {
             CacheModule.SaveAllDatabases(GetInstance());
         }
-
-        internal static void LoadDatabase(string name)
-        {
-           DataBaseInstance bufInst = CollectDataModule.LoadDataBase(name); 
-            if (bufInst.Name == "nullDB") throw new ArgumentException("THere is no DB with such name in folder");
-            if (GetInstance().isDatabaseExistsInList(bufInst.Name))
-            {
-                GetInstance()[GetInstance().IndexOfDatabase(bufInst.Name)] = bufInst;
-            }
-        }
-        
         internal static void LoadAllDatabases(bool isUpdatativeLoad)
         {
             if (!isUpdatativeLoad) instance = CollectDataModule.LoadAllDataBases();
