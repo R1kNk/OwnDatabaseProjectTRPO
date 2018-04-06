@@ -38,6 +38,20 @@ namespace DataLayer
         }
         //
         /// <summary>
+        /// adds table to db
+        /// </summary>
+        /// <param name="bufTable"></param>
+        public void AddTable(Table bufTable)
+        {
+            if (bufTable.Name.isThereNoUndefinedSymbols())
+            {
+                if (isTableExists(bufTable.Name)) throw new FormatException("Invalid table name. Some table in this database have same name!");
+                TablesDB.Add(bufTable);
+            }
+            else throw new FormatException("There is invalid symbols in table's name!");
+        }
+        //
+        /// <summary>
         /// Delete table by name
         /// </summary>
         /// <param name="name"></param>
@@ -58,7 +72,7 @@ namespace DataLayer
         /// <param name="futureName"></param>
         public void RenameTable(string currentName, string futureName)
         {
-            if (isDatabaseContainsSuchTable(currentName))
+            if (isTableExists(currentName))
             {
                 if (futureName.isThereNoUndefinedSymbols()) GetTableByName(currentName).Name = futureName;
                 else throw new ArgumentException("Your name contains undefined symbols!");
@@ -67,25 +81,11 @@ namespace DataLayer
         }
         //
         /// <summary>
-        /// adds table to db
-        /// </summary>
-        /// <param name="bufTable"></param>
-        public void AddTable(Table bufTable)
-         {
-             if (bufTable.Name.isThereNoUndefinedSymbols())
-             {
-                 if(isDatabaseContainsSuchTable(bufTable.Name)) throw new FormatException("Invalid table name. Some table in this database have same name!");
-                TablesDB.Add(bufTable);
-             }
-             else throw new FormatException("There is invalid symbols in table's name!");
-         }
-        //
-        /// <summary>
         /// check if this database already contains table with such name
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        bool isDatabaseContainsSuchTable(string name)
+        bool isTableExists(string name)
         {
             if (TablesDB.Count == 0) return false;
             else
@@ -109,7 +109,7 @@ namespace DataLayer
         {
             if (TablesDB.Count != 0)
             {
-                if (isDatabaseContainsSuchTable(name))
+                if (isTableExists(name))
                 {
                     return TablesDB[indexOfTable(name)];
                 }
