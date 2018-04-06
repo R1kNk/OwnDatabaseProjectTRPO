@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DataLayer;
-using DataLayer.InternalDataBaseInstanceComponents;
+//using DataLayer.InternalDataBaseInstanceComponents;
 using System.Reflection;
 using UILayer.InterpreterMethods;
 
@@ -98,7 +98,7 @@ namespace UILayer
             {
                 if (queryList.Length == 3)
                 {
-                    if (Kernel.isDatabaseExistsInList(queryList[2]))
+                    if (Kernel.isDatabaseExists(queryList[2]))
                     {
                         ConnectionString = queryList[2];
                         Console.WriteLine($"\nNow you connected to database '{queryList[2]}'\n");
@@ -120,7 +120,7 @@ namespace UILayer
             string[] queryList = query.Split(separator, StringSplitOptions.RemoveEmptyEntries);
             if (queryList.Length == 2)
             {
-                if (Kernel.isDatabaseExistsInList(queryList[1]))
+                if (Kernel.isDatabaseExists(queryList[1]))
                 {
                     Kernel.OutDatabaseInfo(queryList[1]);
                 }
