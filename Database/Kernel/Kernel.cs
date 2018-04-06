@@ -83,7 +83,7 @@ namespace DataLayer
         #endregion
 
       
-        internal static bool isDatabaseExistsInList(string name)
+        internal static bool isDatabaseExists(string name)
         {
             return SharedDataAccessMethods.isDatabaseExistsInList(GetInstance(), name);
         }
@@ -126,12 +126,6 @@ namespace DataLayer
             if (!isUpdatativeLoad) instance = CollectDataModule.LoadAllDataBases();
             instance = CollectDataModule.UpdatativeDatabasesLoad(instance);
 
-        }
-
-        internal static bool isDatabaseExists(string name)
-        {
-            if (SharedDataAccessMethods.isDatabaseExistsInList(GetInstance(), name)) return true;
-            return false;
         }
     }
 }
