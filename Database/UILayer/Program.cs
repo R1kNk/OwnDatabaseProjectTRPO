@@ -12,14 +12,18 @@ namespace UILayer
     {
         static void Main(string[] args)
         {
-            //Kernel.AddDBInstance("test");
-            //var inst = Kernel.GetInstance("test");
-            //inst.AddTable("sus");
-            //inst.TablesDB[0].AddColumn(new Column("testColumn", typeof(string), true, false, false, "testDef"));
-            //inst.TablesDB[0].AddTableElement(new object[] { null });
-            //inst.SaveDataBaseInstanceToFolder();
-            Interpreter.Run();
-            //Kernel.OutDatabaseInfo();
+            //Kernel.AddDBInstance("inst2");
+            var inst = Kernel.GetInstance("inst2");
+            //inst.AddTable("table");
+            //inst.TablesDB[0].AddColumn(new Column("testColumn", typeof(string), true, "testDef"));
+            inst.GetTableByName("table").GetColumnByName("testColumn").SetNullableProperty(true);
+            inst.TablesDB[0].AddTableElement(new object[] { null });
+           
+           // Kernel.SaveAllDatabases();
+            Kernel.OutDatabaseInfo();
+           // Interpreter.Run();
+           
+
         }
     }
 }

@@ -18,8 +18,6 @@ namespace DataLayer
          public string Name { get => _name; set => _name = value; }
          public List<Table> TablesDB { get => _tablesDB; set => _tablesDB = value; }
          
-         // Now you can't create DataBaseInstance directly because of internal spec.
-         // only through Kernel object
          /// <summary>
          /// DB constructor
          /// </summary>
@@ -38,21 +36,67 @@ namespace DataLayer
             Table bufTable = new Table(name);
             AddTable(bufTable);
         }
-
+        //
+        /// <summary>
+        /// Delete table by name
+        /// </summary>
+        /// <param name="name"></param>
+        public void DeleteTable(string name)
+        {
+            if(TablesDB.Count==0) throw new NullReferenceException();
+            if (indexOfTable(name) != -1)
+            {
+                TablesDB.RemoveAt(indexOfTable(name));
+            }
+            else throw new NullReferenceException();
+        }
+        //
+        /// <summary>
+        /// Rename table
+        /// </summary>
+        /// <param name="currentName"></param>
+        /// <param name="futureName"></param>
+        public void RenameTable(string currentName, string futureName)
+        {
+            if (isDatabaseContainsSuchTable(currentName))
+            {
+                if (futureName.isThereNoUndefinedSymbols()) GetTableByName(currentName).Name = futureName;
+                else throw new ArgumentException("Your name contains undefined symbols!");
+            }
+            throw new ArgumentNullException("there is no such table in this database!");
+        }
+        //
+        /// <summary>
+        /// adds table to db
+        /// </summary>
+        /// <param name="bufTable"></param>
         public void AddTable(Table bufTable)
          {
              if (bufTable.Name.isThereNoUndefinedSymbols())
              {
-                 foreach (Table tbl in TablesDB)
-                 {
-                     if (tbl.Name == bufTable.Name) throw new FormatException("Invalid table name. Some table in this database have same name!");
-                 }
-                 TablesDB.Add(bufTable);
+                 if(isDatabaseContainsSuchTable(bufTable.Name)) throw new FormatException("Invalid table name. Some table in this database have same name!");
+                TablesDB.Add(bufTable);
              }
              else throw new FormatException("There is invalid symbols in table's name!");
          }
-
-        public int indexOfTable(string name)
+        //
+        /// <summary>
+        /// check if this database already contains table with such name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        bool isDatabaseContainsSuchTable(string name)
+        {
+            if (TablesDB.Count == 0) return false;
+            else
+            {
+                foreach (Table tbl in TablesDB)
+                if (tbl.Name == name) return true;
+            }
+            return false;
+        }
+        //
+        int indexOfTable(string name)
         {
             if (TablesDB.Count == 0) throw new NullReferenceException();
             for (int i = 0; i < TablesDB.Count; i++)
@@ -60,6 +104,18 @@ namespace DataLayer
                 if (TablesDB[i].Name == name) return i;
             }
             return -1;
+        }
+        public Table GetTableByName(string name)
+        {
+            if (TablesDB.Count != 0)
+            {
+                if (isDatabaseContainsSuchTable(name))
+                {
+                    return TablesDB[indexOfTable(name)];
+                }
+                throw new NullReferenceException("There's no such table in Database");
+            }
+            throw new NullReferenceException("There's no tables in Database");
         }
 
         public override string ToString()

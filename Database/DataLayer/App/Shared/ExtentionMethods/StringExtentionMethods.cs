@@ -9,7 +9,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 namespace DataLayer.Shared.ExtentionMethods
 {
 
-    internal static class StringExtentionMethods
+    public static class StringExtentionMethods
     {
         static string undefSymbols = "#^&()-=+[]~'//\\.,;|? ";
         
@@ -17,6 +17,7 @@ namespace DataLayer.Shared.ExtentionMethods
 
        static public bool isThereNoUndefinedSymbols(this string str)
         {
+           // if (str.Contains("Id")) return false;
             foreach(char stringSymbol in str)
             {
                 if (undefSymbols.Contains(stringSymbol)) return false;
