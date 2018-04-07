@@ -128,7 +128,8 @@ namespace DataLayer
         /// <param name="tableToLinkWith"></param>
         public void LinkTables(Table tableToLink, Table tableToLinkWith, bool isCascadeDelete)
         {
-            LinkColumn newLink = new LinkColumn("FK_"+tableToLinkWith.Columns[0].Name, typeof(int), false, 0, tableToLinkWith.Columns[0], isCascadeDelete);
+            LinkColumn newLink = new LinkColumn("FK_"+tableToLinkWith.Columns[0].Name, typeof(int), false, 0, tableToLink, tableToLinkWith.Columns[0]);
+            newLink.IsCascadeDeleteOn = isCascadeDelete;
                 for (int i = 0; i < tableToLink.Columns[0].DataList.Count; i++)
                 {
                     newLink.DataList.Add(new Shared.DataModels.DataObject(newLink.GetHashCode(), newLink.Default));
