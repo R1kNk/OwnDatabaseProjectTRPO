@@ -1,11 +1,8 @@
 ﻿using DataLayer;
-//using DataLayer.InternalDataBaseInstanceComponents;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DataLayer.Shared.ExtentionMethods;
+using DataModels.App.InternalDataBaseInstanceComponents;
 
 namespace UILayer.InterpreterMethods
 {
@@ -160,9 +157,8 @@ namespace UILayer.InterpreterMethods
             else if (_colType == typeof(double))
             {
                 string val = value.Replace('.', ',');
-                return Convert.ToDouble(value);
+                return Convert.ToDouble(val);
             }
-
             else throw new Exception();
         }
     }

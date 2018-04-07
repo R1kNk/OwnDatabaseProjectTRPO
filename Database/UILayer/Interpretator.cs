@@ -21,7 +21,8 @@ namespace UILayer
             "CONNECT",
             "INFO",
             "LOADDB",
-            "SAVEDB"
+            "SAVEDB",
+            "INSERT"
         };
         public static string ConnectionString { get; set; }
 
@@ -51,8 +52,8 @@ namespace UILayer
                 _query = Console.ReadLine();
                 if (_query.Any(x => char.IsLetterOrDigit(x)))
                 {
-                    char[] _separator = new char[] {' '};
-                    string _keyword = _query.Split(_separator,StringSplitOptions.RemoveEmptyEntries)[0];
+                    char[] _separator = new char[] { ' ' };
+                    string _keyword = _query.Split(_separator, StringSplitOptions.RemoveEmptyEntries)[0];
                     if (GetInstance().IsKeyword(_keyword))
                     {
                         var _method = GetInstance().GetType().GetMethod(_keyword, BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.IgnoreCase);
@@ -73,19 +74,13 @@ namespace UILayer
         {
             string _temp = _command.ToUpper();
             foreach (var key in _keywords)
-                if (key == _temp) 
+                if (key == _temp)
                     return true;
             return false;
         }
-
-
-
-
-
         #endregion
 
         #region MainMetods
-
         /// <summary>
         /// 
         /// </summary>
@@ -93,7 +88,7 @@ namespace UILayer
         private static void Connect(string query)
         {
             char[] separator = new char[] { ' ' };
-            string[] queryList = query.Split(separator,StringSplitOptions.RemoveEmptyEntries);
+            string[] queryList = query.Split(separator, StringSplitOptions.RemoveEmptyEntries);
             if (queryList[1].ToLower() == "to")
             {
                 if (queryList.Length == 3)
@@ -104,7 +99,7 @@ namespace UILayer
                         Console.WriteLine($"\nNow you connected to database '{queryList[2]}'\n");
                     }
                     else
-                        Console.WriteLine($"\nERROR: Database with name '{queryList[2]}' doesn't exist\n"); 
+                        Console.WriteLine($"\nERROR: Database with name '{queryList[2]}' doesn't exist\n");
                 }
                 else
                     Console.WriteLine("\nERROR: Invalid number of variables\n");
@@ -136,7 +131,7 @@ namespace UILayer
             {
                 Console.WriteLine($"\nERROR: Invalid numbers of variables\n");
             }
-            
+
         }
 
         private static void SaveDb(string query)
@@ -168,7 +163,20 @@ namespace UILayer
         private static void Create(string query)
         {
             string _command = query.Substring(6);
-            CreateMethods.Execuet(_command);
+            try
+            {
+                CreateMethods.Execute(_command);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        private static void Insert(string query)
+        {
+            string param = query.Substring(6);
+            InsertMethods.Execute(param);
         }
 
         private static void Clear(string query)
@@ -179,4 +187,3 @@ namespace UILayer
 
     }
 }
-           
