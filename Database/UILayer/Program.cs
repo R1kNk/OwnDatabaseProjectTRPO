@@ -13,19 +13,19 @@ namespace UILayer
         static void Main(string[] args)
         {
 
-            Interpreter.Run();
+           // Interpreter.Run();
             Kernel.AddDBInstance("inst2");
             var inst = Kernel.GetInstance("inst2");
             inst.AddTable("Persons");
-            inst.TablesDB[0].AddColumn(new Column("LastName", typeof(string), false, "#undefLastName"));
+            inst.TablesDB[0].AddColumn(new Column("LastName", typeof(string), false, "#undefLastName", inst.TablesDB[0]));
 
             inst.TablesDB[0].AddTableElement(new object[] { "Familiya1" });
             inst.TablesDB[0].AddTableElement(new object[] { "Familiya2" });
             inst.TablesDB[0].AddTableElement(new object[] { "Familiya3" });
 
             inst.AddTable("Cars");
-            inst.TablesDB[1].AddColumn(new Column("CarMark", typeof(string), false, "#undefCarName"));
-            inst.TablesDB[1].AddColumn(new Column("Price", typeof(int), false, 0));
+            inst.TablesDB[1].AddColumn(new Column("CarMark", typeof(string), false, "#undefCarName", inst.TablesDB[1]));
+            inst.TablesDB[1].AddColumn(new Column("Price", typeof(int), false, 0, inst.TablesDB[1]));
 
             inst.TablesDB[1].AddTableElement(new object[] { "mazda", 200 });
             inst.TablesDB[1].AddTableElement(new object[] { "mers", 150 });
@@ -33,7 +33,7 @@ namespace UILayer
             //Kernel.SaveAllDatabases();
             Kernel.OutDatabaseInfo();
             Console.WriteLine("\n\n\n\n\n\n");
-            inst.LinkTables(inst.GetTableByName("Persons"), inst.GetTableByName("Cars"));
+            inst.LinkTables(inst.GetTableByName("Persons"), inst.GetTableByName("Cars"), true);
             Kernel.OutDatabaseInfo();
             inst.TablesDB[0].EditTableElementByPrimaryKey(1, new object[] { "Familiya1", 1 });
             inst.TablesDB[0].EditTableElementByPrimaryKey(2, new object[] { "Familiya2", 1 });
@@ -41,10 +41,15 @@ namespace UILayer
             Console.WriteLine("\n\n\n\n\n\n");
             Kernel.OutDatabaseInfo();
 
-            inst.DeleteTable("Cars");
+            //inst.DeleteTable("Cars");
             //
-            //inst.TablesDB[0].DeleteTableElementByPrimaryKey(1);
+            inst.TablesDB[1].DeleteTableElementByPrimaryKey(1);
             //
+            Console.WriteLine("\n\n\n\n\n\n");
+
+            Kernel.OutDatabaseInfo();
+            inst.EditCascadeDeleteOption(inst.TablesDB[0], inst.TablesDB[1], false);
+            inst.TablesDB[1].DeleteTableElementByPrimaryKey(2);
             Console.WriteLine("\n\n\n\n\n\n");
 
             Kernel.OutDatabaseInfo();

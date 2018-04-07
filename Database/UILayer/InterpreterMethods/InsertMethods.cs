@@ -50,7 +50,7 @@ namespace UILayer.InterpreterMethods
                 string[] _colParam = _column.Split(_tempery, StringSplitOptions.RemoveEmptyEntries);
                 if (_colParam.Length == 4)
                 {
-                    _table.AddColumn(GetColumn(_colParam));
+                    _table.AddColumn(GetColumn(_colParam, _table));
                 }
                 else
                     throw new Exception("\nERROR: Ivalid numbers of variables\n");
@@ -66,7 +66,7 @@ namespace UILayer.InterpreterMethods
 
 
 
-        static Column GetColumn(string[] _variables)
+        static Column GetColumn(string[] _variables, Table thisTable)
         {
             string _colName = _variables[0];
             Type _colType = GetType(_variables[1]);
@@ -75,7 +75,7 @@ namespace UILayer.InterpreterMethods
 
             if (_colType != _defValue.GetType())
                 Console.WriteLine(_defValue.GetType().Name);
-            return new Column(_colName, _colType, _isAllowNull, _defValue);
+            return new Column(_colName, _colType, _isAllowNull, _defValue, thisTable);
         }
 
 
