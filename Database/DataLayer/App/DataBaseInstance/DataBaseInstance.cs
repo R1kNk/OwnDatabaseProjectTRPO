@@ -35,7 +35,7 @@ namespace DataLayer
         {
             Table bufTable = new Table(name);
             AddTable(bufTable);
-        }
+        } //UI
         //
         /// <summary>
         /// adds table to db
@@ -49,7 +49,7 @@ namespace DataLayer
                 TablesDB.Add(bufTable);
             }
             else throw new FormatException("There is invalid symbols in table's name!");
-        }
+        } //UI
         //
         /// <summary>
         /// Delete table by name
@@ -60,10 +60,35 @@ namespace DataLayer
             if(TablesDB.Count==0) throw new NullReferenceException();
             if (indexOfTable(name) != -1)
             {
+                Table tableToDelete = GetTableByName(name);
+                List<int> keys = new List<int>();
+                for (int i = 0; i < tableToDelete.Columns[0].DataList.Count; i++)
+                {
+                    keys.Add((int)tableToDelete.Columns[0].DataList[i].Data);
+                }
+                foreach (int key in keys) tableToDelete.DeleteTableElementByPrimaryKey(key);
+                for (int i = 0; i < tableToDelete.Columns.Count; i++)
+                {
+                    if (tableToDelete.Columns[i].IsFkey)
+                    {
+                        string LinkedTableName = default(string);
+                        LinkedTableName = tableToDelete.Columns[i].Name.Substring(5);
+                        Console.WriteLine(LinkedTableName);
+                        UnLinkTables(tableToDelete, GetTableByName(LinkedTableName));
+                    }
+                }
+                for (int i = 0; i < TablesDB.Count; i++)
+                {
+                    if (TablesDB[i].isColumnExists("FK_" + tableToDelete.Columns[0].Name))
+                    {
+                        TablesDB[i].GetColumnByName("FK_" + tableToDelete.Columns[0].Name).SetFkeyProperty(false);
+                        TablesDB[i].DeleteColumn("FK_" + tableToDelete.Columns[0].Name);
+                    }
+                }
                 TablesDB.RemoveAt(indexOfTable(name));
             }
             else throw new NullReferenceException();
-        }
+        } //UI
         //
         /// <summary>
         /// Rename table
@@ -78,7 +103,7 @@ namespace DataLayer
                 else throw new ArgumentException("Your name contains undefined symbols!");
             }
             throw new ArgumentNullException("there is no such table in this database!");
-        }
+        } //UI
         //
         /// <summary>
         /// check if this database already contains table with such name
@@ -96,16 +121,54 @@ namespace DataLayer
             return false;
         }
         //
-        public void LinkTables(Table tableToLink, Table tableToLinkWith)
+        /// <summary>
+        /// Add's link many-to-one (second parameter table will be general)
+        /// </summary>
+        /// <param name="tableToLink"></param>
+        /// <param name="tableToLinkWith"></param>
+        public void LinkTables(Table tableToLink, Table tableToLinkWith, bool isCascadeDelete)
         {
-            LinkColumn newLink = new LinkColumn("FK_"+tableToLinkWith.Columns[0].Name, typeof(int), false, 0, tableToLinkWith.Columns[0]);
+            LinkColumn newLink = new LinkColumn("FK_"+tableToLinkWith.Columns[0].Name, typeof(int), false, 0, tableToLinkWith.Columns[0], isCascadeDelete);
                 for (int i = 0; i < tableToLink.Columns[0].DataList.Count; i++)
                 {
                     newLink.DataList.Add(new Shared.DataModels.DataObject(newLink.GetHashCode(), newLink.Default));
                 }
             tableToLink.Columns.Add(newLink);
+            if(newLink.IsCascadeDeleteOn)
             tableToLinkWith.cascadeDelete += tableToLink.ExecuteCascadeDelete;
-        }
+        } //UI (second table will be general)
+        //
+        public void EditCascadeDeleteOption(Table tableToEditLink, Table tableToEditLinkWith, bool isCascadeDelete)
+        {
+            if (tableToEditLink.isColumnExists("FK_" + tableToEditLinkWith.Columns[0].Name))
+            {
+                if (tableToEditLink.GetColumnByName("FK_" + tableToEditLinkWith.Columns[0].Name).IsCascadeDeleteOn)
+                {
+                    if(!isCascadeDelete) tableToEditLinkWith.cascadeDelete -= tableToEditLink.ExecuteCascadeDelete;
+                }
+                else if(!tableToEditLink.GetColumnByName("FK_" + tableToEditLinkWith.Columns[0].Name).IsCascadeDeleteOn)
+                {
+                    if(isCascadeDelete) tableToEditLinkWith.cascadeDelete += tableToEditLink.ExecuteCascadeDelete;
+                }
+            }
+            else if (tableToEditLinkWith.isColumnExists("FK_" + tableToEditLink.Columns[0].Name))
+            {
+                if (tableToEditLinkWith.GetColumnByName("FK_" + tableToEditLink.Columns[0].Name).IsCascadeDeleteOn)
+                {
+                    if (!isCascadeDelete) tableToEditLink.cascadeDelete -= tableToEditLinkWith.ExecuteCascadeDelete;
+                }
+                else if (!tableToEditLinkWith.GetColumnByName("FK_" + tableToEditLink.Columns[0].Name).IsCascadeDeleteOn)
+                {
+                    if (isCascadeDelete) tableToEditLink.cascadeDelete += tableToEditLinkWith.ExecuteCascadeDelete;
+                }
+            }
+            else throw new NullReferenceException("There's no link between this tables");
+        } //UI (do not care about what table is on the first place and what table on the second)
+        /// <summary>
+        /// Unlinks two tables
+        /// </summary>
+        /// <param name="TableToUnlink"></param>
+        /// <param name="TableToUnlinkWith"></param>
         public void UnLinkTables(Table TableToUnlink, Table TableToUnlinkWith)
         {
             if (TableToUnlink.isColumnExists("FK_" + TableToUnlinkWith.Columns[0].Name))
@@ -121,7 +184,7 @@ namespace DataLayer
                 TableToUnlink.cascadeDelete -= TableToUnlinkWith.ExecuteCascadeDelete;
             }
             else throw new NullReferenceException("There's no link between this tables");
-        }
+        } //UI (do not care about places of table's in parametres)
         //
         int indexOfTable(string name)
         {

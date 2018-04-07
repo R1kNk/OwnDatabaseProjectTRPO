@@ -22,14 +22,15 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <param name="isFkey">Is this column a foreign key</param>
         /// <param name="isPkey">Is this column a primary key</param>
         /// <param name="def"> Default object for this column</param>
-        public Column(string name, Type DataType, bool allowsnull, object def)
+        public Column(string name, Type DataType, bool allowsnull, object def, Table parentTable)
         {
             _name = name;
             dataType = DataType;
             allowsNull = allowsnull;
             _Default = DataType.GetDefaultValue();
             isFkey = false;
-            isPkey = false; 
+            isPkey = false;
+            thisTable = parentTable;
             if (def != null)
             {
                 Type buf = def.GetType();
@@ -40,7 +41,8 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
 
         }
         //fields
-
+        private Table thisTable;
+        //
         protected string _name;
         //
         protected Type dataType;
@@ -54,17 +56,20 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         protected bool isPkey;
         //
         List<DataObject> _dataList;
+        //
+        bool isCascadeDeleteOn;
 
         //properties
         public string Name { get => _name; set => _name = value; }
         public Type DataType { get => dataType; protected set => dataType = value; }
         public bool AllowsNull { get => allowsNull; protected set => allowsNull = value; }
         public object Default { get => _Default; protected set => _Default = value; }
-       
+        public bool IsCascadeDeleteOn { get { if (IsFkey) return isCascadeDeleteOn; else throw new ArgumentException("You can't get cascade property of ordinary column"); } set {if (IsFkey)  isCascadeDeleteOn=value; else throw new ArgumentException("You can't set cascade property of ordinary column"); } }
         public List<DataObject> DataList { get => _dataList; private set => _dataList = value; }
         public string TypeToString { get => dataType.ToString();}
         public bool IsFkey { get => isFkey; protected set => isFkey = value; }
         public bool IsPkey { get => isPkey; protected set => isPkey = value; }
+        public Table ThisTable { get => thisTable; }
 
         /// <summary>
         /// Edit type of the column's data
@@ -83,7 +88,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             else throw new ArgumentException("You can't change type of this column!");
 
-        }
+        } //UI
         /// <summary>
         /// Change Nullable property
         /// </summary>
@@ -96,7 +101,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                 UpdateDataHashCode();
             }
             else throw new ArgumentException("You can't change nullable property of this column!");
-        }
+        } //UI
         /// <summary>
         /// set another default object
         /// </summary>
@@ -105,7 +110,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         {
             if (defaultObject.GetType() == DataType) Default = defaultObject;
             else throw new ArgumentException("Type of your defaultObject isn't similar to type of column");
-        }
+        } //UI
         /// <summary>
         /// Updates hash code inside DataList
         /// </summary>
@@ -156,7 +161,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <param name="ColumnName"></param>
         /// <param name="index"></param>
         /// <param name="argument"></param>
-        virtual public void EditColumnElementByPrimaryKey(Table thisTable, int key, object argument)
+        virtual public void EditColumnElementByPrimaryKey(int key, object argument)
         {
             if (thisTable.isTableContainsData())
             {
@@ -168,7 +173,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                 else throw new ArgumentException("Type of argument is not similar to Column type");
             }
             else throw new NullReferenceException("Table doesn't contain any data");
-        }
+        } //UI 
         //
         public override bool Equals(object obj)
         {

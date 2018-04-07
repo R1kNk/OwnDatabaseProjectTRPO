@@ -42,7 +42,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             Name = name;
             _columns = new List<Column>();
             currentPrimaryKey = 0;
-            Column PrimaryKey = new Column("ID" + Name, typeof(int), false, 0);
+            Column PrimaryKey = new Column("ID" + Name, typeof(int), false, 0,this);
             PrimaryKey.SetPkeyProperty(true);
             Columns.Add(PrimaryKey);
         }
@@ -71,12 +71,12 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             else throw new FormatException("There is invalid symbols in column's name!");
 
-        }
+        } //UI
 
         public void AddColumn(string name, Type DataType, bool allowsnull, object def)
         {
-            AddColumn(new Column(name, DataType, allowsnull, def));
-        }
+            AddColumn(new Column(name, DataType, allowsnull, def, this));
+        } //UI
         //
         /// <summary>
         /// Edit's column name
@@ -97,7 +97,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                 else throw new FormatException("There is invalid symbols in column's name!");
             }
             else throw new NullReferenceException("there's no such column");
-        }
+        } //UI
         //
         /// <summary>
         /// Add element to Table!
@@ -124,7 +124,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             else throw new IndexOutOfRangeException("Arguments array isn't similar to count of columns in table");
 
-        }
+        } //UI
         //
         /// <summary>
         /// removes row of data according to primary key
@@ -136,7 +136,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             CascadeDeleteEventArgs e = new CascadeDeleteEventArgs("FK_"+Columns[0].Name, key);
             if (cascadeDelete != null)
             cascadeDelete(this, e);
-        }
+        } //UI
         //
         /// <summary>
         /// removes row of data by index
@@ -169,9 +169,9 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             for (int i = 0; i < Columns.Count-1; i++)
             {
 
-                Columns[i+1].EditColumnElementByPrimaryKey(this,key, args[i]);
+                Columns[i+1].EditColumnElementByPrimaryKey(key, args[i]);
             }
-        }
+        } //UI
         //
         /// <summary>
         /// delete column by name
@@ -187,7 +187,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
           }
           else throw new NullReferenceException();
 
-        }
+        } //UI
         //
         /// <summary>
         /// get index of column by name
@@ -238,7 +238,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         public DataObject[] GetDataByPrimaryKey(int key)
         {
             return GetDataByIndex(returnIndexOfPrimaryKey(key));
-        }
+        } //UI ??? (under question)
         //
         public Column GetColumnByName(string name)
         {
