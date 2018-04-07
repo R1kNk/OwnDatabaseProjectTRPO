@@ -11,12 +11,12 @@ namespace UILayer.InterpreterMethods
 {
     static class CreateMethods
     {
-        static List<string> _keywords = new List<string>(){ "DATABASE", "TABLE" };
+        static List<string> _keywords = new List<string>() { "DATABASE", "TABLE" };
 
-        public static void Execuet(string query)
+        public static void Execute(string query)
         {
             char[] separators = new char[] { ' ' };
-            string[] queryList = query.Split(separators,2, StringSplitOptions.RemoveEmptyEntries);
+            string[] queryList = query.Split(separators, 2, StringSplitOptions.RemoveEmptyEntries);
 
             if (queryList.Length == 2)
             {
@@ -24,12 +24,12 @@ namespace UILayer.InterpreterMethods
                 _createParam = queryList[0];
                 if (IsKeyword(_createParam))
                 {
-                    if (_createParam == _keywords[0]) 
+                    if (_createParam.ToUpper() == _keywords[0])
                         CreateDatabase(queryList[1]);
                     else
                         CreateTable(queryList[1]);
                 }
-                else 
+                else
                     Console.WriteLine($"\nERROR: Invalid command syntax\n");
             }
             else
@@ -39,7 +39,6 @@ namespace UILayer.InterpreterMethods
         static void CreateDatabase(string dbName)
         {
             Kernel.AddDBInstance(dbName);
-            Kernel.GetInstance(dbName).SaveDataBaseInstanceToFolder();
             Interpreter.ConnectionString = dbName;
             Console.WriteLine($"\nDatabase created with name '{dbName}'\n");
         }
@@ -48,8 +47,8 @@ namespace UILayer.InterpreterMethods
         {
             string _tableName = default(string);
             string _tableParams = default(string);
-           
-            if(IsCreateWithColums(_param))
+
+            if (IsCreateWithColums(_param))
             {
                 if (IsValidSyntax(_param))
                 {
@@ -60,26 +59,21 @@ namespace UILayer.InterpreterMethods
 
                     if (Interpreter.ConnectionString != "")
                     {
-
                         char[] _temp = new char[] { ')', ';', '(' };
                         var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                        /*
-                         There must be check of exist table in list
-                         */
                         _inst.AddTable(_tableName);
                         string[] _colParams = queryList[1].Split(_temp, StringSplitOptions.RemoveEmptyEntries);
 
-
-                        foreach (var _col in _colParams)
+                        foreach (var _column in _colParams)
                         {
-                            char[] _s = new char[] { ',', '\\' };
-                            string[] _colParam = _col.Split(_s, StringSplitOptions.RemoveEmptyEntries);
-                            
-                            //string[] _params=_colParam
-                            //_inst.TablesDB[_inst.indexOfTable(_tableName)].AddColumn();
+                            char[] _tempery = new char[] { ',', '\'' };
+                            string[] _colParam = _column.Split(_tempery, StringSplitOptions.RemoveEmptyEntries);
+                            if (_colParam.Length == 4)
+                            {
+                                _inst.GetTableByName(_tableName).AddColumn(GetColumn(_colParam));
+                            }
                         }
-
-                        
+                        Console.WriteLine($"\nTable created with name '{_tableName}'\n");
                     }
                     else
                         throw new Exception("\nERROR: There is no connection to database\n");
@@ -87,17 +81,22 @@ namespace UILayer.InterpreterMethods
                 else
                     throw new Exception("\nERROR: Invalid command syntax\n");
             }
-            else 
+            else
             {
-                if (Interpreter.ConnectionString != null)
+                string[] temp = _param.Split(' ');
+                if (temp.Length == 1)
                 {
-                    var inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                    inst.AddTable(_param);
-                    Kernel.GetInstance(Interpreter.ConnectionString).SaveDataBaseInstanceToFolder();
-                    Console.WriteLine($"\nTable created with name '{_param}'\n");
+                    if (Interpreter.ConnectionString != null)
+                    {
+                        var inst = Kernel.GetInstance(Interpreter.ConnectionString);
+                        inst.AddTable(_param);
+                        Console.WriteLine($"\nTable created with name '{_param}'\n");
+                    }
+                    else
+                        throw new Exception("\nERROR: There is no connection to database\n");
                 }
                 else
-                    throw new Exception("\nERROR: There is no connection to database\n");
+                    throw new Exception("\nERROR: Invalid comand syntax\n");
             }
         }
 
@@ -106,15 +105,14 @@ namespace UILayer.InterpreterMethods
         {
             if (query.Contains('(') && query.Contains(')') &&
                 query.Where(x => x == '(').Count() == 1 &&
-                query.Where(x => x == ')').Count() == 1 &&
-                query[query.Length - 1] == ')')
+                query.Where(x => x == ')').Count() == 1)
                 return true;
             return false;
         }
-        
+
         static bool IsValidSyntax(string query)
         {
-            if (query[query.IndexOf('(') - 1] == ' ')
+            if (query[query.Length - 1] == ')' && query[query.IndexOf('(') - 1] == ' ')
                 return true;
             return false;
         }
@@ -123,10 +121,49 @@ namespace UILayer.InterpreterMethods
         {
             string temp = param.ToUpper();
             foreach (var key in _keywords)
-                if (key == temp) 
+                if (key == temp)
                     return true;
             return false;
         }
 
+        static Column GetColumn(string[] _variables)
+        {
+            string _colName = _variables[0];
+            Type _colType = GetType(_variables[1]);
+            bool _isAllowNull = Convert.ToBoolean(_variables[2]);
+            object _defValue = GetDefaultValue(_variables[3], _colType);
+
+            if (_colType != _defValue.GetType())
+                Console.WriteLine(_defValue.GetType().Name);
+            return new Column(_colName, _colType, _isAllowNull, _defValue);
+        }
+
+        static Type GetType(string _typeName)
+        {
+            string _name = _typeName.ToLower();
+            switch (_name)
+            {
+                case "int": return typeof(int);
+                case "string": return typeof(string);
+                case "double": return typeof(double);
+                default: throw new Exception();
+            }
+
+
+        }
+        static object GetDefaultValue(string value, Type _colType)
+        {
+            if (_colType == typeof(int))
+                return Convert.ToInt32(value);
+            else if (_colType == typeof(string))
+                return value;
+            else if (_colType == typeof(double))
+            {
+                string val = value.Replace('.', ',');
+                return Convert.ToDouble(value);
+            }
+
+            else throw new Exception();
+        }
     }
 }
