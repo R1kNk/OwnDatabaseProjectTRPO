@@ -12,6 +12,8 @@ namespace UILayer
     {
         static void Main(string[] args)
         {
+
+            Interpreter.Run();
             Kernel.AddDBInstance("inst2");
             var inst = Kernel.GetInstance("inst2");
             inst.AddTable("Persons");
@@ -47,7 +49,6 @@ namespace UILayer
 
             Kernel.OutDatabaseInfo();
             // Interpreter.Run();
-
 
         }
     }

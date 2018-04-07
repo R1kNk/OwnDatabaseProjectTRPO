@@ -43,7 +43,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Interpretator.cs" />
-    <Compile Include="InterpreterMethods\Create.cs" />
+    <Compile Include="InterpreterMethods\CreateMetods.cs" />
+    <Compile Include="InterpreterMethods\InsertMethods.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
