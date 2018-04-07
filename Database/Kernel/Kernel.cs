@@ -39,7 +39,7 @@ namespace DataLayer
             var element =  _instance.FindLast(x => x.Name == name);
             if (element != null)
                 return element;
-            throw new IndexOutOfRangeException("Коля, лови!");
+            throw new IndexOutOfRangeException("Null Instance");
         }
         #region Done
         public static void OutDatabaseInfo()

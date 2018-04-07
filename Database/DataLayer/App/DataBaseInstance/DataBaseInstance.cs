@@ -1,4 +1,4 @@
-﻿using DataLayer.InternalDataBaseInstanceComponents;
+﻿using DataModels.App.InternalDataBaseInstanceComponents;
 using DataLayer.Shared.ExtentionMethods;
 using System;
 using System.Collections.Generic;
@@ -94,6 +94,33 @@ namespace DataLayer
                 if (tbl.Name == name) return true;
             }
             return false;
+        }
+        //
+        public void LinkTables(Table tableToLink, Table tableToLinkWith)
+        {
+            LinkColumn newLink = new LinkColumn("FK_"+tableToLinkWith.Columns[0].Name, typeof(int), false, 0, tableToLinkWith.Columns[0]);
+                for (int i = 0; i < tableToLink.Columns[0].DataList.Count; i++)
+                {
+                    newLink.DataList.Add(new Shared.DataModels.DataObject(newLink.GetHashCode(), newLink.Default));
+                }
+            tableToLink.Columns.Add(newLink);
+            tableToLinkWith.cascadeDelete += tableToLink.ExecuteCascadeDelete;
+        }
+        public void UnLinkTables(Table TableToUnlink, Table TableToUnlinkWith)
+        {
+            if (TableToUnlink.isColumnExists("FK_" + TableToUnlinkWith.Columns[0].Name))
+            {
+                TableToUnlink.GetColumnByName("FK_" + TableToUnlinkWith.Columns[0].Name).SetFkeyProperty(false);
+                TableToUnlink.DeleteColumn("FK_" + TableToUnlinkWith.Columns[0].Name);
+                TableToUnlinkWith.cascadeDelete -= TableToUnlink.ExecuteCascadeDelete;
+            }
+            else if (TableToUnlinkWith.isColumnExists("FK_" + TableToUnlink.Columns[0].Name))
+            {
+                TableToUnlinkWith.GetColumnByName("FK_" + TableToUnlink.Columns[0].Name).SetFkeyProperty(false);
+                TableToUnlinkWith.DeleteColumn("FK_" + TableToUnlink.Columns[0].Name);
+                TableToUnlink.cascadeDelete -= TableToUnlinkWith.ExecuteCascadeDelete;
+            }
+            else throw new NullReferenceException("There's no link between this tables");
         }
         //
         int indexOfTable(string name)

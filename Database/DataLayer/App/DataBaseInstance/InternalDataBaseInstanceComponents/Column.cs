@@ -8,7 +8,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using DataLayer.Shared.DataModels;
 using DataLayer.Shared.ExtentionMethods;
 
-namespace DataLayer.InternalDataBaseInstanceComponents
+namespace DataModels.App.InternalDataBaseInstanceComponents
 {
     [Serializable]
     public class Column
@@ -29,6 +29,7 @@ namespace DataLayer.InternalDataBaseInstanceComponents
             allowsNull = allowsnull;
             _Default = DataType.GetDefaultValue();
             isFkey = false;
+            isPkey = false; 
             if (def != null)
             {
                 Type buf = def.GetType();
@@ -40,27 +41,30 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         }
         //fields
 
-        string _name;
+        protected string _name;
         //
-        Type dataType;
+        protected Type dataType;
         //
-        bool allowsNull;
+        protected bool allowsNull;
         //
-        object _Default;
+        protected object _Default;
         //
-        bool isFkey;
+        protected bool isFkey;
+        //
+        protected bool isPkey;
         //
         List<DataObject> _dataList;
 
         //properties
-        public string Name { get => _name;   set => _name = value; }
-        public Type DataType { get => dataType; private set => dataType = value; }
-        public bool AllowsNull { get => allowsNull; private set => allowsNull = value; }
-        public object Default { get => _Default; private set => _Default = value; }
+        public string Name { get => _name; set => _name = value; }
+        public Type DataType { get => dataType; protected set => dataType = value; }
+        public bool AllowsNull { get => allowsNull; protected set => allowsNull = value; }
+        public object Default { get => _Default; protected set => _Default = value; }
        
         public List<DataObject> DataList { get => _dataList; private set => _dataList = value; }
         public string TypeToString { get => dataType.ToString();}
-        public bool IsFkey { get => isFkey; private set => isFkey = value; }
+        public bool IsFkey { get => isFkey; protected set => isFkey = value; }
+        public bool IsPkey { get => isPkey; protected set => isPkey = value; }
 
         /// <summary>
         /// Edit type of the column's data
@@ -68,7 +72,7 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         /// <param name="newColumnType"></param>
         public void EditColumnType(Type newColumnType )
         {
-            if (!IsFkey && !Name.Contains("Id"))
+            if (!IsFkey && !IsPkey)
             {
                 if (newColumnType != DataType)
                 {
@@ -128,6 +132,44 @@ namespace DataLayer.InternalDataBaseInstanceComponents
             }
         }
         //
+        /// <summary>
+        /// Set's Fkey property
+        /// </summary>
+        /// <param name="Fkey"></param>
+        public void SetFkeyProperty(bool Fkey)
+        {
+            IsFkey = Fkey;
+        }
+        //
+        /// <summary>
+        /// Set's Fkey property
+        /// </summary>
+        /// <param name="Fkey"></param>
+        public void SetPkeyProperty(bool Pkey)
+        {
+            IsPkey = Pkey;
+        }
+        //
+        /// <summary>
+        /// edit data of single clumn by primary key
+        /// </summary>
+        /// <param name="ColumnName"></param>
+        /// <param name="index"></param>
+        /// <param name="argument"></param>
+        virtual public void EditColumnElementByPrimaryKey(Table thisTable, int key, object argument)
+        {
+            if (thisTable.isTableContainsData())
+            {
+                if (IsPkey) throw new ArgumentException("You can't change the PrimaryKey Column Data"); 
+                if (DataType == argument.GetType())
+                {
+                    DataList[thisTable.returnIndexOfPrimaryKey(key)].Data = argument;
+                }
+                else throw new ArgumentException("Type of argument is not similar to Column type");
+            }
+            else throw new NullReferenceException("Table doesn't contain any data");
+        }
+        //
         public override bool Equals(object obj)
         {
             return (this.GetHashCode() + DataList.Count == obj.GetHashCode() + DataList.Count);
@@ -155,6 +197,8 @@ namespace DataLayer.InternalDataBaseInstanceComponents
             string columnInfo = "[COLUMN] " + Name + " contains data of " + DataType.Name + " variables,";
             if (AllowsNull) columnInfo += " allows null data,";
             else columnInfo += " doesn't allows null data,";
+            if (IsPkey) columnInfo += " PrimaryKey,";
+            if (IsFkey) columnInfo += " ForeignKey,";
             columnInfo += " default object = " + Default.ToString()+", hash = "+ GetHashCode()+"\n[COLUMN]"+Name +" INFO END";
             return columnInfo;
         }
