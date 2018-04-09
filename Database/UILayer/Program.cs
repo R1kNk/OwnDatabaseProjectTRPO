@@ -18,11 +18,11 @@ namespace UILayer
             //inst.TablesDB[0].AddColumn(new Column("testColumn", typeof(string), true, "testDef"));
             inst.GetTableByName("table").GetColumnByName("testColumn").SetNullableProperty(true);
             inst.TablesDB[0].AddTableElement(new object[] { null });
-           
-           // Kernel.SaveAllDatabases();
+
+            // Kernel.SaveAllDatabases();
             Kernel.OutDatabaseInfo();
-           // Interpreter.Run();
-           
+            // Interpreter.Run();
+
 
         }
     }
