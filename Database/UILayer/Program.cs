@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DataLayer;
-using DataLayer.InternalDataBaseInstanceComponents;
+using DataModels.App.InternalDataBaseInstanceComponents;
 
 namespace UILayer
 {
@@ -12,17 +12,13 @@ namespace UILayer
     {
         static void Main(string[] args)
         {
+
+           // Interpreter.Run();
             //Kernel.AddDBInstance("inst2");
             var inst = Kernel.GetInstance("inst2");
-            //inst.AddTable("table");
-            //inst.TablesDB[0].AddColumn(new Column("testColumn", typeof(string), true, "testDef"));
-            inst.GetTableByName("table").GetColumnByName("testColumn").SetNullableProperty(true);
-            inst.TablesDB[0].AddTableElement(new object[] { null });
-
-            // Kernel.SaveAllDatabases();
             Kernel.OutDatabaseInfo();
+            Console.WriteLine(inst.GetTableByName("Cars").OutTable());
             // Interpreter.Run();
-
 
         }
     }

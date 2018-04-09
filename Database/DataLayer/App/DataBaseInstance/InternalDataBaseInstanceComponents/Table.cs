@@ -7,8 +7,9 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using DataLayer.Shared.ExtentionMethods;
 using DataLayer.Shared.DataModels;
+using DataModels.App.Shared.Events;
 
-namespace DataLayer.InternalDataBaseInstanceComponents
+namespace DataModels.App.InternalDataBaseInstanceComponents
 {
     [Serializable]
     public class Table
@@ -16,15 +17,17 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         //fields
         string _name;
         //
-        uint currentPrimaryKey;
+        int currentPrimaryKey;
         List<Column> _columns;
+        //
+        public event EventHandler<CascadeDeleteEventArgs> cascadeDelete;
         //
         //properties
         public string Name { get => _name;  set => _name = value; }
         //
         public List<Column> Columns { get => _columns; private set => _columns = value; }
-        public uint CurrentPrimaryKey { get => currentPrimaryKey; private set => currentPrimaryKey = value; }
-        public uint newPrimaryKey()
+        public int CurrentPrimaryKey { get => currentPrimaryKey; private set => currentPrimaryKey = value; }
+        public int newPrimaryKey()
         {
             CurrentPrimaryKey += 1;
             return CurrentPrimaryKey;
@@ -36,11 +39,11 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         /// <param name="name"></param>
         public Table(string name)
         {
-
             Name = name;
             _columns = new List<Column>();
             currentPrimaryKey = 0;
-            Column PrimaryKey = new Column("Id" + Name, typeof(uint), false, 0);
+            Column PrimaryKey = new Column("ID" + Name, typeof(int), false, 0,this);
+            PrimaryKey.SetPkeyProperty(true);
             Columns.Add(PrimaryKey);
         }
         //
@@ -48,24 +51,32 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         /// Adds new column to current table!
         /// </summary>
         /// <param name="newTable"></param>
-        public void AddColumn(Column newTable)
+        public void AddColumn(Column newColumn)
         {
-            if (newTable.Name.isThereNoUndefinedSymbols())
+            if (newColumn.Name.isThereNoUndefinedSymbols())
             {
                 foreach (Column tblProp in Columns)
                 {
-                    if (tblProp.Name == newTable.Name) throw new FormatException("Invalid column name. Some column in this table have same name!");
+                    if (tblProp.Name == newColumn.Name) throw new FormatException("Invalid column name. Some column in this table have same name!");
                 }
-                Columns.Add(newTable);
+                if (isTableContainsData())
+                {
+                    int countDataRows = Columns[1].DataList.Count;
+                    for (int i = 0; i < countDataRows; i++)
+                    {
+                        newColumn.DataList.Add(new DataObject(newColumn.GetHashCode(), newColumn.Default));
+                    }
+                }
+                Columns.Add(newColumn);
             }
             else throw new FormatException("There is invalid symbols in column's name!");
 
-        }
+        } //UI
 
         public void AddColumn(string name, Type DataType, bool allowsnull, object def)
         {
-            AddColumn(new Column(name, DataType, allowsnull, def));
-        }
+            AddColumn(new Column(name, DataType, allowsnull, def, this));
+        } //UI
         //
         /// <summary>
         /// Edit's column name
@@ -74,6 +85,7 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         {
             if (indexOfColumn(currentName) != -1)
             {
+                if (Columns[indexOfColumn(currentName)].IsFkey || Columns[indexOfColumn(currentName)].IsPkey) throw new ArgumentException("You can't rename PrimaryKey or ForeignKey column");
                 if (futureName.isThereNoUndefinedSymbols())
                 {
                     foreach (Column tblProp in Columns)
@@ -85,7 +97,7 @@ namespace DataLayer.InternalDataBaseInstanceComponents
                 else throw new FormatException("There is invalid symbols in column's name!");
             }
             else throw new NullReferenceException("there's no such column");
-        }
+        } //UI
         //
         /// <summary>
         /// Add element to Table!
@@ -101,6 +113,7 @@ namespace DataLayer.InternalDataBaseInstanceComponents
                 for (int i = 0; i < arguments.Length; i++)
                 {
                     if (Columns[i+1].AllowsNull && arguments[i] == null) Columns[i+1].DataList.Add(new DataObject(Columns[i+1].GetHashCode(), arguments[i]));
+                    else if (!Columns[i + 1].AllowsNull && arguments[i] == null) Columns[i + 1].DataList.Add(new DataObject(Columns[i + 1].GetHashCode(), Columns[i+1].Default));
                     else
                     if (arguments[i].GetType() == Columns[i+1].DataType)
                     {
@@ -111,7 +124,7 @@ namespace DataLayer.InternalDataBaseInstanceComponents
             }
             else throw new IndexOutOfRangeException("Arguments array isn't similar to count of columns in table");
 
-        }
+        } //UI
         //
         /// <summary>
         /// removes row of data according to primary key
@@ -120,7 +133,10 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         public void DeleteTableElementByPrimaryKey(int key)
         {
             DeleteTableElementByIndex(returnIndexOfPrimaryKey(key));
-        }
+            CascadeDeleteEventArgs e = new CascadeDeleteEventArgs("FK_"+Columns[0].Name, key);
+            if (cascadeDelete != null)
+            cascadeDelete(this, e);
+        } //UI
         //
         /// <summary>
         /// removes row of data by index
@@ -133,6 +149,7 @@ namespace DataLayer.InternalDataBaseInstanceComponents
                 for (int i = 0; i < Columns.Count; i++)
                 {
                     Columns[i].DataList.RemoveAt(index);
+                    //
                 }
             }
             else throw new NullReferenceException("There is no data in table!");
@@ -145,32 +162,16 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         /// <param name="args"></param>
         public void EditTableElementByPrimaryKey(int key, object[] args)
         {
-            EditTableElementByIndex(returnIndexOfPrimaryKey(key), args);
-        }
-        //
-        /// <summary>
-        /// edit row of table by index
-        /// </summary>
-        /// <param name="index"></param>
-        /// <param name="arguments"></param>
-        void EditTableElementByIndex(int index, object[] arguments)
-        {
-            if (isTableContainsData())
+            for (int i = 0; i < Columns.Count-1; i++)
             {
-                if (arguments.Length == Columns.Count)
-                {
-                    for (int i = 0; i < Columns.Count; i++)
-                    {
-                        if (Columns[i].DataList[0].GetType() != arguments[i].GetType()) throw new ArgumentException("type of argument isn't the same as type of column!");
-                    }
-                    for (int i = 0; i < Columns.Count; i++)
-                    {
-                        Columns[i].DataList[index].Data = arguments[i];
-                    }
-                }
+                if (Columns[i+1].DataList[0].Data.GetType() != args[i].GetType()) throw new ArgumentException("type of argument isn't the same as type of column!");
             }
-            else throw new NullReferenceException("There is no data in table!");
-        }
+            for (int i = 0; i < Columns.Count-1; i++)
+            {
+
+                Columns[i+1].EditColumnElementByPrimaryKey(key, args[i]);
+            }
+        } //UI
         //
         /// <summary>
         /// delete column by name
@@ -178,17 +179,15 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         /// <param name="name"></param>
         public void DeleteColumn(string name)
         {
-            if (name != "Id" + Name)
-            {
-                if (!isTableContainsColumns()) throw new NullReferenceException();
-                if (indexOfColumn(name) != -1)
-                {
-                    Columns.RemoveAt(indexOfColumn(name));
-                }
-                else throw new NullReferenceException();
-            }
-            else throw new ArgumentException("You can't delete PrimaryKey column");
-        }
+          if (!isTableContainsColumns()) throw new NullReferenceException();
+          if (indexOfColumn(name) != -1)
+          {
+               if(Columns[indexOfColumn(name)].IsFkey || Columns[indexOfColumn(name)].IsPkey) throw new ArgumentException("You can't delete PrimaryKey or ForeignKey column");
+               Columns.RemoveAt(indexOfColumn(name));
+          }
+          else throw new NullReferenceException();
+
+        } //UI
         //
         /// <summary>
         /// get index of column by name
@@ -198,11 +197,11 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         int indexOfColumn(string name)
         {
             if (!isTableContainsColumns()) throw new NullReferenceException();
-            for (int i = 1; i < Columns.Count; i++)
+            for (int i = 0; i < Columns.Count; i++)
             {
-                if (Columns[i].Name == name) return i;
+                if (Columns[i].Name == name&&!Columns[i].IsPkey&&!Columns[i].IsFkey) return i;
             }
-            return -1;
+            throw new NullReferenceException("There is no such column in table, or you can't get access to it");
         }
         //
         /// <summary>
@@ -210,7 +209,7 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        int returnIndexOfPrimaryKey(int key)
+        public int returnIndexOfPrimaryKey(int key)
         {
             if (key < 1) throw new ArgumentException("Invalid key");
             for (int i = 0; i < Columns[0].DataList.Count; i++)
@@ -221,6 +220,17 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         }
         //
         /// <summary>
+        /// return's primary key of index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public int returnPrimaryKeyOfIndex(int index)
+        {
+            if (index < 0||index>=Columns[0].DataList.Count) throw new ArgumentException("Invalid key");
+            return (int)Columns[0].DataList[index].Data;
+        }
+        //
+        /// <summary>
         /// get data by Primary key
         /// </summary>
         /// <param name="key"></param>
@@ -228,11 +238,11 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         public DataObject[] GetDataByPrimaryKey(int key)
         {
             return GetDataByIndex(returnIndexOfPrimaryKey(key));
-        }
+        } //UI ??? (under question)
         //
         public Column GetColumnByName(string name)
         {
-            if (name == "Id" + Name) throw new ArgumentException("you can't get PrimaryKey column");
+            if (name=="ID"+Name) throw new ArgumentException("you can't get PrimaryKey column");
             if (isTableContainsColumns())
             {
                 if (getIndexOfColumn(name) != -1)
@@ -261,6 +271,25 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         }
         //
         /// <summary>
+        /// method for cascade delete event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void ExecuteCascadeDelete(Object sender, CascadeDeleteEventArgs e)
+        {
+            Column linkedcolumn = GetColumnByName(e.ColumnName);
+            List<int> keys = new List<int>();
+            for (int i = 0; i < linkedcolumn.DataList.Count; i++)
+            {
+                if ((int)linkedcolumn.DataList[i].Data == e.DeletedRowPrimaryKey) keys.Add(i);
+            }
+            for (int i = 0; i < keys.Count; i++)
+                keys[i] = returnPrimaryKeyOfIndex(keys[i]);
+            foreach (int key in keys) DeleteTableElementByPrimaryKey(key);
+        
+        }
+        //
+        /// <summary>
         /// checks if table contains some data
         /// </summary>
         /// <returns></returns>
@@ -275,6 +304,60 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         {
             if (Columns.Count == 1) return false;
             return true;
+        }
+        //
+        //
+        public string OutTable()
+        {
+            int[] maxCharSizesArray = new int[Columns.Count];
+            for (int i = 0; i < maxCharSizesArray.Length; i++)
+            {
+                int biggestcharData = default(int);
+                biggestcharData = Columns[i].DataList.Select(x => x.Data.ToString().Length).Max();
+                int ColumnNameLength = Columns[i].Name.Length;
+                if (biggestcharData > ColumnNameLength) maxCharSizesArray[i] = biggestcharData;
+                else maxCharSizesArray[i] = ColumnNameLength;
+            }
+            string Space = " ";
+            string VertDash = "|";
+            string Plus = "+";
+            string Dash = "-";
+            string MainFrame = Plus;
+            for (int i = 0; i < maxCharSizesArray.Length; i++)
+            {
+                for (int j = 0; j < maxCharSizesArray[i] + 2; j++) MainFrame += Dash;
+                MainFrame += Plus;
+            }
+            string ColumnNamesFrame = VertDash;
+            for (int i = 0; i < maxCharSizesArray.Length; i++)
+            {
+                int SpacesAfter = maxCharSizesArray[i] - Columns[i].Name.Length + 1;
+                ColumnNamesFrame += Space; ColumnNamesFrame += Columns[i].Name;
+                for (int j = 0; j < SpacesAfter; j++)
+                    ColumnNamesFrame += Space;
+                ColumnNamesFrame += VertDash;
+            }
+            string Data = default(string);
+            for (int j = 0; j < Columns[0].DataList.Count; j++)
+            {
+                Data += "\n" + VertDash;
+                for (int i = 0; i < maxCharSizesArray.Length; i++)
+                {
+
+                    int SpacesAfter = maxCharSizesArray[i] - Columns[i].DataList[j].Data.ToString().Length + 1;
+                    Data += Space; Data += Columns[i].DataList[j].Data.ToString();
+                    for (int k = 0; k < SpacesAfter; k++)
+                        Data += Space;
+                    Data += VertDash;
+                }
+            }
+            return MainFrame + "\n" + ColumnNamesFrame + "\n" + MainFrame + Data + "\n" + MainFrame;
+        }
+        //
+        public bool isColumnExists(string name)
+        {
+            foreach (Column column in Columns) if (column.Name == name) return true;
+            return false;
         }
         //
         int getIndexOfColumn(string name)
@@ -292,7 +375,7 @@ namespace DataLayer.InternalDataBaseInstanceComponents
             {
                 foreach(Column column in Columns)
                 {
-                    if(!column.Name.Contains("Id"))
+                    if(!column.IsPkey)
                     result += column.Name +" - "+column.TypeToString+"\n";
                 }
                 return result;
@@ -310,23 +393,7 @@ namespace DataLayer.InternalDataBaseInstanceComponents
             }
             if (isTableContainsData())
             {
-                tableInfo += "\nTable contains " + Columns[1].DataList.Count + " rows of data:";
-                for (int i = 0; i < Columns[1].DataList.Count; i++)
-                {
-                    DataObject[] buf = GetDataByIndex(i);
-                    tableInfo += "\n" + i + ". ";
-                    foreach (DataObject obj in buf)
-                    {
-                        string bufNull = default(string);
-                        if (obj.Data == null)
-                        {
-                            bufNull = "null";
-                            tableInfo += "(" + bufNull + ")" + bufNull + "  ";
-                        }
-                        else
-                            tableInfo += "(" + obj.Data.GetType().Name + ")" + obj.Data.ToString() + "  ";
-                    }
-                }
+                tableInfo += "\n" + OutTable();
             }
             else tableInfo += "\nable doesn't contains any data";
 

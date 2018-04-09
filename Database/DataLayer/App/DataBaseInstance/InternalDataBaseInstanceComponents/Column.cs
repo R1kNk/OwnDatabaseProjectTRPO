@@ -8,7 +8,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using DataLayer.Shared.DataModels;
 using DataLayer.Shared.ExtentionMethods;
 
-namespace DataLayer.InternalDataBaseInstanceComponents
+namespace DataModels.App.InternalDataBaseInstanceComponents
 {
     [Serializable]
     public class Column
@@ -22,13 +22,15 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         /// <param name="isFkey">Is this column a foreign key</param>
         /// <param name="isPkey">Is this column a primary key</param>
         /// <param name="def"> Default object for this column</param>
-        public Column(string name, Type DataType, bool allowsnull, object def)
+        public Column(string name, Type DataType, bool allowsnull, object def, Table parentTable)
         {
             _name = name;
             dataType = DataType;
             allowsNull = allowsnull;
             _Default = DataType.GetDefaultValue();
             isFkey = false;
+            isPkey = false;
+            thisTable = parentTable;
             if (def != null)
             {
                 Type buf = def.GetType();
@@ -39,28 +41,35 @@ namespace DataLayer.InternalDataBaseInstanceComponents
 
         }
         //fields
-
-        string _name;
+        private Table thisTable;
         //
-        Type dataType;
+        protected string _name;
         //
-        bool allowsNull;
+        protected Type dataType;
         //
-        object _Default;
+        protected bool allowsNull;
         //
-        bool isFkey;
+        protected object _Default;
+        //
+        protected bool isFkey;
+        //
+        protected bool isPkey;
         //
         List<DataObject> _dataList;
+        //
+        bool isCascadeDeleteOn;
 
         //properties
-        public string Name { get => _name;   set => _name = value; }
-        public Type DataType { get => dataType; private set => dataType = value; }
-        public bool AllowsNull { get => allowsNull; private set => allowsNull = value; }
-        public object Default { get => _Default; private set => _Default = value; }
-       
+        public string Name { get => _name; set => _name = value; }
+        public Type DataType { get => dataType; protected set => dataType = value; }
+        public bool AllowsNull { get => allowsNull; protected set => allowsNull = value; }
+        public object Default { get => _Default; protected set => _Default = value; }
+        public bool IsCascadeDeleteOn { get { if (IsFkey) return isCascadeDeleteOn; else throw new ArgumentException("You can't get cascade property of ordinary column"); } set {if (IsFkey)  isCascadeDeleteOn=value; else throw new ArgumentException("You can't set cascade property of ordinary column"); } }
         public List<DataObject> DataList { get => _dataList; private set => _dataList = value; }
         public string TypeToString { get => dataType.ToString();}
-        public bool IsFkey { get => isFkey; private set => isFkey = value; }
+        public bool IsFkey { get => isFkey; protected set => isFkey = value; }
+        public bool IsPkey { get => isPkey; protected set => isPkey = value; }
+        public Table ThisTable { get => thisTable; }
 
         /// <summary>
         /// Edit type of the column's data
@@ -68,7 +77,7 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         /// <param name="newColumnType"></param>
         public void EditColumnType(Type newColumnType )
         {
-            if (!IsFkey && !Name.Contains("Id"))
+            if (!IsFkey && !IsPkey)
             {
                 if (newColumnType != DataType)
                 {
@@ -79,7 +88,7 @@ namespace DataLayer.InternalDataBaseInstanceComponents
             }
             else throw new ArgumentException("You can't change type of this column!");
 
-        }
+        } //UI
         /// <summary>
         /// Change Nullable property
         /// </summary>
@@ -92,7 +101,7 @@ namespace DataLayer.InternalDataBaseInstanceComponents
                 UpdateDataHashCode();
             }
             else throw new ArgumentException("You can't change nullable property of this column!");
-        }
+        } //UI
         /// <summary>
         /// set another default object
         /// </summary>
@@ -101,7 +110,7 @@ namespace DataLayer.InternalDataBaseInstanceComponents
         {
             if (defaultObject.GetType() == DataType) Default = defaultObject;
             else throw new ArgumentException("Type of your defaultObject isn't similar to type of column");
-        }
+        } //UI
         /// <summary>
         /// Updates hash code inside DataList
         /// </summary>
@@ -127,6 +136,44 @@ namespace DataLayer.InternalDataBaseInstanceComponents
                 }
             }
         }
+        //
+        /// <summary>
+        /// Set's Fkey property
+        /// </summary>
+        /// <param name="Fkey"></param>
+        public void SetFkeyProperty(bool Fkey)
+        {
+            IsFkey = Fkey;
+        }
+        //
+        /// <summary>
+        /// Set's Fkey property
+        /// </summary>
+        /// <param name="Fkey"></param>
+        public void SetPkeyProperty(bool Pkey)
+        {
+            IsPkey = Pkey;
+        }
+        //
+        /// <summary>
+        /// edit data of single clumn by primary key
+        /// </summary>
+        /// <param name="ColumnName"></param>
+        /// <param name="index"></param>
+        /// <param name="argument"></param>
+        virtual public void EditColumnElementByPrimaryKey(int key, object argument)
+        {
+            if (thisTable.isTableContainsData())
+            {
+                if (IsPkey) throw new ArgumentException("You can't change the PrimaryKey Column Data"); 
+                if (DataType == argument.GetType())
+                {
+                    DataList[thisTable.returnIndexOfPrimaryKey(key)].Data = argument;
+                }
+                else throw new ArgumentException("Type of argument is not similar to Column type");
+            }
+            else throw new NullReferenceException("Table doesn't contain any data");
+        } //UI 
         //
         public override bool Equals(object obj)
         {
@@ -155,7 +202,9 @@ namespace DataLayer.InternalDataBaseInstanceComponents
             string columnInfo = "[COLUMN] " + Name + " contains data of " + DataType.Name + " variables,";
             if (AllowsNull) columnInfo += " allows null data,";
             else columnInfo += " doesn't allows null data,";
-            columnInfo += " default object = " + Default.ToString()+", hash = "+ GetHashCode()+"\n[COLUMN]"+Name +" INFO END";
+            if (IsPkey) columnInfo += " PrimaryKey,";
+            if (IsFkey) columnInfo += " ForeignKey,";
+            columnInfo += " default object = " + Default.ToString()+", hash = "+ GetHashCode();
             return columnInfo;
         }
     }

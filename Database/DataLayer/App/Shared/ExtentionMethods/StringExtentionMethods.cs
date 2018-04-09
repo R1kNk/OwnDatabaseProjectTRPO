@@ -12,12 +12,10 @@ namespace DataLayer.Shared.ExtentionMethods
     public static class StringExtentionMethods
     {
         static string undefSymbols = "#^&()-=+[]~'//\\.,;|? ";
-        
-
 
        static public bool isThereNoUndefinedSymbols(this string str)
         {
-           // if (str.Contains("Id")) return false;
+           if (str.Contains("ID")|| str.Contains("FK")) return false;
             foreach(char stringSymbol in str)
             {
                 if (undefSymbols.Contains(stringSymbol)) return false;
