@@ -42,9 +42,23 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             Name = name;
             _columns = new List<Column>();
             currentPrimaryKey = 0;
-            Column PrimaryKey = new Column("ID" + Name, typeof(int), false, 0,this);
-            PrimaryKey.SetPkeyProperty(true);
-            Columns.Add(PrimaryKey);
+           
+                Column PrimaryKey = new Column("ID" + Name, typeof(int), false, 0, this);
+                PrimaryKey.SetPkeyProperty(true);
+                Columns.Add(PrimaryKey);
+        }
+        //
+        public Table(string name, bool isPKNeed)
+        {
+            Name = name;
+            _columns = new List<Column>();
+            currentPrimaryKey = 0;
+            if (isPKNeed)
+            {
+                Column PrimaryKey = new Column("ID" + Name, typeof(int), false, 0, this);
+                PrimaryKey.SetPkeyProperty(true);
+                Columns.Add(PrimaryKey);
+            }
         }
         //
         /// <summary>
@@ -313,7 +327,9 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             for (int i = 0; i < maxCharSizesArray.Length; i++)
             {
                 int biggestcharData = default(int);
-                biggestcharData = Columns[i].DataList.Select(x => x.Data.ToString().Length).Max();
+                if (isTableContainsData())
+                    biggestcharData = Columns[i].DataList.Select(x => x.Data.ToString().Length).Max();
+                else biggestcharData = 0;
                 int ColumnNameLength = Columns[i].Name.Length;
                 if (biggestcharData > ColumnNameLength) maxCharSizesArray[i] = biggestcharData;
                 else maxCharSizesArray[i] = ColumnNameLength;
@@ -356,7 +372,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         //
         public bool isColumnExists(string name)
         {
-            foreach (Column column in Columns) if (column.Name == name) return true;
+            foreach (Column column in Columns) if (column.Name == name || column.SystemName == name) return true;
             return false;
         }
         //
@@ -364,7 +380,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         {
             for(int i =0; i< Columns.Count; i++)
             {
-                if (Columns[i].Name == name) return i;
+                if (Columns[i].Name == name||Columns[i].SystemName == name) return i;
             }
             return -1;
         }
