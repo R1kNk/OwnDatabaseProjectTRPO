@@ -17,6 +17,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         //fields
         string _name;
         //
+        bool _isPKNeed;
         int currentPrimaryKey;
         List<Column> _columns;
         //
@@ -42,7 +43,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             Name = name;
             _columns = new List<Column>();
             currentPrimaryKey = 0;
-           
+            _isPKNeed = true;
                 Column PrimaryKey = new Column("ID" + Name, typeof(int), false, 0, this);
                 PrimaryKey.SetPkeyProperty(true);
                 Columns.Add(PrimaryKey);
@@ -51,6 +52,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         public Table(string name, bool isPKNeed)
         {
             Name = name;
+            _isPKNeed = isPKNeed;
             _columns = new List<Column>();
             currentPrimaryKey = 0;
             if (isPKNeed)
@@ -58,6 +60,17 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                 Column PrimaryKey = new Column("ID" + Name, typeof(int), false, 0, this);
                 PrimaryKey.SetPkeyProperty(true);
                 Columns.Add(PrimaryKey);
+            }
+        }
+        public Table(Table copyTable)
+        {
+            Name = copyTable.Name;
+            _isPKNeed = copyTable._isPKNeed;
+            _columns = new List<Column>();
+            currentPrimaryKey = 0;
+            for (int i = 0; i < copyTable.Columns.Count; i++)
+            {
+                Columns.Add( new Column(copyTable.Columns[i], this));
             }
         }
         //
@@ -119,21 +132,41 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <param name="arguments"></param>
         public void AddTableElement(object[] arguments)
         {
-            int ColumnsCount = Columns.Count-1;
+            int ColumnsCount = default(int);//Columns.Count-1;
+            if (_isPKNeed) ColumnsCount = Columns.Count - 1;
+            else ColumnsCount = Columns.Count;
             if (arguments.Length == ColumnsCount)
             {
-                Columns[0].DataList.Add(new DataObject(Columns[0].GetHashCode(), newPrimaryKey()));
-                //Columns+1 because of column "Primary Key"
-                for (int i = 0; i < arguments.Length; i++)
+                if (_isPKNeed)
                 {
-                    if (Columns[i+1].AllowsNull && arguments[i] == null) Columns[i+1].DataList.Add(new DataObject(Columns[i+1].GetHashCode(), arguments[i]));
-                    else if (!Columns[i + 1].AllowsNull && arguments[i] == null) Columns[i + 1].DataList.Add(new DataObject(Columns[i + 1].GetHashCode(), Columns[i+1].Default));
-                    else
-                    if (arguments[i].GetType() == Columns[i+1].DataType)
+                    Columns[0].DataList.Add(new DataObject(Columns[0].GetHashCode(), newPrimaryKey()));
+                    //Columns+1 because of column "Primary Key"
+                    for (int i = 0; i < arguments.Length; i++)
                     {
-                        Columns[i+1].DataList.Add(new DataObject(Columns[i+1].GetHashCode(),arguments[i]));
+                        if (Columns[i + 1].AllowsNull && arguments[i] == null) Columns[i + 1].DataList.Add(new DataObject(Columns[i + 1].GetHashCode(), arguments[i]));
+                        else if (!Columns[i + 1].AllowsNull && arguments[i] == null) Columns[i + 1].DataList.Add(new DataObject(Columns[i + 1].GetHashCode(), Columns[i + 1].Default));
+                        else
+                        if (arguments[i].GetType() == Columns[i + 1].DataType)
+                        {
+                            Columns[i + 1].DataList.Add(new DataObject(Columns[i + 1].GetHashCode(), arguments[i]));
+                        }
+                        else throw new FormatException("Incorrect data type for " + Columns[i + 1].Name + " column!");
                     }
-                    else throw new FormatException("You can't add null element to this column because it doesn't allows null");
+                }
+                else
+                {
+                    //Columns+1 because of column "Primary Key"
+                    for (int i = 0; i < arguments.Length; i++)
+                    {
+                        if (Columns[i].AllowsNull && arguments[i] == null) Columns[i].DataList.Add(new DataObject(Columns[i].GetHashCode(), arguments[i]));
+                        else if (!Columns[i].AllowsNull && arguments[i] == null) Columns[i].DataList.Add(new DataObject(Columns[i].GetHashCode(), Columns[i].Default));
+                        else
+                        if (arguments[i].GetType() == Columns[i].DataType)
+                        {
+                            Columns[i].DataList.Add(new DataObject(Columns[i].GetHashCode(), arguments[i]));
+                        }
+                        else throw new FormatException("Incorrect data type for " + Columns[i].Name + " column!");
+                    }
                 }
             }
             else throw new IndexOutOfRangeException("Arguments array isn't similar to count of columns in table");
@@ -169,6 +202,12 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             else throw new NullReferenceException("There is no data in table!");
         }
         //
+       public void DeleteAllData()
+        {
+            for (int i = 0; i < Columns[0].DataList.Count; i++)
+                DeleteTableElementByIndex(i);
+        }
+        //
         /// <summary>
         /// edit table row by primary key
         /// </summary>
@@ -176,16 +215,49 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <param name="args"></param>
         public void EditTableElementByPrimaryKey(int key, object[] args)
         {
-            for (int i = 0; i < Columns.Count-1; i++)
+            if (_isPKNeed)
             {
-                if (Columns[i+1].DataList[0].Data.GetType() != args[i].GetType()) throw new ArgumentException("type of argument isn't the same as type of column!");
-            }
-            for (int i = 0; i < Columns.Count-1; i++)
-            {
+                if (args.Length != Columns.Count - 1) throw new ArgumentException("Count of arguments is not similar to count of tables");
+                for (int i = 0; i < Columns.Count - 1; i++)
+                {
+                    if (Columns[i + 1].DataList[0].Data.GetType() != args[i].GetType()) throw new ArgumentException("type of argument isn't the same as type of column!");
+                }
+                for (int i = 0; i < Columns.Count - 1; i++)
+                {
 
-                Columns[i+1].EditColumnElementByPrimaryKey(key, args[i]);
+                    Columns[i + 1].EditColumnElementByPrimaryKey(key, args[i]);
+                }
             }
+            else throw new ArgumentException("This table doesn't containt Primary Key!");
         } //UI
+        //
+        public void EditTableElementByIndex(int index, object[] args) // ignores pk 
+        {
+
+            if (args.Length != Columns.Count) throw new ArgumentException("Count of arguments is not similar to count of tables");
+            for (int i = 0; i < Columns.Count; i++)
+            {
+                if (Columns[i].DataList[0].Data.GetType() != args[i].GetType()) throw new ArgumentException("type of argument isn't the same as type of column!");
+            }
+            for (int i = 0; i < Columns.Count; i++)
+            {
+                Columns[i].DataList[index].Data = args[i];
+            }
+        }
+        //
+        public void EditTableElementByIndex(int index, DataObject[] args) // ignores pk 
+        {
+
+            if (args.Length != Columns.Count) throw new ArgumentException("Count of arguments is not similar to count of tables");
+            for (int i = 0; i < Columns.Count; i++)
+            {
+                if (Columns[i].DataList[0].Data.GetType() != args[i].Data.GetType()) throw new ArgumentException("type of argument isn't the same as type of column!");
+            }
+            for (int i = 0; i < Columns.Count; i++)
+            {
+                Columns[i].DataList[index] = args[i];
+            }
+        }
         //
         /// <summary>
         /// delete column by name
@@ -213,7 +285,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             if (!isTableContainsColumns()) throw new NullReferenceException();
             for (int i = 0; i < Columns.Count; i++)
             {
-                if (Columns[i].Name == name&&!Columns[i].IsPkey&&!Columns[i].IsFkey) return i;
+                if (Columns[i].Name == name) return i;
             }
             throw new NullReferenceException("There is no such column in table, or you can't get access to it");
         }
@@ -270,7 +342,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-         DataObject[] GetDataByIndex(int index)
+         public DataObject[] GetDataByIndex(int index)
         {
                 if(isTableContainsData())
                 {
@@ -376,7 +448,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             return false;
         }
         //
-        int getIndexOfColumn(string name)
+        public int getIndexOfColumn(string name)
         {
             for(int i =0; i< Columns.Count; i++)
             {

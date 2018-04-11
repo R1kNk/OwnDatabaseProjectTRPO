@@ -13,17 +13,22 @@ namespace UILayer
         static void Main(string[] args)
         {
 
-           // Interpreter.Run();
+            // Interpreter.Run();
+            //Kernel.AddDBInstance("inst2");
             //Kernel.AddDBInstance("inst2");
             var inst = Kernel.GetInstance("inst2");
-        //    Kernel.OutDatabaseInfo();
-           // Console.WriteLine(inst.GetTableByName("Cars").OutTable());
-            // Interpreter.Run();
-           Table kk = inst.ColumnSelection(new List<string> { "Cars.IDCars", "Cars.Price" }, inst.GetTableByName("Cars"));
-            //Column asad = new Column("Car", typeof(string), false, "ke", inst.GetTableByName("Cars"));
-           Console.WriteLine(kk.OutTable());
 
+            //Kernel.SaveAllDatabases();
+            //    Kernel.OutDatabaseInfo();
+            // Console.WriteLine(inst.GetTableByName("Cars").OutTable());
+            // Interpreter.Run();
             Kernel.OutDatabaseInfo();
+            inst.GetTableByName("Cars").AddTableElement(new object[] { "ain", 304 });
+            Table query = inst.QueryColumnSelection(new List<string> { "Cars.IDCars", "Cars.CarMark" }, inst.GetTableByName("Cars"));
+            query = inst.QuerySortTable("Cars.CarMark", query, false);
+            Console.WriteLine(query.OutTable());
+
+
 
         }
     }

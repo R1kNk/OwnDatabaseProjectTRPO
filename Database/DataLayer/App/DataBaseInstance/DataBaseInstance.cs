@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
+using DataLayer.Shared.DataModels;
 
 namespace DataLayer
 {
@@ -222,9 +223,8 @@ namespace DataLayer
 
         //query methods
 
-        public Table QueryColumnSelection(List<string> ColumnNames, string tableName)
+        public Table QueryColumnSelection(List<string> ColumnNames, Table tableForQuery)
         {
-            Table tableForQuery = GetTableByName(tableName);
             foreach (string name in ColumnNames) if (!name.Contains(".") || !tableForQuery.isColumnExists(name)) throw new ArgumentException("Invalid column name!");
             Table queryresult = new Table("queryResult", false);
             foreach (string name in ColumnNames)
@@ -237,13 +237,43 @@ namespace DataLayer
             return queryresult;
 
         }
-        public void QuerySortTable(string columnNameSortBy, string tableName, bool isAscending)
+
+        public Table QuerySortTable(string columnNameSortBy, Table tableForQuery, bool isAscending)
         {
-            Table tableToSort = GetTableByName(tableName);
-            if (tableToSort.isColumnExists(columnNameSortBy))
+            Table queryResult = new Table(tableForQuery);
+            if (queryResult.isColumnExists(columnNameSortBy))
             {
-                //tableToSort.
-            } throw new ArgumentException("There is no " + columnNameSortBy + " column in " + tableName + "!");
+                List<DataObject[]> data = new List<DataObject[]>();
+                for (int i = 0; i < queryResult.Columns[0].DataList.Count; i++)
+                    data.Add(queryResult.GetDataByIndex(i));
+
+                int columnSortIndex = queryResult.getIndexOfColumn(columnNameSortBy);
+                Column columnToSort = queryResult.Columns[columnSortIndex];
+                List<object> columnData = new List<object> ();
+
+                for (int i = 0; i < columnToSort.DataList.Count; i++)
+                    columnData.Add(columnToSort.DataList[i].Data);
+                columnData.Sort();
+                if (!isAscending) columnData.Reverse();
+                for (int i = 0; i < columnData.Count; i++)
+                {
+                    for (int j = 0; j < data.Count; j++)
+                    {
+                        object[] dataArray = new object[queryResult.Columns.Count];
+                        bool finded = false;
+                        if (data[j][columnSortIndex].Data == columnData[i])
+                        {
+                            queryResult.EditTableElementByIndex(i, data[j]);
+                            data.RemoveAt(j);
+                            finded = true;
+                        }
+                        if(finded)
+                        break;
+                    }
+                }
+                
+            } else throw new ArgumentException("There is no " + columnNameSortBy + " column in " + tableForQuery.Name + "!");
+            return queryResult;
         }
     }
     
