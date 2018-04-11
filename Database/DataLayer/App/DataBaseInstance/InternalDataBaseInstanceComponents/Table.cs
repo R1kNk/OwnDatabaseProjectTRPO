@@ -98,12 +98,12 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             else throw new FormatException("There is invalid symbols in column's name!");
 
-        } //UI
+        }  
 
         public void AddColumn(string name, Type DataType, bool allowsnull, object def)
         {
             AddColumn(new Column(name, DataType, allowsnull, def, this));
-        } //UI
+        } //UI done
         //
         /// <summary>
         /// Edit's column name
@@ -124,12 +124,12 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                 else throw new FormatException("There is invalid symbols in column's name!");
             }
             else throw new NullReferenceException("there's no such column");
-        } //UI
+        } //UI done
         //
         /// <summary>
         /// Add element to Table!
         /// </summary>
-        /// <param name="arguments"></param>
+        /// <param name="arguments"></param> 
         public void AddTableElement(object[] arguments)
         {
             int ColumnsCount = default(int);//Columns.Count-1;
@@ -171,7 +171,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             else throw new IndexOutOfRangeException("Arguments array isn't similar to count of columns in table");
 
-        } //UI
+        } //UI done
         //
         /// <summary>
         /// removes row of data according to primary key

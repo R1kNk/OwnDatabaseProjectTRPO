@@ -36,7 +36,7 @@ namespace DataLayer
         {
             Table bufTable = new Table(name);
             AddTable(bufTable);
-        } //UI
+        } //UI done
         //
         /// <summary>
         /// adds table to db
@@ -50,7 +50,7 @@ namespace DataLayer
                 TablesDB.Add(bufTable);
             }
             else throw new FormatException("There is invalid symbols in table's name!");
-        } //UI
+        } //UI done
         //
         /// <summary>
         /// Delete table by name
@@ -89,7 +89,7 @@ namespace DataLayer
                 TablesDB.RemoveAt(indexOfTable(name));
             }
             else throw new NullReferenceException();
-        } //UI
+        } //UI done
         //
         /// <summary>
         /// Rename table
@@ -104,14 +104,14 @@ namespace DataLayer
                 else throw new ArgumentException("Your name contains undefined symbols!");
             }
             throw new ArgumentNullException("there is no such table in this database!");
-        } //UI
+        } //UI done
         //
         /// <summary>
         /// check if this database already contains table with such name
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        bool isTableExists(string name)
+        public bool isTableExists(string name)
         {
             if (TablesDB.Count == 0) return false;
             else

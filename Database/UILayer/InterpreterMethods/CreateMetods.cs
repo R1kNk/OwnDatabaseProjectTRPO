@@ -14,23 +14,27 @@ namespace UILayer.InterpreterMethods
         {
             char[] separators = new char[] { ' ' };
             string[] queryList = query.Split(separators, 2, StringSplitOptions.RemoveEmptyEntries);
-
-            if (queryList.Length == 2)
+            if (Interpreter.ConnectionString != "")
             {
-                string _createParam = default(string);
-                _createParam = queryList[0];
-                if (IsKeyword(_createParam))
+                if (queryList.Length == 2)
                 {
-                    if (_createParam.ToUpper() == _keywords[0])
-                        CreateDatabase(queryList[1]);
+                    string _createParam = default(string);
+                    _createParam = queryList[0];
+                    if (IsKeyword(_createParam))
+                    {
+                        if (_createParam.ToUpper() == _keywords[0])
+                            CreateDatabase(queryList[1]);
+                        else
+                            CreateTable(queryList[1]);
+                    }
                     else
-                        CreateTable(queryList[1]);
+                        Console.WriteLine($"\nERROR: Invalid command syntax\n");
                 }
                 else
-                    Console.WriteLine($"\nERROR: Invalid command syntax\n");
+                    Console.WriteLine($"\nERROR: Invalid number of variables\n");
             }
             else
-                Console.WriteLine($"\nERROR: Invalid number of variables\n");
+                throw new Exception("\nERROR: There is no connection to database\n");
         }
 
         static void CreateDatabase(string dbName)
@@ -54,26 +58,22 @@ namespace UILayer.InterpreterMethods
                     _tableName = queryList[0];
                     _tableParams = queryList[1];
 
-                    if (Interpreter.ConnectionString != "")
-                    {
-                        char[] _temp = new char[] { ')', ';', '(' };
-                        var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                        _inst.AddTable(_tableName);
-                        string[] _colParams = queryList[1].Split(_temp, StringSplitOptions.RemoveEmptyEntries);
+                    
+                    char[] _temp = new char[] { ')', ';', '(' };
+                    var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
+                    _inst.AddTable(_tableName);
+                    string[] _colParams = queryList[1].Split(_temp, StringSplitOptions.RemoveEmptyEntries);
 
-                        foreach (var _column in _colParams)
+                    foreach (var _column in _colParams)
+                    {
+                        char[] _tempery = new char[] { ',', '\'' };
+                        string[] _colParam = _column.Split(_tempery, StringSplitOptions.RemoveEmptyEntries);
+                        if (_colParam.Length == 4)
                         {
-                            char[] _tempery = new char[] { ',', '\'' };
-                            string[] _colParam = _column.Split(_tempery, StringSplitOptions.RemoveEmptyEntries);
-                            if (_colParam.Length == 4)
-                            {
-                                _inst.GetTableByName(_tableName).AddColumn(GetColumn(_colParam, _inst.GetTableByName(_tableName)));
-                            }
+                            _inst.GetTableByName(_tableName).AddColumn(GetColumn(_colParam, _inst.GetTableByName(_tableName)));
                         }
-                        Console.WriteLine($"\nTable created with name '{_tableName}'\n");
                     }
-                    else
-                        throw new Exception("\nERROR: There is no connection to database\n");
+                    Console.WriteLine($"\nTable created with name '{_tableName}'\n");
                 }
                 else
                     throw new Exception("\nERROR: Invalid command syntax\n");
@@ -82,21 +82,15 @@ namespace UILayer.InterpreterMethods
             {
                 string[] temp = _param.Split(' ');
                 if (temp.Length == 1)
-                {
-                    if (Interpreter.ConnectionString != null)
-                    {
-                        var inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                        inst.AddTable(_param);
-                        Console.WriteLine($"\nTable created with name '{_param}'\n");
-                    }
-                    else
-                        throw new Exception("\nERROR: There is no connection to database\n");
+                {                   
+                    var inst = Kernel.GetInstance(Interpreter.ConnectionString);
+                    inst.AddTable(_param);
+                    Console.WriteLine($"\nTable created with name '{_param}'\n");
                 }
                 else
                     throw new Exception("\nERROR: Invalid comand syntax\n");
             }
         }
-
 
         static bool IsCreateWithColums(string query)
         {
@@ -148,6 +142,7 @@ namespace UILayer.InterpreterMethods
 
 
         }
+
         static object GetDefaultValue(string value, Type _colType)
         {
             if (_colType == typeof(int))

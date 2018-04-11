@@ -38,6 +38,7 @@ namespace UILayer.InterpreterMethods
         {
             var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
             var _table = _inst.GetTableByName(tableName);
+            Console.WriteLine("\nName(s) and type(s) of column(s):\n" + _table.ColumnType() + "\nEnter column(s)\n");
             string param = Console.ReadLine();
 
 
@@ -56,12 +57,45 @@ namespace UILayer.InterpreterMethods
                     throw new Exception("\nERROR: Ivalid numbers of variables\n");
 
             }
-            Console.WriteLine("\nColumns successfilly inserted\n");
+            Console.WriteLine("\nColumns successfully inserted\n");
 
         }
+
         public static void InsertValues(string tabelName)
         {
-            Console.WriteLine("Here must be information about column name and type");
+            if (Interpreter.ConnectionString != "")
+            {
+                var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
+                var _table = _inst.GetTableByName(tabelName);
+                if (_table.Columns.Count - 1 != 0)
+                {
+                    Console.WriteLine("\nName(s) and type(s) of column(s):\n" + _table.ColumnType() + "\nEnter value(s)\n");
+                    string _data = Console.ReadLine();
+                    char[] _separator = new char[] { ';' };
+                    string[] _values = _data.Split(_separator);
+                    foreach (var _val in _values)
+                    {
+                        char[] _separators = new char[] { ' ', ',' };
+                        string[] _valuesList = _val.Split(_separators, StringSplitOptions.RemoveEmptyEntries);
+                        if (_table.Columns.Count - 1 == _valuesList.Length)
+                        {
+                            object[] _colData = new object[_valuesList.Length];
+                            for (int i = 0; i < _valuesList.Length; i++)
+                            {
+                                _colData[i] = GetData(_valuesList[i], _table.Columns[i + 1]);
+                            }
+                            _table.AddTableElement(_colData);
+                        }
+                        else
+                            throw new Exception("\nERROR: Count of values doesn't equals count of columns");
+                    }
+                    Console.WriteLine("\nAll data successfully inserted\n");
+                }
+                else
+                    throw new Exception("\nERROR: There is no columns in this table");
+            }
+            else
+                throw new Exception("\nERROR: There is no connection to database");
         }
 
 
@@ -78,7 +112,6 @@ namespace UILayer.InterpreterMethods
             return new Column(_colName, _colType, _isAllowNull, _defValue, thisTable);
         }
 
-
         static object GetDefaultValue(string value, Type _colType)
         {
             if (_colType == typeof(int))
@@ -90,7 +123,8 @@ namespace UILayer.InterpreterMethods
                 string val = value.Replace('.', ',');
                 return Convert.ToDouble(value);
             }
-
+            else if (_colType == typeof(bool))
+                return Convert.ToBoolean(value);
             else throw new Exception();
         }
 
@@ -102,7 +136,8 @@ namespace UILayer.InterpreterMethods
                 case "int": return typeof(int);
                 case "string": return typeof(string);
                 case "double": return typeof(double);
-                default: throw new Exception();
+                case "bool": return typeof(bool);
+                default: throw new Exception($"\nERROR: Type {_typeName} doesn't exist");
             }
 
 
@@ -117,5 +152,20 @@ namespace UILayer.InterpreterMethods
             return false;
         }
 
+        static object GetData(string value, Column column)
+        {
+            if (column.DataType == typeof(string))
+                return value;
+            else if (column.DataType == typeof(int))
+                return Convert.ToInt32(value);
+            else if (column.DataType == typeof(double))
+                return Convert.ToDouble(value);
+            else if (column.DataType == typeof(bool))
+                return Convert.ToBoolean(value);
+            else if (value == "null")
+                return null;
+            else return null;
+        }
+        
     }
 }
