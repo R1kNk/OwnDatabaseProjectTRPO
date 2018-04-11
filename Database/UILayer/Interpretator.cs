@@ -22,7 +22,9 @@ namespace UILayer
             "INFO",
             "LOADDB",
             "SAVEDB",
-            "INSERT"
+            "INSERT",
+            "RENAME",
+            "DELETE"
         };
         public static string ConnectionString { get; set; }
 
@@ -70,9 +72,9 @@ namespace UILayer
 
 
         #region LocalMethods
-        bool IsKeyword(string _command)
+        bool IsKeyword(string command)
         {
-            string _temp = _command.ToUpper();
+            string _temp = command.ToUpper();
             foreach (var key in _keywords)
                 if (key == _temp)
                     return true;
@@ -143,6 +145,17 @@ namespace UILayer
                 Kernel.SaveAllDatabases();
                 Console.WriteLine("\nAll databases saved\n");
             }
+            else if (query.Length == 2)
+            {
+                if (Kernel.isDatabaseExists(queryList[1]))
+                {
+                    var _inst = Kernel.GetInstance(queryList[1]);
+                    _inst.SaveDataBaseInstanceToFolder();
+                    Console.WriteLine($"\nDatabase {queryList[1]} successfully saved\n");
+                }
+                else
+                    throw new Exception($"\nERROR: Database {queryList[1]} doesn't exist\n");
+            }
             else
                 Console.WriteLine($"\nERROR: Invalid number of variables");
         }
@@ -179,9 +192,35 @@ namespace UILayer
             InsertMethods.Execute(param);
         }
 
+        private static void Delete(string query)
+        {
+            string _command = query.Substring(6);
+            DeleteMethods.Execute(_command);
+        }
+
         private static void Clear(string query)
         {
             Console.Clear();
+        }
+
+        private static void Rename(string query)
+        {
+            string param = query.Substring(6);
+            RenameMethods.Execute(param);
+        }
+
+        private static void Databases(string query)
+        {
+            char[] separator = new char[] { ' ' };
+            string[] command = query.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+            if (command.Length == 1)
+            {
+                Console.WriteLine();
+                Kernel.OutNamesOfExistingDBs();
+                Console.WriteLine();
+            }
+            else
+                throw new Exception();
         }
         #endregion
 
