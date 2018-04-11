@@ -219,6 +219,32 @@ namespace DataLayer
             info += "\n|DATABASE| "+Name +" END\n";
             return info; 
         }
+
+        //query methods
+
+        public Table QueryColumnSelection(List<string> ColumnNames, string tableName)
+        {
+            Table tableForQuery = GetTableByName(tableName);
+            foreach (string name in ColumnNames) if (!name.Contains(".") || !tableForQuery.isColumnExists(name)) throw new ArgumentException("Invalid column name!");
+            Table queryresult = new Table("queryResult", false);
+            foreach (string name in ColumnNames)
+            {
+                Column oldColumn = tableForQuery.GetColumnByName(name);
+                Column toAdd = new Column(oldColumn.SystemName, oldColumn.DataType, oldColumn.AllowsNull, oldColumn.Default, queryresult);
+                toAdd.DataList = oldColumn.CloneData();
+                queryresult.Columns.Add(toAdd);
+            }
+            return queryresult;
+
+        }
+        public void QuerySortTable(string columnNameSortBy, string tableName, bool isAscending)
+        {
+            Table tableToSort = GetTableByName(tableName);
+            if (tableToSort.isColumnExists(columnNameSortBy))
+            {
+                //tableToSort.
+            } throw new ArgumentException("There is no " + columnNameSortBy + " column in " + tableName + "!");
+        }
     }
     
 }

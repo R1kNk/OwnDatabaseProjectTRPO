@@ -42,9 +42,23 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             Name = name;
             _columns = new List<Column>();
             currentPrimaryKey = 0;
-            Column PrimaryKey = new Column("ID" + Name, typeof(int), false, 0,this);
-            PrimaryKey.SetPkeyProperty(true);
-            Columns.Add(PrimaryKey);
+           
+                Column PrimaryKey = new Column("ID" + Name, typeof(int), false, 0, this);
+                PrimaryKey.SetPkeyProperty(true);
+                Columns.Add(PrimaryKey);
+        }
+        //
+        public Table(string name, bool isPKNeed)
+        {
+            Name = name;
+            _columns = new List<Column>();
+            currentPrimaryKey = 0;
+            if (isPKNeed)
+            {
+                Column PrimaryKey = new Column("ID" + Name, typeof(int), false, 0, this);
+                PrimaryKey.SetPkeyProperty(true);
+                Columns.Add(PrimaryKey);
+            }
         }
         //
         /// <summary>
@@ -306,9 +320,59 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             return true;
         }
         //
+        //
+        public string OutTable()
+        {
+            int[] maxCharSizesArray = new int[Columns.Count];
+            for (int i = 0; i < maxCharSizesArray.Length; i++)
+            {
+                int biggestcharData = default(int);
+                if (isTableContainsData())
+                    biggestcharData = Columns[i].DataList.Select(x => x.Data.ToString().Length).Max();
+                else biggestcharData = 0;
+                int ColumnNameLength = Columns[i].Name.Length;
+                if (biggestcharData > ColumnNameLength) maxCharSizesArray[i] = biggestcharData;
+                else maxCharSizesArray[i] = ColumnNameLength;
+            }
+            string Space = " ";
+            string VertDash = "|";
+            string Plus = "+";
+            string Dash = "-";
+            string MainFrame = Plus;
+            for (int i = 0; i < maxCharSizesArray.Length; i++)
+            {
+                for (int j = 0; j < maxCharSizesArray[i] + 2; j++) MainFrame += Dash;
+                MainFrame += Plus;
+            }
+            string ColumnNamesFrame = VertDash;
+            for (int i = 0; i < maxCharSizesArray.Length; i++)
+            {
+                int SpacesAfter = maxCharSizesArray[i] - Columns[i].Name.Length + 1;
+                ColumnNamesFrame += Space; ColumnNamesFrame += Columns[i].Name;
+                for (int j = 0; j < SpacesAfter; j++)
+                    ColumnNamesFrame += Space;
+                ColumnNamesFrame += VertDash;
+            }
+            string Data = default(string);
+            for (int j = 0; j < Columns[0].DataList.Count; j++)
+            {
+                Data += "\n" + VertDash;
+                for (int i = 0; i < maxCharSizesArray.Length; i++)
+                {
+
+                    int SpacesAfter = maxCharSizesArray[i] - Columns[i].DataList[j].Data.ToString().Length + 1;
+                    Data += Space; Data += Columns[i].DataList[j].Data.ToString();
+                    for (int k = 0; k < SpacesAfter; k++)
+                        Data += Space;
+                    Data += VertDash;
+                }
+            }
+            return MainFrame + "\n" + ColumnNamesFrame + "\n" + MainFrame + Data + "\n" + MainFrame;
+        }
+        //
         public bool isColumnExists(string name)
         {
-            foreach (Column column in Columns) if (column.Name == name) return true;
+            foreach (Column column in Columns) if (column.Name == name || column.SystemName == name) return true;
             return false;
         }
         //
@@ -316,7 +380,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         {
             for(int i =0; i< Columns.Count; i++)
             {
-                if (Columns[i].Name == name) return i;
+                if (Columns[i].Name == name||Columns[i].SystemName == name) return i;
             }
             return -1;
         }
@@ -345,23 +409,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             if (isTableContainsData())
             {
-                tableInfo += "\nTable contains " + Columns[1].DataList.Count + " rows of data:";
-                for (int i = 0; i < Columns[1].DataList.Count; i++)
-                {
-                    DataObject[] buf = GetDataByIndex(i);
-                    tableInfo += "\n";
-                    foreach (DataObject obj in buf)
-                    {
-                        string bufNull = default(string);
-                        if (obj.Data == null)
-                        {
-                            bufNull = "null";
-                            tableInfo += "(" + bufNull + ")" + bufNull + "  ";
-                        }
-                        else
-                            tableInfo += "(" + obj.Data.GetType().Name + ")" + obj.Data.ToString() + "  ";
-                    }
-                }
+                tableInfo += "\n" + OutTable();
             }
             else tableInfo += "\nable doesn't contains any data";
 

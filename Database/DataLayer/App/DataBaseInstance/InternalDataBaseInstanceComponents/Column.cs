@@ -25,6 +25,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         public Column(string name, Type DataType, bool allowsnull, object def, Table parentTable)
         {
             _name = name;
+            _systemName += parentTable.Name + "." + name;
             dataType = DataType;
             allowsNull = allowsnull;
             _Default = DataType.GetDefaultValue();
@@ -44,6 +45,8 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         private Table thisTable;
         //
         protected string _name;
+
+        private string _systemName;
         //
         protected Type dataType;
         //
@@ -65,11 +68,12 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         public bool AllowsNull { get => allowsNull; protected set => allowsNull = value; }
         public object Default { get => _Default; protected set => _Default = value; }
         public bool IsCascadeDeleteOn { get { if (IsFkey) return isCascadeDeleteOn; else throw new ArgumentException("You can't get cascade property of ordinary column"); } set {if (IsFkey)  isCascadeDeleteOn=value; else throw new ArgumentException("You can't set cascade property of ordinary column"); } }
-        public List<DataObject> DataList { get => _dataList; private set => _dataList = value; }
+        public List<DataObject> DataList { get => _dataList;  set => _dataList = value; }
         public string TypeToString { get => dataType.ToString();}
         public bool IsFkey { get => isFkey; protected set => isFkey = value; }
         public bool IsPkey { get => isPkey; protected set => isPkey = value; }
         public Table ThisTable { get => thisTable; }
+        public string SystemName { get => _systemName; private set => _systemName = value; }
 
         /// <summary>
         /// Edit type of the column's data
@@ -175,6 +179,14 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             else throw new NullReferenceException("Table doesn't contain any data");
         } //UI 
         //
+        public List<DataObject> CloneData()
+        {
+            List<DataObject> list = new List<DataObject>();
+            for (int i = 0; i < DataList.Count; i++)
+                list.Add(new DataObject(DataList[i].DataHashcode,DataList[i].Data));
+            return list;
+        }
+        //
         public override bool Equals(object obj)
         {
             return (this.GetHashCode() + DataList.Count == obj.GetHashCode() + DataList.Count);
@@ -204,7 +216,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             else columnInfo += " doesn't allows null data,";
             if (IsPkey) columnInfo += " PrimaryKey,";
             if (IsFkey) columnInfo += " ForeignKey,";
-            columnInfo += " default object = " + Default.ToString()+", hash = "+ GetHashCode()+"\n[COLUMN]"+Name +" INFO END";
+            columnInfo += " default object = " + Default.ToString()+", hash = "+ GetHashCode();
             return columnInfo;
         }
     }
