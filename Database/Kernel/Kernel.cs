@@ -70,7 +70,7 @@ namespace DataLayer
                 }
                 Console.WriteLine(info);
             }
-        } //UI
+        } //UI done
         internal static void LoadDatabase(string name)
         {
             DataBaseInstance bufInst = CollectDataModule.LoadDataBase(name);
@@ -99,12 +99,12 @@ namespace DataLayer
                 else throw new ArgumentException("your name contains undefined symbols!");
             }
             else throw new NullReferenceException("There's no such database in list");
-        } //UI
+        } //UI done
         internal static void AddDBInstance(string name)
         {
             DataBaseInstance bufInst = new DataBaseInstance(name);
             AddDBInstance(bufInst);
-        } //UI
+        } //UI done
         //
         internal static void AddDBInstance(DataBaseInstance inst)
         {
@@ -112,15 +112,15 @@ namespace DataLayer
             if (_instance.FindAll(x => x.Name == inst.Name).Count != 0 || !inst.Name.isThereNoUndefinedSymbols())
                 throw new ArgumentException("Invalid name of database");
             _instance.Add(inst);
-        } //UI
+        }
         internal static void SaveDataBaseInstanceToFolder(this DataBaseInstance inst)
         {
             CacheModule.SaveDataBaseToFolder(inst);
-        } //UI
+        } //UI done
         public static void SaveAllDatabases()
         {
             CacheModule.SaveAllDatabases(GetInstance());
-        } //UI
+        } //UI done
         internal static void LoadAllDatabases(bool isUpdatativeLoad)
         {
             if (!isUpdatativeLoad) instance = CollectDataModule.LoadAllDataBases();
