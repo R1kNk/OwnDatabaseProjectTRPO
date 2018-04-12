@@ -189,7 +189,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// removes row of data by index
         /// </summary>
         /// <param name="index"></param>
-        void DeleteTableElementByIndex(int index)
+      public  void DeleteTableElementByIndex(int index)
         {
             if (isTableContainsData())
             {

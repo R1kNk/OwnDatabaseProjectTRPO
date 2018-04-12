@@ -275,6 +275,131 @@ namespace DataLayer
             } else throw new ArgumentException("There is no " + columnNameSortBy + " column in " + tableForQuery.Name + "!");
             return queryResult;
         }
+    
+        public Table QueryWhereConditionSelection(Table tableForSelection, string columnName, string selectOperator, object selectObject)
+        {
+            Table queryResult = new Table(tableForSelection.Name, false);
+            for (int i = 0; i < tableForSelection.Columns.Count; i++)
+                queryResult.Columns.Add(new Column(tableForSelection.Columns[i], queryResult));
+
+            if (tableForSelection.isTableContainsData())
+            {
+                if (queryResult.isColumnExists(columnName))
+                {
+                    Column queryColumn = queryResult.GetColumnByName(columnName);
+                    if (selectOperator.isSelectOperator() && queryColumn.DataType == selectObject.GetType())
+                    {
+                        List<int> trueIndexes = new List<int>();
+                        switch (selectOperator)
+                        {
+                            case "=":
+                                {
+                                    if (selectObject.GetType() == typeof(string))
+                                    {
+                                        for (int i = 0; i < queryColumn.DataList.Count; i++)
+                                            if ((string)queryColumn.DataList[i].Data != (string)selectObject) { queryResult.DeleteTableElementByIndex(i); i--; ; }
+                                    }
+                                    else if (selectObject.GetType() == typeof(int))
+                                        for (int i = 0; i < queryColumn.DataList.Count; i++)
+                                        {
+                                            if ((int)queryColumn.DataList[i].Data != (int)selectObject) { queryResult.DeleteTableElementByIndex(i); i--; ; }
+                                        }
+                                    else if (selectObject.GetType() == typeof(double))
+                                    {
+                                        for (int i = 0; i < queryColumn.DataList.Count; i++)
+                                        {
+                                            if ((double)queryColumn.DataList[i].Data != (double)selectObject) { queryResult.DeleteTableElementByIndex(i); i--; ; }
+                                        }
+                                    }
+                                    return queryResult;
+                                }
+                            case "!=":
+                                {
+                                    for (int i = 0; i < queryColumn.DataList.Count; i++)
+                                        if (queryColumn.DataList[i].Data == selectObject) { queryResult.DeleteTableElementByIndex(i); i--;; }
+                                    return queryResult;
+                                }
+                            case ">":
+                                {
+                                    if (selectObject.GetType() == typeof(string)) throw new ArgumentException("String type is not compatible with " + selectOperator + " operator!");
+                                    Type type= selectObject.GetType();
+                                    if (selectObject.GetType() == typeof(int))
+                                        for (int i = 0; i < queryColumn.DataList.Count; i++)
+                                        {
+                                            if ((int)queryColumn.DataList[i].Data < (int)selectObject || (int)queryColumn.DataList[i].Data == (int)selectObject) { queryResult.DeleteTableElementByIndex(i); i--;; }
+                                        }
+                                    else if (selectObject.GetType() == typeof(double))
+                                    {
+                                        for (int i = 0; i < queryColumn.DataList.Count; i++)
+                                        {
+                                            if ((double)queryColumn.DataList[i].Data < (double)selectObject || (double)queryColumn.DataList[i].Data == (double)selectObject) { queryResult.DeleteTableElementByIndex(i); i--;; }
+                                        }
+                                    }
+                                        return queryResult;
+                                }
+                            case "<":
+                                {
+                                    if (selectObject.GetType() == typeof(string)) throw new ArgumentException("String type is not compatible with " + selectOperator + " operator!");
+                                    Type type = selectObject.GetType();
+                                    if (selectObject.GetType() == typeof(int))
+                                        for (int i = 0; i < queryColumn.DataList.Count; i++)
+                                        {
+                                    if ((int)queryColumn.DataList[i].Data > (int)selectObject || (int)queryColumn.DataList[i].Data == (int)selectObject) { queryResult.DeleteTableElementByIndex(i); i--;; }
+                                        }
+                                    else if (selectObject.GetType() == typeof(double))
+                                    {
+                                        for (int i = 0; i < queryColumn.DataList.Count; i++)
+                                        {
+                                            if ((double)queryColumn.DataList[i].Data > (double)selectObject || (double)queryColumn.DataList[i].Data == (double)selectObject) { queryResult.DeleteTableElementByIndex(i); i--;; }
+                                        }
+                                    }
+                                    return queryResult;
+                                }
+                            case "<=":
+                                {
+                                    if (selectObject.GetType() == typeof(string)) throw new ArgumentException("String type is not compatible with " + selectOperator + " operator!");
+                                    Type type = selectObject.GetType();
+                                    if (selectObject.GetType() == typeof(int))
+                                        for (int i = 0; i < queryColumn.DataList.Count; i++)
+                                        {
+                                            if ((int)queryColumn.DataList[i].Data > (int)selectObject) { queryResult.DeleteTableElementByIndex(i); i--; }
+                                        }
+                                    else if (selectObject.GetType() == typeof(double))
+                                    {
+                                        for (int i = 0; i < queryColumn.DataList.Count; i++)
+                                        {
+                                            if ((double)queryColumn.DataList[i].Data > (double)selectObject) { queryResult.DeleteTableElementByIndex(i); i--;; }
+                                        }
+                                    }
+                                    return queryResult;
+                                }
+                            case ">=":
+                                {
+                                    if (selectObject.GetType() == typeof(string)) throw new ArgumentException("String type is not compatible with " + selectOperator + " operator!");
+                                    Type type = selectObject.GetType();
+                                    if (selectObject.GetType() == typeof(int))
+                                        for (int i = 0; i < queryColumn.DataList.Count; i++)
+                                        {
+                                            if ((int)queryColumn.DataList[i].Data < (int)selectObject) { queryResult.DeleteTableElementByIndex(i); i--;; }
+                                        }
+                                    else if (selectObject.GetType() == typeof(double))
+                                    {
+                                        for (int i = 0; i < queryColumn.DataList.Count; i++)
+                                        {
+                                            if ((double)queryColumn.DataList[i].Data < (double)selectObject) { queryResult.DeleteTableElementByIndex(i); i--;; }
+                                        }
+                                    }
+                                    return queryResult;
+                                }
+                        }
+                    }
+                    else throw new ArgumentException("Invalid operator or object for select!");
+                }
+                else throw new ArgumentException("There is no " + columnName + " column in " + tableForSelection.Name + " table");
+            }
+            else return tableForSelection;
+            return queryResult;
+        }
     }
     
 }

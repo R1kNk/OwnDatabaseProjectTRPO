@@ -22,10 +22,14 @@ namespace UILayer
             //    Kernel.OutDatabaseInfo();
             // Console.WriteLine(inst.GetTableByName("Cars").OutTable());
             // Interpreter.Run();
+           
+
+
+            inst.GetTableByName("Cars").AddTableElement(new object[] {"mazda", 304 });
             Kernel.OutDatabaseInfo();
-            inst.GetTableByName("Cars").AddTableElement(new object[] { "ain", 304 });
-            Table query = inst.QueryColumnSelection(new List<string> { "Cars.IDCars", "Cars.CarMark" }, inst.GetTableByName("Cars"));
-            query = inst.QuerySortTable("Cars.CarMark", query, false);
+
+            Table query = inst.QueryWhereConditionSelection(inst.GetTableByName("Cars"), "Cars.Price", "=",  100);
+           // query = inst.QuerySortTable("Cars.CarMark", query, false);
             Console.WriteLine(query.OutTable());
 
 
