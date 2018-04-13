@@ -24,11 +24,9 @@ namespace UILayer
             // Interpreter.Run();
            
 
-
-            inst.GetTableByName("Cars").AddTableElement(new object[] {"mazda", 304 });
             Kernel.OutDatabaseInfo();
-
-            Table query = inst.QueryWhereConditionSelection(inst.GetTableByName("Cars"), "Cars.Price", "=",  100);
+           
+            Table query = inst.QueryWhereConditionSelection(inst.GetTableByName("Cars"), "Cars.DoubleValue", "NOT_BETWEEN",  new object[] { 0.0 , 120.5} );
            // query = inst.QuerySortTable("Cars.CarMark", query, false);
             Console.WriteLine(query.OutTable());
 

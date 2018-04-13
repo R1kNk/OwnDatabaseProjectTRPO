@@ -120,6 +120,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                         if (tblProp.Name == futureName) throw new FormatException("Invalid column name. Some column in this table have same name!");
                     }
                     Columns[indexOfColumn(currentName)].Name = futureName;
+                    Columns[indexOfColumn(currentName)].UpdateSystemName();
                 }
                 else throw new FormatException("There is invalid symbols in column's name!");
             }
@@ -285,7 +286,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             if (!isTableContainsColumns()) throw new NullReferenceException();
             for (int i = 0; i < Columns.Count; i++)
             {
-                if (Columns[i].Name == name) return i;
+                if (Columns[i].Name == name|| Columns[i].SystemName==name) return i;
             }
             throw new NullReferenceException("There is no such column in table, or you can't get access to it");
         }

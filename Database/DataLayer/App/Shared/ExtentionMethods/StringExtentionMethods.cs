@@ -12,7 +12,8 @@ namespace DataLayer.Shared.ExtentionMethods
     public static class StringExtentionMethods
     {
         static string undefSymbols = "#^&()-=+[]~'//\\.,;|? ";
-        static string[] selectOperators = new string[] {"=","!=",">","<",">=","<=","BETWEEN","IN"};
+        static string[] selectOperators = new string[] {"=","!=",">","<",">=","<="};
+        static string[] selectComplexOperators = new string[] { "BETWEEN", "IN", "NOT_BETWEEN", "NOT_IN" };
 
        static public bool isThereNoUndefinedSymbols(this string str)
         {
@@ -26,6 +27,11 @@ namespace DataLayer.Shared.ExtentionMethods
         static public bool isSelectOperator(this string str)
         {
             foreach (string op in selectOperators) if (str == op) return true;
+            return false;
+        }
+        static public bool isSelectComplexOperator(this string str)
+        {
+            foreach (string op in selectComplexOperators) if (str == op) return true;
             return false;
         }
     }

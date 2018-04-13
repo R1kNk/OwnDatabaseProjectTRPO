@@ -182,6 +182,11 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             IsPkey = Pkey;
         }
         //
+        public void UpdateSystemName()
+        {
+            SystemName = ThisTable.Name + "." + Name;
+        }
+        //
         /// <summary>
         /// edit data of single clumn by primary key
         /// </summary>
