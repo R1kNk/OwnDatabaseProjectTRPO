@@ -41,6 +41,29 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             _dataList = new List<DataObject>();
 
         }
+        //
+        public Column(Column copyColumn, Table parentTable)
+        {
+            _name = copyColumn.Name;
+            _systemName += parentTable.Name + "." + copyColumn.Name;
+            dataType = copyColumn.DataType;
+            allowsNull = copyColumn.allowsNull;
+            _Default = DataType.GetDefaultValue();
+            isFkey = false;
+            isPkey = false;
+            thisTable = parentTable;
+            if (copyColumn.Default != null)
+            {
+                Type buf = copyColumn.Default.GetType();
+
+                if (copyColumn.Default.GetType() == dataType) _Default = copyColumn.Default;
+            }
+            _dataList = new List<DataObject>();
+            for (int i = 0; i < copyColumn.DataList.Count; i++)
+            {
+                _dataList.Add(new DataObject(GetHashCode(), copyColumn.DataList[i].Data));
+            }
+        }
         //fields
         private Table thisTable;
         //
@@ -159,6 +182,11 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             IsPkey = Pkey;
         }
         //
+        public void UpdateSystemName()
+        {
+            SystemName = ThisTable.Name + "." + Name;
+        }
+        //
         /// <summary>
         /// edit data of single clumn by primary key
         /// </summary>
@@ -206,7 +234,12 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             int AllowsNullHashCode = 1;
             if (!AllowsNull) AllowsNullHashCode =2;
-            return NameHashCode * TypeHashCode * AllowsNullHashCode;
+            int parentTableHash = 1;
+            for (int i = 0; i < ThisTable.Name.Length; i++)
+            {
+                parentTableHash += Math.Abs((int)ThisTable.Name[i]);
+            }
+            return NameHashCode * TypeHashCode * parentTableHash * AllowsNullHashCode;
         }
 
         public override string ToString()
