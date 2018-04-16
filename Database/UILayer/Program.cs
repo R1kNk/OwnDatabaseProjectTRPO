@@ -12,6 +12,8 @@ namespace UILayer
     {
         static void Main(string[] args)
         {
+        //Interpreter.Run();
+
 
             // Interpreter.Run();
             //Kernel.AddDBInstance("inst2");
@@ -30,9 +32,9 @@ namespace UILayer
            // query = inst.QuerySortTable("Cars.CarMark", query, false);
             Console.WriteLine(query.OutTable());
 
-
-
-
         }
+
     }
+
+   
 }

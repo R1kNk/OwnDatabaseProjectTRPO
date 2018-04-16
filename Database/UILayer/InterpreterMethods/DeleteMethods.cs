@@ -17,26 +17,30 @@ namespace UILayer.InterpreterMethods
             "ELEMENT"
         };
 
-
-
         public static void Execute(string query)
         {
-            char[] separator = new char[] { ' ' };
-            string[] _queryList = query.Split(separator, 2, StringSplitOptions.RemoveEmptyEntries);
-            if (_queryList.Length == 2)
-            {
-                if (IsKeyword(_queryList[0]))
+            try {
+                char[] separator = new char[] { ' ' };
+                string[] _queryList = query.Split(separator, 2, StringSplitOptions.RemoveEmptyEntries);
+                if (_queryList.Length == 2)
                 {
-                    string _methodName = "Delete" + _queryList[0];
-                    var _inst = new DeleteMethods();
-                    var _method = _inst.GetType().GetMethod(_methodName,System.Reflection.BindingFlags.IgnoreCase|System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Static);
-                    object[] _paramas = new object[] { _queryList[1] };
-                    _method.Invoke(_inst, _paramas);
+                    if (IsKeyword(_queryList[0]))
+                    {
+                        string _methodName = "Delete" + _queryList[0];
+                        var _inst = new DeleteMethods();
+                        var _method = _inst.GetType().GetMethod(_methodName, System.Reflection.BindingFlags.IgnoreCase | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+                        object[] _paramas = new object[] { _queryList[1] };
+                        _method?.Invoke(_inst, _paramas);
+                    }
+                    else throw new Exception($"\nERROR: Word '{_queryList[0]}' doesn't a keyword\n");
                 }
-                else throw new Exception();
+                else throw new Exception($"\nERROR: Invalid command syntax\n");
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
             }
-            else throw new Exception();
         }
+        //
         /// <summary>
         /// delete database |dbname|
         /// </summary>
@@ -49,17 +53,18 @@ namespace UILayer.InterpreterMethods
             {
                 if (Kernel.isDatabaseExists(_params[0]))
                 { } //Here must be delete of database
-                else throw new Exception();
+                else throw new Exception($"\nERROR: Database '{_params[0]}' doesn't exist\n");
             }
-            else throw new Exception();
+            else throw new Exception("\nERROR: Invalid number of variables");
         }
+        //
         /// <summary>
         /// delete table |tableName|
         /// </summary>
         /// <param name="query"></param>
         static void DeleteTable(string query)
         {
-            if (Interpreter.ConnectionString != "")
+            if (Interpreter.ConnectionString != null)
             {
                 char[] _separator = new char[] { ' ' };
                 string[] _params = query.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
@@ -69,6 +74,7 @@ namespace UILayer.InterpreterMethods
                     if (_inst.isTableExists(_params[0]))
                     {
                         _inst.DeleteTable(_params[0]);
+                        Console.WriteLine("\nTable successfully deleted\n");
                     }
                     else throw new Exception();
                 }
@@ -76,21 +82,64 @@ namespace UILayer.InterpreterMethods
             }
             else throw new Exception();
         }
+        //
+        /// <summary>
+        /// delete column |tableName| |colName|
+        /// </summary>
+        /// <param name="query"></param>
         static void DeleteColumn(string query)
         {
-            if (Interpreter.ConnectionString != "")
+            if (Interpreter.ConnectionString != null)
             {
-                Console.WriteLine("Succes");
+                char[] _separator = new char[] { ' ' };
+                string[] _params = query.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
+                if (_params.Length == 2)
+                {
+                    var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
+                    if (_inst.isTableExists(_params[0]))
+                    {
+                        var _table = _inst.GetTableByName(_params[0]);
+                        if (_table.isColumnExists(_params[1]))
+                        {
+                            _table.DeleteColumn(_params[1]);
+                            Console.WriteLine("\nColumn Successfully deleted\n");
+                        }
+                        else throw new Exception();
+                    }
+                    else throw new Exception();
+                }
+                else throw new Exception();
             }
             else throw new Exception();
         }
+        //
+        /// <summary>
+        /// delete element |tableName| |primaryKeyId|
+        /// </summary>
+        /// <param name="query"></param>
         static void DeleteElement(string query)
         {
-            if (Interpreter.ConnectionString != "")
+            try {
+                if (Interpreter.ConnectionString != null)
+                {
+                    char[] _separator = new char[] { ' ' };
+                    string[] _params = query.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
+                    if (_params.Length == 2)
+                    {
+                        var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
+                        var _table = _inst.GetTableByName(_params[0]);
+                        int _pk = Convert.ToInt32(_params[1]);
+                        _table.DeleteTableElementByPrimaryKey(_pk);
+                        Console.WriteLine("\nData successfully deleted\n");
+                        
+                    }
+                    else throw new Exception("\nERROR: Invalid number of variables\n");
+                }
+                else throw new Exception("\nThere is no connection to database\n");
+            }catch(Exception e)
             {
-                Console.WriteLine("Succes");
+                Console.WriteLine(e.Message);
             }
-            else throw new Exception();
         }
 
         static bool IsKeyword(string word)
@@ -103,8 +152,4 @@ namespace UILayer.InterpreterMethods
         }
 
     }
-    
-    
-    //delete column tbname colname
-    //delete value tbname primary
 }

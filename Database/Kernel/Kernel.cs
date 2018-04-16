@@ -41,7 +41,7 @@ namespace DataLayer
                 return element;
             throw new IndexOutOfRangeException("Null Instance");
         }
-        #region Done
+        
         public static void OutDatabaseInfo()
         {
             if (GetInstance().Count == 0) throw new NullReferenceException("There is no DB's in list!");
@@ -55,9 +55,6 @@ namespace DataLayer
             int index = SharedDataAccessMethods.IndexOfDatabase(GetInstance(), name);
             Console.WriteLine(GetInstance()[index].ToString());
         }
-        #endregion
-
-        #region NotDone
         public static void OutNamesOfExistingDBs()
         {
             if (GetInstance().Count == 0) throw new NullReferenceException("There is no DB's in list!");
@@ -80,9 +77,7 @@ namespace DataLayer
                 GetInstance()[GetInstance().IndexOfDatabase(bufInst.Name)] = bufInst;
             }
         }
-        #endregion
-
-      
+        
         internal static bool isDatabaseExists(string name)
         {
             return SharedDataAccessMethods.isDatabaseExistsInList(GetInstance(), name);

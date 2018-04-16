@@ -24,7 +24,12 @@ namespace UILayer
             "SAVEDB",
             "INSERT",
             "RENAME",
-            "DELETE"
+            "DELETE",
+            "EDIT",
+            "DATABASES",
+            "LINK",
+            "UNLINK",
+            "CASCADE"
         };
         public static string ConnectionString { get; set; }
 
@@ -84,95 +89,134 @@ namespace UILayer
 
         #region MainMetods
         /// <summary>
-        /// 
+        /// Connect to |dbName|
         /// </summary>
         /// <param name="query"></param>
         private static void Connect(string query)
         {
-            char[] separator = new char[] { ' ' };
-            string[] queryList = query.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-            if (queryList[1].ToLower() == "to")
+            try
             {
-                if (queryList.Length == 3)
+                char[] separator = new char[] { ' ' };
+                string[] queryList = query.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                if (queryList[1].ToLower() == "to")
                 {
-                    if (Kernel.isDatabaseExists(queryList[2]))
+                    if (queryList.Length == 3)
                     {
-                        ConnectionString = queryList[2];
-                        Console.WriteLine($"\nNow you connected to database '{queryList[2]}'\n");
+                        if (Kernel.isDatabaseExists(queryList[2]))
+                        {
+                            ConnectionString = queryList[2];
+                            Console.WriteLine($"\nNow you connected to database '{queryList[2]}'\n");
+                        }
+                        else
+                            throw new Exception($"\nERROR: Database with name '{queryList[2]}' doesn't exist\n");
                     }
                     else
-                        Console.WriteLine($"\nERROR: Database with name '{queryList[2]}' doesn't exist\n");
+                        throw new Exception("\nERROR: Invalid number of variables\n");
                 }
                 else
-                    Console.WriteLine("\nERROR: Invalid number of variables\n");
+                    throw new Exception($"\nERROR: This command doesn't exist\n");
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
             }
-            else
-                Console.WriteLine($"\nERROR: This command doesn't exist\n");
         }
-
+        //
+        /// <summary>
+        /// Info/Info |dbName|
+        /// </summary>
+        /// <param name="query"></param>
         private static void Info(string query)
         {
-
-            char[] separator = new char[] { ' ' };
-            string[] queryList = query.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-            if (queryList.Length == 2)
+            try
             {
-                if (Kernel.isDatabaseExists(queryList[1]))
+                char[] separator = new char[] { ' ' };
+                string[] queryList = query.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                if (queryList.Length == 2)
                 {
-                    Kernel.OutDatabaseInfo(queryList[1]);
+                    if (Kernel.isDatabaseExists(queryList[1]))
+                    {
+                        Kernel.OutDatabaseInfo(queryList[1]);
+                    }
+                    else
+                        throw new Exception($"\nERROR: Database with name '{queryList[1]}' doesn't exist\n");
+                }
+                else if (queryList.Length == 1)
+                {
+                    Console.WriteLine($"\nConnection string - {ConnectionString}");
+                    Kernel.OutDatabaseInfo();
                 }
                 else
-                    Console.WriteLine($"\nERROR: Database with name '{queryList[1]}' doesn't exist\n");
-            }
-            else if (queryList.Length == 1)
+                {
+                    throw new Exception($"\nERROR: Invalid numbers of variables\n");
+                }
+            }catch(Exception e)
             {
-                Console.WriteLine($"\nConnection string - {ConnectionString}");
-                Kernel.OutDatabaseInfo();
+                Console.WriteLine(e.Message);
             }
-            else
-            {
-                Console.WriteLine($"\nERROR: Invalid numbers of variables\n");
-            }
-
         }
-
+        //
+        /// <summary>
+        /// savedb/savedb |dbName|
+        /// </summary>
+        /// <param name="query"></param>
         private static void SaveDb(string query)
         {
-            char[] separator = new char[] { ' ' };
-            string[] queryList = query.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-            if (queryList.Length == 1)
-            {
-                Kernel.SaveAllDatabases();
-                Console.WriteLine("\nAll databases saved\n");
-            }
-            else if (query.Length == 2)
-            {
-                if (Kernel.isDatabaseExists(queryList[1]))
+            try {
+                char[] separator = new char[] { ' ' };
+                string[] queryList = query.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                if (queryList.Length == 1)
                 {
-                    var _inst = Kernel.GetInstance(queryList[1]);
-                    _inst.SaveDataBaseInstanceToFolder();
-                    Console.WriteLine($"\nDatabase {queryList[1]} successfully saved\n");
+                    Kernel.SaveAllDatabases();
+                    Console.WriteLine("\nAll databases saved\n");
+                }
+                else if (query.Length == 2)
+                {
+                    if (Kernel.isDatabaseExists(queryList[1]))
+                    {
+                        var _inst = Kernel.GetInstance(queryList[1]);
+                        _inst.SaveDataBaseInstanceToFolder();
+                        Console.WriteLine($"\nDatabase {queryList[1]} successfully saved\n");
+                    }
+                    else
+                        throw new Exception($"\nERROR: Database {queryList[1]} doesn't exist\n");
                 }
                 else
-                    throw new Exception($"\nERROR: Database {queryList[1]} doesn't exist\n");
+                    throw new Exception($"\nERROR: Invalid number of variables");
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
             }
-            else
-                Console.WriteLine($"\nERROR: Invalid number of variables");
         }
-
+        //
+        /// <summary>
+        /// loadDb
+        /// </summary>
+        /// <param name="query"></param>
         private static void LoadDb(string query)
         {
-            char[] separator = new char[] { ' ' };
-            string[] queryList = query.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-            if (queryList.Length == 1)
-            {
-                Kernel.LoadAllDatabases(true);
-                Console.WriteLine("\nDatabases loaded\n");
+            try {
+                char[] separator = new char[] { ' ' };
+                string[] queryList = query.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                if (queryList.Length == 1)
+                {
+                    Kernel.LoadAllDatabases(true);
+                    Console.WriteLine("\nDatabases loaded\n");
+                }
+                else
+                    throw new Exception($"\nERROR: Invalid number of variables");
             }
-            else
-                Console.WriteLine($"\nERROR: Invalid number of variables");
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
-
+        //
+        /// <summary>
+        /// create database |dbName|
+        /// create table |tableName|
+        /// create table |tableName| (ColName,ColType,IsAllowNull(true/false),DefaultValue;...)
+        /// </summary>
+        /// <param name="query"></param>
         private static void Create(string query)
         {
             string _command = query.Substring(6);
@@ -185,42 +229,170 @@ namespace UILayer
                 Console.WriteLine(e.Message);
             }
         }
-
+        //
+        /// <summary>
+        /// Insert column |tableName|->ColName,ColType,IsAllowNull(true/false),DefaultValue;...
+        /// Insert values |tableName|->(|params|)
+        /// </summary>
+        /// <param name="query"></param>
         private static void Insert(string query)
         {
             string param = query.Substring(6);
             InsertMethods.Execute(param);
         }
-
+        //
+        /// <summary>
+        /// Delete table |tableName|
+        /// Delete column |tableName| |ColName|
+        /// Delete element |tableName| |ID(int)|
+        /// </summary>
+        /// <param name="query"></param>
         private static void Delete(string query)
         {
             string _command = query.Substring(6);
             DeleteMethods.Execute(_command);
         }
-
+        //
+        /// <summary>
+        /// Edit |tableName|
+        /// </summary>
+        /// <param name="query"></param>
+        private static void Edit(string query)
+        {
+            string _tableName = query.Substring(4);
+            EditMethods.Execute(_tableName);
+        }
+        //
+        /// <summary>
+        /// Link |TableNameWithFK| |GeneralTableName| |true/false|
+        /// </summary>
+        /// <param name="query"></param>
+        private static void Link(string query)
+        {
+            try {
+                if (ConnectionString != null)
+                {
+                    char[] _separator = new char[] { ' ' };
+                    string[] _params = query.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
+                    if (_params.Length == 4)
+                    {
+                        var _inst = Kernel.GetInstance(ConnectionString);
+                        var _tableWithFk = _inst.GetTableByName(_params[1]);
+                        var _generalTable = _inst.GetTableByName(_params[2]);
+                        bool _isCascadeDelete = Convert.ToBoolean(_params[3]);
+                        _inst.LinkTables(_tableWithFk, _generalTable, _isCascadeDelete);
+                    }
+                    else throw new Exception("\nERROR: Invalid number of variables\n");
+                }
+                else throw new Exception("\nERROR: Invalid number of variables\n");
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+        //
+        /// <summary>
+        /// UnLink |TableNameWithFK| |GeneralTableName|
+        /// </summary>
+        /// <param name="query"></param>
+        private static void UnLink(string query)
+        {
+            try {
+                if (ConnectionString != null)
+                {
+                    char[] _separator = new char[] { ' ' };
+                    string[] _params = query.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
+                    if (_params.Length == 3)
+                    {
+                        var _inst = Kernel.GetInstance(ConnectionString);
+                        _inst.UnLinkTables(_inst.GetTableByName(_params[1]), _inst.GetTableByName(_params[3]));
+                    }
+                    else throw new Exception("\nERROR: Invalid number of variables\n");
+                }
+                else throw new Exception("\nERROR: There is no connection to database\n");
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+        //
+        /// <summary>
+        /// Cascade dalete |tableNameFK| |GeneralTableName| |true/fasle|
+        /// </summary>
+        /// <param name="query"></param>
+        private static void Cascade(string query)
+        {
+            try
+            {
+                if (ConnectionString != null)
+                {
+                    char[] _seprator = new char[] { ' ' };
+                    string[] _params = query.Split(_seprator, StringSplitOptions.RemoveEmptyEntries);
+                    if (_params.Length == 5)
+                    {
+                        if (_params[1].ToUpper() == "DELETE")
+                        {
+                            var _inst = Kernel.GetInstance(ConnectionString);
+                            var _tableFk = _inst.GetTableByName(_params[2]);
+                            var _tableGenral = _inst.GetTableByName(_params[3]);
+                            bool _isCascadeDelete = Convert.ToBoolean(_params[4]);
+                            _inst.EditCascadeDeleteOption(_tableFk, _tableGenral, _isCascadeDelete);
+                        }
+                        else throw new Exception("\nERROR: Invalid command syntax\n");
+                    }
+                    else throw new Exception("\nERROR: Invalid number of variables\n");
+                }
+                else throw new Exception("\nERROR: There is no connection to database\n");
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+        //
+        /// <summary>
+        /// clear
+        /// </summary>
+        /// <param name="query"></param>
         private static void Clear(string query)
         {
             Console.Clear();
         }
-
+        //
+        /// <summary>
+        /// Rename database |oldName| |newName|
+        /// Rename table |oldName| |newName|
+        /// Rename column |oldName| |newName|
+        /// </summary>
+        /// <param name="query"></param>
         private static void Rename(string query)
         {
             string param = query.Substring(6);
             RenameMethods.Execute(param);
         }
-
+        //
+        /// <summary>
+        /// Databases
+        /// </summary>
+        /// <param name="query"></param>
         private static void Databases(string query)
         {
-            char[] separator = new char[] { ' ' };
-            string[] command = query.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-            if (command.Length == 1)
+            try {
+                char[] separator = new char[] { ' ' };
+                string[] command = query.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                if (command.Length == 1)
+                {
+                    Console.WriteLine();
+                    Kernel.OutNamesOfExistingDBs();
+                    Console.WriteLine();
+                }
+                else
+                    throw new Exception();
+            }catch(Exception e)
             {
-                Console.WriteLine();
-                Kernel.OutNamesOfExistingDBs();
-                Console.WriteLine();
+                Console.WriteLine(e.Message);
             }
-            else
-                throw new Exception();
         }
         #endregion
 
