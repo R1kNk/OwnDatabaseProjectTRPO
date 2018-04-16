@@ -150,7 +150,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             CascadeDeleteEventArgs e = new CascadeDeleteEventArgs("FK_"+Columns[0].Name, key);
             if (cascadeDelete != null)
             cascadeDelete(this, e);
-        } //UI
+        } //UI done
         //
         /// <summary>
         /// removes row of data by index
@@ -201,7 +201,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
           }
           else throw new NullReferenceException();
 
-        } //UI
+        } //UI done
         //
         /// <summary>
         /// get index of column by name

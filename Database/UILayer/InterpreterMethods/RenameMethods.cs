@@ -16,8 +16,6 @@ namespace UILayer.InterpreterMethods
             "COLUMN"
         };
 
-
-
         public static void Execute(string query)
         {
             char[] separator = new char[] { ' ' };
@@ -27,23 +25,19 @@ namespace UILayer.InterpreterMethods
             {
                 if (IsKeyword(queryList[0]))
                 {
-                    if (queryList[0].ToUpper() == _keywords[0])
-                        RenameDatabase(queryList[1]);
-                    else if (queryList[0].ToUpper() == _keywords[1])
-                        RenameTable(queryList[1]);
-                    else
-                        RenameColumn(queryList[1]);
+                    var _inst = new RenameMethods();
+                    string _methodName = "Rename" + queryList[0];
+                    var _method = _inst.GetType().GetMethod(_methodName, System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.IgnoreCase);
+                    _method?.Invoke(_inst, new object[] { queryList[1] });
                 }
-                else
-                    throw new Exception();
+                else throw new Exception();
             }
-            else
-                throw new Exception();
+            else throw new Exception();
         }
 
         private static void RenameColumn(string command)
         {
-            if(Interpreter.ConnectionString!="")
+            if(Interpreter.ConnectionString!=null)
             {
                 char[] _separator = new char[] { ' ' };
                 string[] _colNames = command.Split(_separator,StringSplitOptions.RemoveEmptyEntries);
@@ -59,7 +53,7 @@ namespace UILayer.InterpreterMethods
 
         private static void RenameTable(string command)
         {
-            if (Interpreter.ConnectionString != "")
+            if (Interpreter.ConnectionString != null)
             {
                 char[] _separator = new char[] { ' ' };
                 string[] _tableNames = command.Split(_separator, StringSplitOptions.RemoveEmptyEntries);

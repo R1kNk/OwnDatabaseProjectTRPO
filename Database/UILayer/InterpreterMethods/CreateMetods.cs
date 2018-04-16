@@ -6,35 +6,37 @@ using DataModels.App.InternalDataBaseInstanceComponents;
 
 namespace UILayer.InterpreterMethods
 {
-    static class CreateMethods
+    class CreateMethods
     {
         static List<string> _keywords = new List<string>() { "DATABASE", "TABLE" };
 
         public static void Execute(string query)
         {
-            char[] separators = new char[] { ' ' };
-            string[] queryList = query.Split(separators, 2, StringSplitOptions.RemoveEmptyEntries);
-            if (Interpreter.ConnectionString != "")
+            try
             {
+                char[] separators = new char[] { ' ' };
+                string[] queryList = query.Split(separators, 2, StringSplitOptions.RemoveEmptyEntries);
+
                 if (queryList.Length == 2)
                 {
                     string _createParam = default(string);
                     _createParam = queryList[0];
                     if (IsKeyword(_createParam))
                     {
-                        if (_createParam.ToUpper() == _keywords[0])
-                            CreateDatabase(queryList[1]);
-                        else
-                            CreateTable(queryList[1]);
+                        var _inst = new CreateMethods();
+                        string _methodName = "Create" + _createParam;
+                        var _method = _inst.GetType().GetMethod(_methodName, System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.IgnoreCase);
+                        object[] _params = new object[] { queryList[1] };
+                        _method?.Invoke(_inst, _params);
                     }
-                    else
-                        Console.WriteLine($"\nERROR: Invalid command syntax\n");
+                    else throw new Exception($"\nERROR: Invalid command syntax\n");
                 }
-                else
-                    Console.WriteLine($"\nERROR: Invalid number of variables\n");
+                else throw new Exception($"\nERROR: Invalid number of variables\n");
             }
-            else
-                throw new Exception("\nERROR: There is no connection to database\n");
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
 
         static void CreateDatabase(string dbName)
@@ -46,50 +48,55 @@ namespace UILayer.InterpreterMethods
 
         static void CreateTable(string _param)
         {
-            string _tableName = default(string);
-            string _tableParams = default(string);
-
-            if (IsCreateWithColums(_param))
+            if (Interpreter.ConnectionString != null)
             {
-                if (IsValidSyntax(_param))
+                string _tableName = default(string);
+                string _tableParams = default(string);
+
+                if (IsCreateWithColums(_param))
                 {
-                    char[] separetor = new char[] { ' ' };
-                    string[] queryList = _param.Split(separetor, 2, StringSplitOptions.RemoveEmptyEntries);
-                    _tableName = queryList[0];
-                    _tableParams = queryList[1];
+                    if (IsValidSyntax(_param))
+                    {
+                        char[] separetor = new char[] { ' ' };
+                        string[] queryList = _param.Split(separetor, 2, StringSplitOptions.RemoveEmptyEntries);
+                        _tableName = queryList[0];
+                        _tableParams = queryList[1];
 
                     
-                    char[] _temp = new char[] { ')', ';', '(' };
-                    var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                    _inst.AddTable(_tableName);
-                    string[] _colParams = queryList[1].Split(_temp, StringSplitOptions.RemoveEmptyEntries);
+                        char[] _temp = new char[] { ')', ';', '(' };
+                        var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
+                        _inst.AddTable(_tableName);
+                        string[] _colParams = queryList[1].Split(_temp, StringSplitOptions.RemoveEmptyEntries);
 
-                    foreach (var _column in _colParams)
-                    {
-                        char[] _tempery = new char[] { ',', '\'' };
-                        string[] _colParam = _column.Split(_tempery, StringSplitOptions.RemoveEmptyEntries);
-                        if (_colParam.Length == 4)
+                        foreach (var _column in _colParams)
                         {
-                            _inst.GetTableByName(_tableName).AddColumn(GetColumn(_colParam, _inst.GetTableByName(_tableName)));
+                            char[] _tempery = new char[] { ',', '\'' };
+                            string[] _colParam = _column.Split(_tempery, StringSplitOptions.RemoveEmptyEntries);
+                            if (_colParam.Length == 4)
+                            {
+                                _inst.GetTableByName(_tableName).AddColumn(GetColumn(_colParam, _inst.GetTableByName(_tableName)));
+                            }
+                            Console.WriteLine("\nERROR: Invalid number of variables\n");
                         }
+                        Console.WriteLine($"\nTable created with name '{_tableName}'\n");
                     }
-                    Console.WriteLine($"\nTable created with name '{_tableName}'\n");
+                    else throw new Exception("\nERROR: Invalid command syntax\n");
                 }
                 else
-                    throw new Exception("\nERROR: Invalid command syntax\n");
+                {
+                    string[] temp = _param.Split(' ');
+                    if (temp.Length == 1)
+                    {                   
+                        var inst = Kernel.GetInstance(Interpreter.ConnectionString);
+                        inst.AddTable(_param);
+                        Console.WriteLine($"\nTable created with name '{_param}'\n");
+                    }
+                    else
+                        throw new Exception("\nERROR: Invalid number of variables\n");
+                }   
             }
             else
-            {
-                string[] temp = _param.Split(' ');
-                if (temp.Length == 1)
-                {                   
-                    var inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                    inst.AddTable(_param);
-                    Console.WriteLine($"\nTable created with name '{_param}'\n");
-                }
-                else
-                    throw new Exception("\nERROR: Invalid comand syntax\n");
-            }
+                throw new Exception("\nERROR: There is no connection to database\n");
         }
 
         static bool IsCreateWithColums(string query)
@@ -125,7 +132,7 @@ namespace UILayer.InterpreterMethods
             object _defValue = GetDefaultValue(_variables[3], _colType);
 
             if (_colType != _defValue.GetType())
-                Console.WriteLine(_defValue.GetType().Name);
+                Console.WriteLine("\nType of default value doesn't equals column type. Default value will be set by default\n");
             return new Column(_colName, _colType, _isAllowNull, _defValue, thisTable);
         }
 
@@ -137,7 +144,8 @@ namespace UILayer.InterpreterMethods
                 case "int": return typeof(int);
                 case "string": return typeof(string);
                 case "double": return typeof(double);
-                default: throw new Exception();
+                case "bool": return typeof(bool);
+                default: throw new Exception($"\nERROR: Type '{_typeName}' doesn't exist");
             }
 
 
@@ -154,6 +162,8 @@ namespace UILayer.InterpreterMethods
                 string val = value.Replace('.', ',');
                 return Convert.ToDouble(val);
             }
+            else if (_colType == typeof(bool))
+                return Convert.ToBoolean(value);
             else throw new Exception();
         }
     }
