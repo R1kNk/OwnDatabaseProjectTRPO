@@ -104,16 +104,23 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <param name="newColumnType"></param>
         public void EditColumnType(Type newColumnType )
         {
-            if (!IsFkey && !IsPkey)
+            try
             {
-                if (newColumnType != DataType)
+                if (!IsFkey && !IsPkey)
                 {
-                    DataType = newColumnType;
-                    SetDefaultObject(DataType.GetDefaultValue());
-                    UpdateDataHashCode();
+                    if (newColumnType != DataType)
+                    {
+                        DataType = newColumnType;
+                        SetDefaultObject(DataType.GetDefaultValue());
+                        UpdateDataHashCode();
+                    }
                 }
+                else throw new ArgumentException("You can't change type of this column!");
             }
-            else throw new ArgumentException("You can't change type of this column!");
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
 
         } //UI
         /// <summary>
@@ -122,12 +129,19 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <param name="isNullable"></param>
         public void SetNullableProperty(bool isNullable)
         {
-            if (!IsFkey && !Name.Contains("Id"))
+            try
             {
-                AllowsNull = isNullable;
-                UpdateDataHashCode();
+                if (!IsFkey && !Name.Contains("Id"))
+                {
+                    AllowsNull = isNullable;
+                    UpdateDataHashCode();
+                }
+                else throw new ArgumentException("You can't change nullable property of this column!");
             }
-            else throw new ArgumentException("You can't change nullable property of this column!");
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         } //UI
         /// <summary>
         /// set another default object
@@ -135,8 +149,15 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <param name="defaultObject"></param>
         public void SetDefaultObject(object defaultObject)
         {
-            if (defaultObject.GetType() == DataType) Default = defaultObject;
-            else throw new ArgumentException("Type of your defaultObject isn't similar to type of column");
+            try
+            {
+                if (defaultObject.GetType() == DataType) Default = defaultObject;
+                else throw new ArgumentException("Type of your defaultObject isn't similar to type of column");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         } //UI
         /// <summary>
         /// Updates hash code inside DataList
@@ -195,16 +216,24 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <param name="argument"></param>
         virtual public void EditColumnElementByPrimaryKey(int key, object argument)
         {
-            if (thisTable.isTableContainsData())
+            try
             {
-                if (IsPkey) throw new ArgumentException("You can't change the PrimaryKey Column Data"); 
-                if (DataType == argument.GetType())
+                if (thisTable.isTableContainsData())
                 {
-                    DataList[thisTable.returnIndexOfPrimaryKey(key)].Data = argument;
+                    if (IsPkey) throw new ArgumentException("You can't change the PrimaryKey Column Data");
+                    if (DataType == argument.GetType())
+                    {
+                        if (thisTable.returnIndexOfPrimaryKey(key) == -1) throw new NullReferenceException("There is no such Primary Key in this table");
+                        DataList[thisTable.returnIndexOfPrimaryKey(key)].Data = argument;
+                    }
+                    else throw new ArgumentException("Type of argument is not similar to Column type");
                 }
-                else throw new ArgumentException("Type of argument is not similar to Column type");
+                else throw new NullReferenceException("Table doesn't contain any data");
             }
-            else throw new NullReferenceException("Table doesn't contain any data");
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         } //UI 
         //
         public List<DataObject> CloneData()

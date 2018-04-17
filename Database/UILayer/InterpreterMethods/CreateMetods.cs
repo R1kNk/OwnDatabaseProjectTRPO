@@ -79,7 +79,12 @@ namespace UILayer.InterpreterMethods
                             string[] _colParam = _column.Split(_tempery, StringSplitOptions.RemoveEmptyEntries);
                             if (_colParam.Length == 4)
                             {
-                                _inst.GetTableByName(_tableName).AddColumn(GetColumn(_colParam, _inst.GetTableByName(_tableName)));
+                                if (_inst.isTableExists(_tableName))
+                                {
+                                    _inst.GetTableByName(_tableName).AddColumn(GetColumn(_colParam, _inst.GetTableByName(_tableName)));
+                                }
+                                else throw new NullReferenceException($"There is no table '{_tableName}' in database '{_inst.Name}'!");
+
                             }
                             Console.WriteLine("\nERROR: Invalid number of variables\n");
                         }

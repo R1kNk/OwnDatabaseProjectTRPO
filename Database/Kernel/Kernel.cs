@@ -4,6 +4,7 @@ using System.Text;
 using System.Runtime.CompilerServices;
 using DataAccessLayer.Modules;
 using DataLayer.Shared.ExtentionMethods;
+using System.IO;
 
 [assembly: InternalsVisibleTo("FilesLayer")]
 
@@ -22,8 +23,6 @@ namespace DataLayer
                 {
                     if (instance == null)
                     {
-
-                        //!!! here check enviroment for something
                         instance = new List<DataBaseInstance>();
                         LoadAllDatabases(true);
 
@@ -35,19 +34,37 @@ namespace DataLayer
 
         public static DataBaseInstance GetInstance(string name)
         {
-            var _instance = Kernel.GetInstance();
-            var element =  _instance.FindLast(x => x.Name == name);
-            if (element != null)
+
+                var _instance = Kernel.GetInstance();
+                var element = _instance.FindLast(x => x.Name == name);
+                try
+                {
+                    if (element != null)
+                        return element;
+                    throw new IndexOutOfRangeException("Null Instance");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
                 return element;
-            throw new IndexOutOfRangeException("Null Instance");
+           
+
         }
         
         public static void OutDatabaseInfo()
         {
-            if (GetInstance().Count == 0) throw new NullReferenceException("There is no DB's in list!");
-            for (int i = 0; i < GetInstance().Count; i++)
+            try
             {
-                Console.WriteLine(GetInstance()[i].ToString());
+                if (GetInstance().Count == 0) throw new NullReferenceException("There is no DB's in list!");
+                for (int i = 0; i < GetInstance().Count; i++)
+                {
+                    Console.WriteLine(GetInstance()[i].ToString());
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
         public static void OutDatabaseInfo(string name)
@@ -57,24 +74,38 @@ namespace DataLayer
         }
         public static void OutNamesOfExistingDBs()
         {
-            if (GetInstance().Count == 0) throw new NullReferenceException("There is no DB's in list!");
-            else
+            try
             {
-                string info = "DB's list:";
-                for (int i = 0; i < GetInstance().Count; i++)
+                if (GetInstance().Count == 0) throw new NullReferenceException("There is no DB's in list!");
+                else
                 {
-                    info += " " + GetInstance()[i].Name;
+                    string info = "DB's list:";
+                    for (int i = 0; i < GetInstance().Count; i++)
+                    {
+                        info += " " + GetInstance()[i].Name;
+                    }
+                    Console.WriteLine(info);
                 }
-                Console.WriteLine(info);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         } //UI done
         internal static void LoadDatabase(string name)
         {
-            DataBaseInstance bufInst = CollectDataModule.LoadDataBase(name);
-            if (bufInst.Name == "nullDB") throw new ArgumentException("THere is no DB with such name in folder");
-            if (GetInstance().isDatabaseExistsInList(bufInst.Name))
+            try
             {
-                GetInstance()[GetInstance().IndexOfDatabase(bufInst.Name)] = bufInst;
+                DataBaseInstance bufInst = CollectDataModule.LoadDataBase(name);
+                if (bufInst.Name == "nullDB") throw new ArgumentException("THere is no DB with such name in folder");
+                if (GetInstance().isDatabaseExistsInList(bufInst.Name))
+                {
+                    GetInstance()[GetInstance().IndexOfDatabase(bufInst.Name)] = bufInst;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
         
@@ -85,15 +116,22 @@ namespace DataLayer
 
         internal static void RenameDatabase(string currentName, string futureName)
         {
-            if (isDatabaseExists(currentName))
+            try
             {
-                if (futureName.isThereNoUndefinedSymbols())
+                if (isDatabaseExists(currentName))
                 {
-                    GetInstance(currentName).Name = futureName;
+                    if (futureName.isThereNoUndefinedSymbols())
+                    {
+                        GetInstance(currentName).Name = futureName;
+                    }
+                    else throw new ArgumentException("Your name contains undefined symbols!");
                 }
-                else throw new ArgumentException("your name contains undefined symbols!");
+                else throw new NullReferenceException("There's no such database in list");
             }
-            else throw new NullReferenceException("There's no such database in list");
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         } //UI done
         internal static void AddDBInstance(string name)
         {
@@ -103,10 +141,17 @@ namespace DataLayer
         //
         internal static void AddDBInstance(DataBaseInstance inst)
         {
-            var _instance = Kernel.GetInstance();
-            if (_instance.FindAll(x => x.Name == inst.Name).Count != 0 || !inst.Name.isThereNoUndefinedSymbols())
-                throw new ArgumentException("Invalid name of database");
-            _instance.Add(inst);
+            try
+            {
+                var _instance = Kernel.GetInstance();
+                if (_instance.FindAll(x => x.Name == inst.Name).Count != 0 || !inst.Name.isThereNoUndefinedSymbols())
+                    throw new ArgumentException("Invalid name of database");
+                _instance.Add(inst);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
         internal static void SaveDataBaseInstanceToFolder(this DataBaseInstance inst)
         {
@@ -116,11 +161,30 @@ namespace DataLayer
         {
             CacheModule.SaveAllDatabases(GetInstance());
         } //UI done
+        internal static void DeleteDatabase(string name)
+        {
+            try
+            {
+                if (isDatabaseExists(name))
+                {
+                    GetInstance().Remove(GetInstance(name));
+                    DirectoryInfo dirInfo = new DirectoryInfo("./DataBases/");
+                    foreach (FileInfo file in dirInfo.GetFiles())
+                    {
+                        if (file.Name == name)
+                        { file.Delete(); return; }
+                    }
+
+                }
+                else throw new NullReferenceException($"\nERROR: Database '{name}' doesn't exist\n");
+            }
+        }
         internal static void LoadAllDatabases(bool isUpdatativeLoad)
         {
             if (!isUpdatativeLoad) instance = CollectDataModule.LoadAllDataBases();
             instance = CollectDataModule.UpdatativeDatabasesLoad(instance);
 
         }
+
     }
 }

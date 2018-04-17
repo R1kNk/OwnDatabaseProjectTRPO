@@ -66,18 +66,23 @@ namespace UILayer.InterpreterMethods
                         char[] _sep = new char[] { ',', '(', ')' };
                         string[] _params = _queryList[2].Split(_sep, StringSplitOptions.RemoveEmptyEntries);
                         var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                        var _table = _inst.GetTableByName(tableName);
-                        if (_table.Columns.Count - 1 == _params.Length)
+                        if (_inst.isTableExists(tableName))
                         {
-                            object[] _data = new object[_params.Length];
-                            for (int i = 0; i < _params.Length; i++)
+                            var _table = _inst.GetTableByName(tableName);
+                            if (_table.Columns.Count - 1 == _params.Length)
                             {
-                                _data[i] = GetData(_params[i], _table.Columns[i + 1]);
+                                object[] _data = new object[_params.Length];
+                                for (int i = 0; i < _params.Length; i++)
+                                {
+                                    _data[i] = GetData(_params[i], _table.Columns[i + 1]);
+                                }
+                                _table.EditTableElementByPrimaryKey(_elementId, _data);
+                                Console.WriteLine("\nAll data successfully edited\n");
                             }
-                            _table.EditTableElementByPrimaryKey(_elementId, _data);
-                            Console.WriteLine("\nAll data successfully edited\n");
+                            else throw new Exception("\nERROR: Count of params doesn't equals count of columns\n");
                         }
-                        else throw new Exception("\nERROR: Count of params doesn't equals count of columns\n");
+                        else throw new NullReferenceException($"There is no table '{tableName}' in database '{_inst.Name}'!");
+
                     }
                     else throw new Exception("\nERROR: Invalid command syntax\n");
                 }
@@ -96,10 +101,17 @@ namespace UILayer.InterpreterMethods
                 if (_params.Length == 3)
                 {
                     var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                    var _table = _inst.GetTableByName(tableName);
-                    var _column = _table.GetColumnByName(_params[1]);
-                    _column.SetNullableProperty(Convert.ToBoolean(_params[2]));
-                    Console.WriteLine($"\nNull property of column {_params[1]} setted {_params[2]}\n");
+                    if (_inst.isTableExists(tableName))
+                    {
+                        var _table = _inst.GetTableByName(tableName);
+                        if (_table.isColumnExists(_params[1]))
+                        {
+                            var _column = _table.GetColumnByName(_params[1]);
+                            _column.SetNullableProperty(Convert.ToBoolean(_params[2]));
+                            Console.WriteLine($"\nNull property of column {_params[1]} setted {_params[2]}\n");
+                        } else throw new NullReferenceException("\nERROR: There is no column " + _params[1] + " in table "+tableName+"!\n");
+                    }
+                    else throw new NullReferenceException("\nERROR: There is no table " +tableName+" in this database!\n");
                 }
                 else throw new Exception("\nERROR: Invalid number of variables\n");
             }catch(Exception e)
@@ -118,10 +130,18 @@ namespace UILayer.InterpreterMethods
                     if (_params[1].ToUpper() == "VALUE")
                     {
                         var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                        var _table = _inst.GetTableByName(tableName);
-                        var _column = _table.GetColumnByName(_params[3]);
-                        _column.SetDefaultObject(GetData(_params[3], _column));
-                        Console.WriteLine("Default value succesfully setted\n");
+                        if (_inst.isTableExists(tableName))
+                        {
+                            var _table = _inst.GetTableByName(tableName);
+                            if (_table.isColumnExists(_params[3]))
+                            {
+                                var _column = _table.GetColumnByName(_params[3]);
+                                _column.SetDefaultObject(GetData(_params[3], _column));
+                                Console.WriteLine("Default value succesfully setted\n");
+                            }
+                            else throw new NullReferenceException("\nERROR: There is no column " + _params[1] + " in table " + tableName + "!\n");
+                        }
+                        else throw new NullReferenceException("\nERROR: There is no table " + tableName + " in this database!\n");
                     }
                     else throw new Exception("\nERROR: Invalid command syntax\n");
                 }
@@ -141,10 +161,18 @@ namespace UILayer.InterpreterMethods
                 if (_params.Length == 3)
                 {
                     var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                    var _table = _inst.GetTableByName(tableName);
-                    var _column = _table.GetColumnByName(_params[1]);
-                    _column.EditColumnType(GetType(_params[2]));
-                    Console.WriteLine("\nType successfully changed\n");
+                    if (_inst.isTableExists(tableName))
+                    {
+                        var _table = _inst.GetTableByName(tableName);
+                        if (_table.isColumnExists(_params[1]))
+                        {
+                            var _column = _table.GetColumnByName(_params[1]);
+                            _column.EditColumnType(GetType(_params[2]));
+                            Console.WriteLine("\nType successfully changed\n");
+                        }
+                        else throw new NullReferenceException("\nERROR: There is no column " + _params[1] + " in table " + tableName + "!\n");
+                    }
+                    else throw new NullReferenceException("\nERROR: There is no table " + tableName + " in this database!\n");
                 }
                 else throw new Exception("\nERROR: Invalid number of variales\n");
             }catch(Exception e)

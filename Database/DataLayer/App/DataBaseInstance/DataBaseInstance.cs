@@ -45,12 +45,19 @@ namespace DataLayer
         /// <param name="bufTable"></param>
         public void AddTable(Table bufTable)
         {
-            if (bufTable.Name.isThereNoUndefinedSymbols())
+            try
             {
-                if (isTableExists(bufTable.Name)) throw new FormatException("Invalid table name. Some table in this database have same name!");
-                TablesDB.Add(bufTable);
+                if (bufTable.Name.isThereNoUndefinedSymbols())
+                {
+                    if (isTableExists(bufTable.Name)) throw new FormatException("Invalid table name. Some table in this database have same name!");
+                    TablesDB.Add(bufTable);
+                }
+                else throw new FormatException("There is invalid symbols in table's name!");
             }
-            else throw new FormatException("There is invalid symbols in table's name!");
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+            }
         } //UI done
         //
         /// <summary>
@@ -59,37 +66,44 @@ namespace DataLayer
         /// <param name="name"></param>
         public void DeleteTable(string name)
         {
-            if(TablesDB.Count==0) throw new NullReferenceException();
-            if (indexOfTable(name) != -1)
+            try
             {
-                Table tableToDelete = GetTableByName(name);
-                List<int> keys = new List<int>();
-                for (int i = 0; i < tableToDelete.Columns[0].DataList.Count; i++)
+                if (TablesDB.Count == 0) throw new NullReferenceException("There is no tables in this database!");
+                if (indexOfTable(name) != -1)
                 {
-                    keys.Add((int)tableToDelete.Columns[0].DataList[i].Data);
-                }
-                foreach (int key in keys) tableToDelete.DeleteTableElementByPrimaryKey(key);
-                for (int i = 0; i < tableToDelete.Columns.Count; i++)
-                {
-                    if (tableToDelete.Columns[i].IsFkey)
+                    Table tableToDelete = GetTableByName(name);
+                    List<int> keys = new List<int>();
+                    for (int i = 0; i < tableToDelete.Columns[0].DataList.Count; i++)
                     {
-                        string LinkedTableName = default(string);
-                        LinkedTableName = tableToDelete.Columns[i].Name.Substring(5);
-                        Console.WriteLine(LinkedTableName);
-                        UnLinkTables(tableToDelete, GetTableByName(LinkedTableName));
+                        keys.Add((int)tableToDelete.Columns[0].DataList[i].Data);
                     }
-                }
-                for (int i = 0; i < TablesDB.Count; i++)
-                {
-                    if (TablesDB[i].isColumnExists("FK_" + tableToDelete.Columns[0].Name))
+                    foreach (int key in keys) tableToDelete.DeleteTableElementByPrimaryKey(key);
+                    for (int i = 0; i < tableToDelete.Columns.Count; i++)
                     {
-                        TablesDB[i].GetColumnByName("FK_" + tableToDelete.Columns[0].Name).SetFkeyProperty(false);
-                        TablesDB[i].DeleteColumn("FK_" + tableToDelete.Columns[0].Name);
+                        if (tableToDelete.Columns[i].IsFkey)
+                        {
+                            string LinkedTableName = default(string);
+                            LinkedTableName = tableToDelete.Columns[i].Name.Substring(5);
+                            Console.WriteLine(LinkedTableName);
+                            UnLinkTables(tableToDelete, GetTableByName(LinkedTableName));
+                        }
                     }
+                    for (int i = 0; i < TablesDB.Count; i++)
+                    {
+                        if (TablesDB[i].isColumnExists("FK_" + tableToDelete.Columns[0].Name))
+                        {
+                            TablesDB[i].GetColumnByName("FK_" + tableToDelete.Columns[0].Name).SetFkeyProperty(false);
+                            TablesDB[i].DeleteColumn("FK_" + tableToDelete.Columns[0].Name);
+                        }
+                    }
+                    TablesDB.RemoveAt(indexOfTable(name));
                 }
-                TablesDB.RemoveAt(indexOfTable(name));
+                else throw new NullReferenceException("There is no such table in this database");
             }
-            else throw new NullReferenceException();
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         } //UI done
         //
         /// <summary>
@@ -99,12 +113,19 @@ namespace DataLayer
         /// <param name="futureName"></param>
         public void RenameTable(string currentName, string futureName)
         {
-            if (isTableExists(currentName))
+            try
             {
-                if (futureName.isThereNoUndefinedSymbols()) GetTableByName(currentName).Name = futureName;
-                else throw new ArgumentException("Your name contains undefined symbols!");
+                if (isTableExists(currentName))
+                {
+                    if (futureName.isThereNoUndefinedSymbols()) GetTableByName(currentName).Name = futureName;
+                    else throw new ArgumentException("Your name contains undefined symbols!");
+                }
+                throw new ArgumentNullException("there is no such table in this database!");
             }
-            throw new ArgumentNullException("there is no such table in this database!");
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+            }
         } //UI done
         //
         /// <summary>
@@ -134,7 +155,7 @@ namespace DataLayer
             newLink.IsCascadeDeleteOn = isCascadeDelete;
                 for (int i = 0; i < tableToLink.Columns[0].DataList.Count; i++)
                 {
-                    newLink.DataList.Add(new Shared.DataModels.DataObject(newLink.GetHashCode(), newLink.Default));
+                    newLink.DataList.Add(new DataObject(newLink.GetHashCode(), newLink.Default));
                 }
             tableToLink.Columns.Add(newLink);
             if(newLink.IsCascadeDeleteOn)
@@ -143,29 +164,36 @@ namespace DataLayer
         //
         public void EditCascadeDeleteOption(Table tableToEditLink, Table tableToEditLinkWith, bool isCascadeDelete)
         {
-            if (tableToEditLink.isColumnExists("FK_" + tableToEditLinkWith.Columns[0].Name))
+            try
             {
-                if (tableToEditLink.GetColumnByName("FK_" + tableToEditLinkWith.Columns[0].Name).IsCascadeDeleteOn)
+                if (tableToEditLink.isColumnExists("FK_" + tableToEditLinkWith.Columns[0].Name))
                 {
-                    if(!isCascadeDelete) tableToEditLinkWith.cascadeDelete -= tableToEditLink.ExecuteCascadeDelete;
+                    if (tableToEditLink.GetColumnByName("FK_" + tableToEditLinkWith.Columns[0].Name).IsCascadeDeleteOn)
+                    {
+                        if (!isCascadeDelete) tableToEditLinkWith.cascadeDelete -= tableToEditLink.ExecuteCascadeDelete;
+                    }
+                    else if (!tableToEditLink.GetColumnByName("FK_" + tableToEditLinkWith.Columns[0].Name).IsCascadeDeleteOn)
+                    {
+                        if (isCascadeDelete) tableToEditLinkWith.cascadeDelete += tableToEditLink.ExecuteCascadeDelete;
+                    }
                 }
-                else if(!tableToEditLink.GetColumnByName("FK_" + tableToEditLinkWith.Columns[0].Name).IsCascadeDeleteOn)
+                else if (tableToEditLinkWith.isColumnExists("FK_" + tableToEditLink.Columns[0].Name))
                 {
-                    if(isCascadeDelete) tableToEditLinkWith.cascadeDelete += tableToEditLink.ExecuteCascadeDelete;
+                    if (tableToEditLinkWith.GetColumnByName("FK_" + tableToEditLink.Columns[0].Name).IsCascadeDeleteOn)
+                    {
+                        if (!isCascadeDelete) tableToEditLink.cascadeDelete -= tableToEditLinkWith.ExecuteCascadeDelete;
+                    }
+                    else if (!tableToEditLinkWith.GetColumnByName("FK_" + tableToEditLink.Columns[0].Name).IsCascadeDeleteOn)
+                    {
+                        if (isCascadeDelete) tableToEditLink.cascadeDelete += tableToEditLinkWith.ExecuteCascadeDelete;
+                    }
                 }
+                else throw new NullReferenceException("There's no link between this tables");
             }
-            else if (tableToEditLinkWith.isColumnExists("FK_" + tableToEditLink.Columns[0].Name))
+            catch(Exception e)
             {
-                if (tableToEditLinkWith.GetColumnByName("FK_" + tableToEditLink.Columns[0].Name).IsCascadeDeleteOn)
-                {
-                    if (!isCascadeDelete) tableToEditLink.cascadeDelete -= tableToEditLinkWith.ExecuteCascadeDelete;
-                }
-                else if (!tableToEditLinkWith.GetColumnByName("FK_" + tableToEditLink.Columns[0].Name).IsCascadeDeleteOn)
-                {
-                    if (isCascadeDelete) tableToEditLink.cascadeDelete += tableToEditLinkWith.ExecuteCascadeDelete;
-                }
+                Console.WriteLine(e);
             }
-            else throw new NullReferenceException("There's no link between this tables");
         } //UI (do not care about what table is on the first place and what table on the second)
         /// <summary>
         /// Unlinks two tables
@@ -174,19 +202,26 @@ namespace DataLayer
         /// <param name="TableToUnlinkWith"></param>
         public void UnLinkTables(Table TableToUnlink, Table TableToUnlinkWith)
         {
-            if (TableToUnlink.isColumnExists("FK_" + TableToUnlinkWith.Columns[0].Name))
+            try
             {
-                TableToUnlink.GetColumnByName("FK_" + TableToUnlinkWith.Columns[0].Name).SetFkeyProperty(false);
-                TableToUnlink.DeleteColumn("FK_" + TableToUnlinkWith.Columns[0].Name);
-                TableToUnlinkWith.cascadeDelete -= TableToUnlink.ExecuteCascadeDelete;
+                if (TableToUnlink.isColumnExists("FK_" + TableToUnlinkWith.Columns[0].Name))
+                {
+                    TableToUnlink.GetColumnByName("FK_" + TableToUnlinkWith.Columns[0].Name).SetFkeyProperty(false);
+                    TableToUnlink.DeleteColumn("FK_" + TableToUnlinkWith.Columns[0].Name);
+                    TableToUnlinkWith.cascadeDelete -= TableToUnlink.ExecuteCascadeDelete;
+                }
+                else if (TableToUnlinkWith.isColumnExists("FK_" + TableToUnlink.Columns[0].Name))
+                {
+                    TableToUnlinkWith.GetColumnByName("FK_" + TableToUnlink.Columns[0].Name).SetFkeyProperty(false);
+                    TableToUnlinkWith.DeleteColumn("FK_" + TableToUnlink.Columns[0].Name);
+                    TableToUnlink.cascadeDelete -= TableToUnlinkWith.ExecuteCascadeDelete;
+                }
+                else throw new NullReferenceException("There's no link between this tables");
             }
-            else if (TableToUnlinkWith.isColumnExists("FK_" + TableToUnlink.Columns[0].Name))
+            catch (Exception e)
             {
-                TableToUnlinkWith.GetColumnByName("FK_" + TableToUnlink.Columns[0].Name).SetFkeyProperty(false);
-                TableToUnlinkWith.DeleteColumn("FK_" + TableToUnlink.Columns[0].Name);
-                TableToUnlink.cascadeDelete -= TableToUnlinkWith.ExecuteCascadeDelete;
+                Console.WriteLine(e);
             }
-            else throw new NullReferenceException("There's no link between this tables");
         } //UI (do not care about places of table's in parametres)
         //
         int indexOfTable(string name)
@@ -205,15 +240,23 @@ namespace DataLayer
         /// <returns></returns>
         public Table GetTableByName(string name)
         {
-            if (TablesDB.Count != 0)
+            try
             {
-                if (isTableExists(name))
+                if (TablesDB.Count != 0)
                 {
-                    return TablesDB[indexOfTable(name)];
+                    if (isTableExists(name))
+                    {
+                        return TablesDB[indexOfTable(name)];
+                    }
+                    throw new NullReferenceException("There's no such table in Database");
                 }
-                throw new NullReferenceException("There's no such table in Database");
+                throw new NullReferenceException("There's no tables in Database");
             }
-            throw new NullReferenceException("There's no tables in Database");
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
         }
 
         public override string ToString()
@@ -236,16 +279,24 @@ namespace DataLayer
         /// <returns></returns>
         public Table QueryColumnSelection(List<string> ColumnNames, Table tableForQuery)
         {
-            foreach (string name in ColumnNames) if (!name.Contains(".") || !tableForQuery.isColumnExists(name)) throw new ArgumentException("Invalid column name!");
-            Table queryresult = new Table("queryResult", false);
-            foreach (string name in ColumnNames)
+            try
             {
-                Column oldColumn = tableForQuery.GetColumnByName(name);
-                Column toAdd = new Column(oldColumn.SystemName, oldColumn.DataType, oldColumn.AllowsNull, oldColumn.Default, queryresult);
-                toAdd.DataList = oldColumn.CloneData();
-                queryresult.Columns.Add(toAdd);
+                foreach (string name in ColumnNames) if (!name.Contains(".") || !tableForQuery.isColumnExists(name)) throw new ArgumentException("Invalid column name!");
+                Table queryresult = new Table(tableForQuery.Name, false);
+                foreach (string name in ColumnNames)
+                {
+                    Column oldColumn = tableForQuery.GetColumnByName(name);
+                    Column toAdd = new Column(oldColumn.SystemName, oldColumn.DataType, oldColumn.AllowsNull, oldColumn.Default, queryresult);
+                    toAdd.DataList = oldColumn.CloneData();
+                    queryresult.Columns.Add(toAdd);
+                }
+                return queryresult;
             }
-            return queryresult;
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return tableForQuery;
+            }
 
         }
 

@@ -277,10 +277,18 @@ namespace UILayer
                     if (_params.Length == 4)
                     {
                         var _inst = Kernel.GetInstance(ConnectionString);
-                        var _tableWithFk = _inst.GetTableByName(_params[1]);
-                        var _generalTable = _inst.GetTableByName(_params[2]);
-                        bool _isCascadeDelete = Convert.ToBoolean(_params[3]);
-                        _inst.LinkTables(_tableWithFk, _generalTable, _isCascadeDelete);
+                        if (_inst.isTableExists(_params[1]))
+                        {
+                            var _tableWithFk = _inst.GetTableByName(_params[1]);
+                            if (_inst.isTableExists(_params[2]))
+                            {
+                                var _generalTable = _inst.GetTableByName(_params[2]);
+                                bool _isCascadeDelete = Convert.ToBoolean(_params[3]);
+                                _inst.LinkTables(_tableWithFk, _generalTable, _isCascadeDelete);
+                            }
+                            else throw new NullReferenceException($"There is no table '{_params[2]}' in database '{_inst.Name}'!");
+                        }
+                        else throw new NullReferenceException($"There is no table '{_params[1]}' in database '{_inst.Name}'!");
                     }
                     else throw new Exception("\nERROR: Invalid number of variables\n");
                 }
@@ -305,7 +313,16 @@ namespace UILayer
                     if (_params.Length == 3)
                     {
                         var _inst = Kernel.GetInstance(ConnectionString);
-                        _inst.UnLinkTables(_inst.GetTableByName(_params[1]), _inst.GetTableByName(_params[3]));
+                        if (_inst.isTableExists(_params[1]))
+                        {
+                            if (_inst.isTableExists(_params[3]))
+                            {
+                                _inst.UnLinkTables(_inst.GetTableByName(_params[1]), _inst.GetTableByName(_params[3]));
+                            }
+                            else throw new NullReferenceException($"There is no table '{_params[3]}' in database '{_inst.Name}'!");
+
+                        }
+                        else throw new NullReferenceException($"There is no table '{_params[1]}' in database '{_inst.Name}'!");
                     }
                     else throw new Exception("\nERROR: Invalid number of variables\n");
                 }
