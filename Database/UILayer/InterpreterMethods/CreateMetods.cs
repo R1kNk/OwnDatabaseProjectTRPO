@@ -33,10 +33,15 @@ namespace UILayer.InterpreterMethods
                 }
                 else throw new Exception($"\nERROR: Invalid number of variables\n");
             }
-            catch(Exception e)
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
+            
         }
 
         static void CreateDatabase(string dbName)
