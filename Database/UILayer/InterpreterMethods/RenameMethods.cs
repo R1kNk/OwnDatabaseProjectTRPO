@@ -44,9 +44,14 @@ namespace UILayer.InterpreterMethods
                 if(_colNames.Length==3)
                 {
                     var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                    var _table = _inst.GetTableByName(_colNames[0]);
-                    _table.RenameColumn(_colNames[1], _colNames[2]);
-                    Console.WriteLine($"\nColumn succesfully renamed from {_colNames[1]} to {_colNames[2]}\n");
+                    if (_inst.isTableExists(_colNames[0]))
+                    {
+                        var _table = _inst.GetTableByName(_colNames[0]);
+                        _table.RenameColumn(_colNames[1], _colNames[2]);
+                        Console.WriteLine($"\nColumn succesfully renamed from {_colNames[1]} to {_colNames[2]}\n");
+                    }
+                    else throw new NullReferenceException($"There is no table '{_colNames[0]}' in database '{_inst.Name}'!");
+
                 }
             }
         }

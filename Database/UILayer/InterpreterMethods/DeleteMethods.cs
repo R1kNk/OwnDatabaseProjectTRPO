@@ -51,9 +51,7 @@ namespace UILayer.InterpreterMethods
             string[] _params = query.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
             if (_params.Length == 1)
             {
-                if (Kernel.isDatabaseExists(_params[0]))
-                { } //Here must be delete of database
-                else throw new Exception($"\nERROR: Database '{_params[0]}' doesn't exist\n");
+                Kernel.DeleteDatabase(_params[0]);
             }
             else throw new Exception("\nERROR: Invalid number of variables");
         }
@@ -127,12 +125,16 @@ namespace UILayer.InterpreterMethods
                     if (_params.Length == 2)
                     {
                         var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                        var _table = _inst.GetTableByName(_params[0]);
-                        int _pk = Convert.ToInt32(_params[1]);
-                        _table.DeleteTableElementByPrimaryKey(_pk);
-                        Console.WriteLine("\nData successfully deleted\n");
-                        
-                    }
+                        if (_inst.isTableExists(_params[0]))
+                        {
+                            var _table = _inst.GetTableByName(_params[0]);
+                            int _pk = Convert.ToInt32(_params[1]);
+                            _table.DeleteTableElementByPrimaryKey(_pk);
+                            Console.WriteLine("\nData successfully deleted\n");
+                        }
+                         else throw new NullReferenceException($"There is no table '{_params[0]}' in database '{_inst.Name}'!");
+
+                }
                     else throw new Exception("\nERROR: Invalid number of variables\n");
                 }
                 else throw new Exception("\nThere is no connection to database\n");

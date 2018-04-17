@@ -19,8 +19,14 @@ namespace DataAccessLayer.Modules
         /// <returns></returns>
         static internal DataBaseInstance LoadDataBase(string DBName)
         {
-            if (SharedDataAccessMethods.HowManyDBFilesInFolder() == 0) throw new DatabasesNotFoundInFolderException();
-
+            try
+            {
+                if (SharedDataAccessMethods.HowManyDBFilesInFolder() == 0) throw new DatabasesNotFoundInFolderException("There is no Databases in folder!");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
             string[] _filePaths = Directory.GetFiles("./DataBases", "*.soos");
             if (_filePaths.Contains<string>("./DataBases\\"+DBName+".soos"))
             {
@@ -38,8 +44,8 @@ namespace DataAccessLayer.Modules
         /// <returns></returns>
         static internal List<DataBaseInstance> LoadAllDataBases()
         {
-            if (SharedDataAccessMethods.HowManyDBFilesInFolder() == 0) throw new DatabasesNotFoundInFolderException();
 
+            if (SharedDataAccessMethods.HowManyDBFilesInFolder() == 0) throw new DatabasesNotFoundInFolderException("There is no Databases in folder!");
             List<DataBaseInstance> bufList = new List<DataBaseInstance>();
             if (SharedDataAccessMethods.isDirectoryExists())
             {

@@ -44,26 +44,31 @@ namespace UILayer.InterpreterMethods
         {
             try {
                 var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                var _table = _inst.GetTableByName(tableName);
-                Console.WriteLine("\nName(s) and type(s) of column(s):\n" + _table.ColumnType() + "\nEnter column(s)\n");
-                string param = Console.ReadLine();
-
-                char[] _separator = new char[] { ';' };
-                string[] _colParams = param.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
-
-                foreach (var _column in _colParams)
+                if (_inst.isTableExists(tableName))
                 {
-                    char[] _tempery = new char[] { ',', ' ' };
-                    string[] _colParam = _column.Split(_tempery, StringSplitOptions.RemoveEmptyEntries);
-                    if (_colParam.Length == 4)
+                    var _table = _inst.GetTableByName(tableName);
+                    Console.WriteLine("\nName(s) and type(s) of column(s):\n" + _table.ColumnType() + "\nEnter column(s)\n");
+                    string param = Console.ReadLine();
+
+                    char[] _separator = new char[] { ';' };
+                    string[] _colParams = param.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
+
+                    foreach (var _column in _colParams)
                     {
-                        _table.AddColumn(GetColumn(_colParam, _table));
+                        char[] _tempery = new char[] { ',', ' ' };
+                        string[] _colParam = _column.Split(_tempery, StringSplitOptions.RemoveEmptyEntries);
+                        if (_colParam.Length == 4)
+                        {
+                            _table.AddColumn(GetColumn(_colParam, _table));
+                        }
+                        else
+                            throw new Exception("\nERROR: Ivalid numbers of variables\n");
                     }
-                    else
-                        throw new Exception("\nERROR: Ivalid numbers of variables\n");
+                    Console.WriteLine("\nColumns successfully inserted\n");
                 }
-                Console.WriteLine("\nColumns successfully inserted\n");
-            }catch(Exception e)
+                else throw new NullReferenceException($"There is no table '{tableName}' in database '{_inst.Name}'!");
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
@@ -74,34 +79,39 @@ namespace UILayer.InterpreterMethods
             try
             {
                 var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                var _table = _inst.GetTableByName(tabelName);
-                if (_table.Columns.Count - 1 != 0)
+                if (_inst.isTableExists(tabelName))
                 {
-                    Console.WriteLine("\nName(s) and type(s) of column(s):\n" + _table.ColumnType() + "\nEnter value(s)\n");
-                    string _data = Console.ReadLine();
-                    char[] _separator = new char[] { ';' };
-                    string[] _values = _data.Split(_separator);
-                    foreach (var _val in _values)
+                    var _table = _inst.GetTableByName(tabelName);
+                    if (_table.Columns.Count - 1 != 0)
                     {
-                        char[] _separators = new char[] { ',' };
-                        string[] _valuesList = _val.Split(_separators, StringSplitOptions.RemoveEmptyEntries);
-                        if (_table.Columns.Count - 1 == _valuesList.Length)
+                        Console.WriteLine("\nName(s) and type(s) of column(s):\n" + _table.ColumnType() + "\nEnter value(s)\n");
+                        string _data = Console.ReadLine();
+                        char[] _separator = new char[] { ';' };
+                        string[] _values = _data.Split(_separator);
+                        foreach (var _val in _values)
                         {
-                            object[] _colData = new object[_valuesList.Length];
-                            for (int i = 0; i < _valuesList.Length; i++)
+                            char[] _separators = new char[] { ',' };
+                            string[] _valuesList = _val.Split(_separators, StringSplitOptions.RemoveEmptyEntries);
+                            if (_table.Columns.Count - 1 == _valuesList.Length)
                             {
-                                _colData[i] = GetData(_valuesList[i], _table.Columns[i + 1]);
+                                object[] _colData = new object[_valuesList.Length];
+                                for (int i = 0; i < _valuesList.Length; i++)
+                                {
+                                    _colData[i] = GetData(_valuesList[i], _table.Columns[i + 1]);
+                                }
+                                _table.AddTableElement(_colData);
                             }
-                            _table.AddTableElement(_colData);
+                            else
+                                throw new Exception("\nERROR: Count of values doesn't equals count of columns");
                         }
-                        else
-                            throw new Exception("\nERROR: Count of values doesn't equals count of columns");
+                        Console.WriteLine("\nAll data successfully inserted\n");
                     }
-                    Console.WriteLine("\nAll data successfully inserted\n");
+                    else
+                        throw new Exception("\nERROR: There is no columns in this table");
                 }
-                else
-                    throw new Exception("\nERROR: There is no columns in this table");
-            }catch(Exception e)
+                else throw new NullReferenceException($"There is no table '{tabelName}' in database '{_inst.Name}'!");
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }

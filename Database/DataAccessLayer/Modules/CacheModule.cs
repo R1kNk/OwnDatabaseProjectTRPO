@@ -47,18 +47,25 @@ namespace DataAccessLayer.Modules
         /// </summary>
         internal static void SaveAllDatabases(List<DataBaseInstance> listDB)
         {
-            if (listDB.Count != 0)
+            try
             {
-                CreateDirectoryForDataBaseIfThereAreNoOne();
-                DirectoryInfo dirInfo = new DirectoryInfo("./DataBases/");
-                foreach (FileInfo file in dirInfo.GetFiles())
+                if (listDB.Count != 0)
                 {
-                    file.Delete();
+                    CreateDirectoryForDataBaseIfThereAreNoOne();
+                    DirectoryInfo dirInfo = new DirectoryInfo("./DataBases/");
+                    foreach (FileInfo file in dirInfo.GetFiles())
+                    {
+                        file.Delete();
+                    }
+                    foreach (DataBaseInstance bufInst in listDB)
+                        bufInst.SaveDataBaseToFolder();
                 }
-                foreach (DataBaseInstance bufInst in listDB)
-                    bufInst.SaveDataBaseToFolder();
+                else throw new ArgumentNullException("There is no Databases to save!");
             }
-            else throw new ArgumentNullException("There is no Databases to save!");
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
         private static void CreateDirectoryForDataBaseIfThereAreNoOne()

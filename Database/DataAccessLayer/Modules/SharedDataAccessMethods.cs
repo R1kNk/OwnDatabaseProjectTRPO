@@ -36,16 +36,23 @@ namespace DataAccessLayer.Modules
                 if (db.Name == Name) return true;
             return false;
         }
-        static internal int IndexOfDatabase(this  List<DataLayer.DataBaseInstance> list, string Name)
+        static internal int IndexOfDatabase(this List<DataLayer.DataBaseInstance> list, string Name)
         {
-            if (list.isDatabaseExistsInList(Name))
+            try
             {
-                for (int i = 0; i < list.Count; i++)
+                if (list.isDatabaseExistsInList(Name))
                 {
-                    if (list[i].Name == Name) return i;
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        if (list[i].Name == Name) return i;
+                    }
                 }
+                else throw new ArgumentException("There is no such Database in list!");
             }
-            else throw new ArgumentException("There is no such Database in list!");
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
             return -1;
             
         }

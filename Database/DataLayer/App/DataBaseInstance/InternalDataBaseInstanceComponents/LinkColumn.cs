@@ -15,34 +15,52 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         Column linkedColumn;
         public LinkColumn(string name, Type DataType, bool allowsnull, object def, Table thisTable, Column linkedcolumn) : base(name, DataType, allowsnull, def, thisTable)
         {
-            if (linkedcolumn.IsPkey)
+            try
             {
-                linkedColumn = linkedcolumn;
-                SetFkeyProperty(true);
-                DataType = linkedColumn.DataType;
-                Default = DataType.GetDefaultValue();
+
+                if (linkedcolumn.IsPkey)
+                {
+                    linkedColumn = linkedcolumn;
+                    SetFkeyProperty(true);
+                    DataType = linkedColumn.DataType;
+                    Default = DataType.GetDefaultValue();
                     for (int i = 0; i < DataList.Count; i++)
                     {
                         DataList.Add(new DataObject(GetHashCode(), Default));
                     }
+                }
+                else throw new ArgumentException("You can connect this column only with PrimaryKeyColumn");
             }
-            else throw new ArgumentException("You can connect this column only with PrimaryKeyColumn");
-           
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
         }
 
         public override void EditColumnElementByPrimaryKey(int key, object argument)
         {
-            if (ThisTable.isTableContainsData())
+            try
             {
-                if (DataType == argument.GetType())
+                if (ThisTable.isTableContainsData())
                 {
-                    if (isLinkedColumnContainsSuchValue(argument))
-                        DataList[ThisTable.returnIndexOfPrimaryKey(key)].Data = argument;
-                    else throw new ArgumentException("There is no such argument ("+argument.ToString()+") in linkedColumn (" + linkedColumn.Name + ")!");
+                    if (DataType == argument.GetType())
+                    {
+                        if (isLinkedColumnContainsSuchValue(argument))
+                        {
+                            if (ThisTable.returnIndexOfPrimaryKey(key) == -1) throw new NullReferenceException("There is no such Primary Key in this table");
+                            DataList[ThisTable.returnIndexOfPrimaryKey(key)].Data = argument;
+                        }
+                        else throw new ArgumentException("There is no such argument (" + argument.ToString() + ") in linkedColumn (" + linkedColumn.Name + ")!");
+                    }
+                    else throw new ArgumentException("Type of argument is not similar to Column type");
                 }
-                else throw new ArgumentException("Type of argument is not similar to Column type");
+                else throw new NullReferenceException("Table doesn't contain any data");
             }
-            else throw new NullReferenceException("Table doesn't contain any data");
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
         bool isLinkedColumnContainsSuchValue(object value)
         {
