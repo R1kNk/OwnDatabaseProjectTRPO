@@ -47,13 +47,21 @@ namespace UILayer.InterpreterMethods
         /// <param name="query"></param>
         static void DeleteDatabase(string query)
         {
-            char[] _separator = new char[] { ' ' };
-            string[] _params = query.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
-            if (_params.Length == 1)
+            try
             {
-                Kernel.DeleteDatabase(_params[0]);
+                char[] _separator = new char[] { ' ' };
+                string[] _params = query.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
+                if (_params.Length == 1)
+                {
+                    Kernel.DeleteDatabase(_params[0]);
+                    if (Interpreter.ConnectionString == _params[0])
+                        Interpreter.ConnectionString = null;
+                }
+                else throw new Exception("\nERROR: Invalid number of variables");
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
             }
-            else throw new Exception("\nERROR: Invalid number of variables");
         }
         //
         /// <summary>
@@ -62,23 +70,29 @@ namespace UILayer.InterpreterMethods
         /// <param name="query"></param>
         static void DeleteTable(string query)
         {
-            if (Interpreter.ConnectionString != null)
+            try
             {
-                char[] _separator = new char[] { ' ' };
-                string[] _params = query.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
-                if (_params.Length == 1)
+                if (Interpreter.ConnectionString != null)
                 {
-                    var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                    if (_inst.isTableExists(_params[0]))
+                    char[] _separator = new char[] { ' ' };
+                    string[] _params = query.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
+                    if (_params.Length == 1)
                     {
-                        _inst.DeleteTable(_params[0]);
-                        Console.WriteLine("\nTable successfully deleted\n");
+                        var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
+                        if (_inst.isTableExists(_params[0]))
+                        {
+                            _inst.DeleteTable(_params[0]);
+                            Console.WriteLine("\nTable successfully deleted\n");
+                        }
+                        else throw new Exception($"There is no table '{_params[0]}' in database '{_inst.Name}'!\n");
                     }
-                    else throw new Exception();
+                    else throw new Exception("\nERROR: Invalid number of variables\n");
                 }
-                else throw new Exception();
+                else throw new Exception("\nThere is no connection to database\n");
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
             }
-            else throw new Exception();
         }
         //
         /// <summary>
@@ -87,28 +101,34 @@ namespace UILayer.InterpreterMethods
         /// <param name="query"></param>
         static void DeleteColumn(string query)
         {
-            if (Interpreter.ConnectionString != null)
+            try
             {
-                char[] _separator = new char[] { ' ' };
-                string[] _params = query.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
-                if (_params.Length == 2)
+                if (Interpreter.ConnectionString != null)
                 {
-                    var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                    if (_inst.isTableExists(_params[0]))
+                    char[] _separator = new char[] { ' ' };
+                    string[] _params = query.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
+                    if (_params.Length == 2)
                     {
-                        var _table = _inst.GetTableByName(_params[0]);
-                        if (_table.isColumnExists(_params[1]))
+                        var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
+                        if (_inst.isTableExists(_params[0]))
                         {
-                            _table.DeleteColumn(_params[1]);
-                            Console.WriteLine("\nColumn Successfully deleted\n");
+                            var _table = _inst.GetTableByName(_params[0]);
+                            if (_table.isColumnExists(_params[1]))
+                            {
+                                _table.DeleteColumn(_params[1]);
+                                Console.WriteLine("\nColumn Successfully deleted\n");
+                            }
+                            else throw new Exception($"There is no  column '{_params[1]}' in table '{_params[0]}'!\n");
                         }
-                        else throw new Exception();
+                        else throw new Exception($"There is no table '{_params[0]}' in database '{_inst.Name}'!\n");
                     }
-                    else throw new Exception();
+                    else throw new Exception("\nERROR: Invalid number of variables\n");
                 }
-                else throw new Exception();
+                else throw new Exception("\nThere is no connection to database\n");
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
             }
-            else throw new Exception();
         }
         //
         /// <summary>
@@ -133,8 +153,7 @@ namespace UILayer.InterpreterMethods
                             Console.WriteLine("\nData successfully deleted\n");
                         }
                          else throw new NullReferenceException($"There is no table '{_params[0]}' in database '{_inst.Name}'!");
-
-                }
+                    }   
                     else throw new Exception("\nERROR: Invalid number of variables\n");
                 }
                 else throw new Exception("\nThere is no connection to database\n");
@@ -145,10 +164,9 @@ namespace UILayer.InterpreterMethods
         }
 
         static bool IsKeyword(string word)
-        {
-            string _key = word.ToUpper();
+        {           
             foreach (var key in _keywords)
-                if (_key == key)
+                if (word == key)
                     return true;
             return false;
         }

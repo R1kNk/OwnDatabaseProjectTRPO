@@ -52,7 +52,7 @@ namespace UILayer
 
         public static void Run()
         {
-            ConnectionString = default(string);
+            ConnectionString = null;
             while (true)
             {
                 string _query = default(string);
@@ -79,9 +79,8 @@ namespace UILayer
         #region LocalMethods
         bool IsKeyword(string command)
         {
-            string _temp = command.ToUpper();
             foreach (var key in _keywords)
-                if (key == _temp)
+                if (key == command)
                     return true;
             return false;
         }
@@ -156,7 +155,8 @@ namespace UILayer
         }
         //
         /// <summary>
-        /// savedb/savedb |dbName|
+        /// SAVEDB
+        /// SAVEDB |dbName|
         /// </summary>
         /// <param name="query"></param>
         private static void SaveDb(string query)
@@ -189,7 +189,7 @@ namespace UILayer
         }
         //
         /// <summary>
-        /// loadDb
+        /// LOADDB
         /// </summary>
         /// <param name="query"></param>
         private static void LoadDb(string query)
@@ -220,19 +220,13 @@ namespace UILayer
         private static void Create(string query)
         {
             string _command = query.Substring(6);
-            try
-            {
-                CreateMethods.Execute(_command);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
+            CreateMethods.Execute(_command);
+           
         }
         //
         /// <summary>
-        /// Insert column |tableName|->ColName,ColType,IsAllowNull(true/false),DefaultValue;...
-        /// Insert values |tableName|->(|params|)
+        /// Insert column |tableName| (ColName,ColType,IsAllowNull(true/false),DefaultValue;...)
+        /// Insert values |tableName| (|params|)
         /// </summary>
         /// <param name="query"></param>
         private static void Insert(string query)
@@ -242,9 +236,9 @@ namespace UILayer
         }
         //
         /// <summary>
-        /// Delete table |tableName|
-        /// Delete column |tableName| |ColName|
-        /// Delete element |tableName| |ID(int)|
+        /// DELETE TABLE table |tableName|
+        /// DELETE COLUMN |tableName| |colName|
+        /// DELETE ELEMENT |tableName| |ID(int)|
         /// </summary>
         /// <param name="query"></param>
         private static void Delete(string query)
@@ -254,7 +248,10 @@ namespace UILayer
         }
         //
         /// <summary>
-        /// Edit |tableName|
+        ///  EDIT |tableName| ELEMENT |ElementID| (ColName=Param,...)
+        ///  EDIT |tableName| DEFAULT VALUE |colName| |value|
+        ///  EDIT |tableName| NULLPROPERTY |colName| |true/false|
+        ///  EDIT |tableName| TYPE |colName| |type|
         /// </summary>
         /// <param name="query"></param>
         private static void Edit(string query)
@@ -348,7 +345,7 @@ namespace UILayer
                     string[] _params = query.Split(_seprator, StringSplitOptions.RemoveEmptyEntries);
                     if (_params.Length == 5)
                     {
-                        if (_params[1].ToUpper() == "DELETE")
+                        if (_params[1] == "DELETE")
                         {
                             var _inst = Kernel.GetInstance(ConnectionString);
                             var _tableFk = _inst.GetTableByName(_params[2]);

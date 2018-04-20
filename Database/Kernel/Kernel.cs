@@ -178,6 +178,10 @@ namespace DataLayer
                 }
                 else throw new NullReferenceException($"\nERROR: Database '{name}' doesn't exist\n");
             }
+            catch(NullReferenceException e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
         internal static void LoadAllDatabases(bool isUpdatativeLoad)
         {
