@@ -2,6 +2,7 @@
 using DataModels.App.InternalDataBaseInstanceComponents;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace UILayer.InterpreterMethods
 {
@@ -12,6 +13,9 @@ namespace UILayer.InterpreterMethods
             "VALUES",
             "COLUMN"
         };
+        ///           0         1           2
+        /// INSERT COLUMN |tableName| (ColName,ColType,IsAllowNull(true/false),DefaultValue;...)
+        /// INSERT VALUES |tableName| (|params|)
 
         public static void Execute(string query)
         {
@@ -19,19 +23,23 @@ namespace UILayer.InterpreterMethods
                 if (Interpreter.ConnectionString != null)
                 {
                     char[] separator = new char[] { ' ' };
-                    string[] queryList = query.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-                    if (queryList.Length == 2)
+                    string[] queryList = query.Split(separator,3, StringSplitOptions.RemoveEmptyEntries);
+                    if (IsValidSyntax(query))
                     {
-                        if (IsKeyword(queryList[0]))
+                        if (queryList.Length == 3)
                         {
-                            var _inst = new InsertMethods();
-                            string _methodName = "Insert" + queryList[0];
-                            var _method = _inst.GetType().GetMethod(_methodName, System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.IgnoreCase);
-                            _method?.Invoke(_inst, new object[] { queryList[1] });
+                            if (IsKeyword(queryList[0]))
+                            {
+                                var _inst = new InsertMethods();
+                                string _methodName = "Insert" + queryList[0];
+                                var _method = _inst.GetType().GetMethod(_methodName, System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.IgnoreCase);
+                                _method?.Invoke(_inst, new object[] { queryList[1], queryList[2] });
+                            }
+                            else throw new Exception("\nERROR: Invalid command syntax\n");
                         }
-                        else throw new Exception("\nERROR: Invalid command syntax\n");
+                        else throw new Exception("\nERROR: Invalid number of variables\n");
                     }
-                    else throw new Exception("\nERROR: Invalid number of variables\n");
+                    else throw new Exception("\nERROR: Invalid command syntax\n");
                 }
                 else throw new Exception("\nERROR: There is no connection to database\n");
             }catch(Exception e)
@@ -40,17 +48,14 @@ namespace UILayer.InterpreterMethods
             }
         }
 
-        static void InsertColumn(string tableName)
+        static void InsertColumn(string tableName,string param)
         {
             try {
                 var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
                 if (_inst.isTableExists(tableName))
                 {
                     var _table = _inst.GetTableByName(tableName);
-                    Console.WriteLine("\nName(s) and type(s) of column(s):\n" + _table.ColumnType() + "\nEnter column(s)\n");
-                    string param = Console.ReadLine();
-
-                    char[] _separator = new char[] { ';' };
+                    char[] _separator = new char[] { '(',';',')' };
                     string[] _colParams = param.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
 
                     foreach (var _column in _colParams)
@@ -61,8 +66,7 @@ namespace UILayer.InterpreterMethods
                         {
                             _table.AddColumn(GetColumn(_colParam, _table));
                         }
-                        else
-                            throw new Exception("\nERROR: Ivalid numbers of variables\n");
+                        else throw new Exception("\nERROR: Ivalid numbers of variables\n");
                     }
                     Console.WriteLine("\nColumns successfully inserted\n");
                 }
@@ -74,7 +78,7 @@ namespace UILayer.InterpreterMethods
             }
         }
 
-        static void InsertValues(string tabelName)
+        static void InsertValues(string tabelName, string param)
         {
             try
             {
@@ -84,10 +88,8 @@ namespace UILayer.InterpreterMethods
                     var _table = _inst.GetTableByName(tabelName);
                     if (_table.Columns.Count - 1 != 0)
                     {
-                        Console.WriteLine("\nName(s) and type(s) of column(s):\n" + _table.ColumnType() + "\nEnter value(s)\n");
-                        string _data = Console.ReadLine();
-                        char[] _separator = new char[] { ';' };
-                        string[] _values = _data.Split(_separator);
+                        char[] _separator = new char[] {'(',')', ';' };
+                        string[] _values = param.Split(_separator,StringSplitOptions.RemoveEmptyEntries);
                         foreach (var _val in _values)
                         {
                             char[] _separators = new char[] { ',' };
@@ -101,13 +103,11 @@ namespace UILayer.InterpreterMethods
                                 }
                                 _table.AddTableElement(_colData);
                             }
-                            else
-                                throw new Exception("\nERROR: Count of values doesn't equals count of columns");
+                            else throw new Exception("\nERROR: Count of values doesn't equals count of columns");
                         }
                         Console.WriteLine("\nAll data successfully inserted\n");
                     }
-                    else
-                        throw new Exception("\nERROR: There is no columns in this table");
+                    else throw new Exception("\nERROR: There is no columns in this table");
                 }
                 else throw new NullReferenceException($"There is no table '{tabelName}' in database '{_inst.Name}'!");
             }
@@ -143,6 +143,7 @@ namespace UILayer.InterpreterMethods
             else if (_colType == typeof(bool))
                 return Convert.ToBoolean(value);
             else throw new Exception($"\nERROR: Type '{_colType.Name}' doesn't exist");
+            
         }
 
         static Type GetType(string _typeName)
@@ -156,21 +157,19 @@ namespace UILayer.InterpreterMethods
                 case "bool": return typeof(bool);
                 default: throw new Exception($"\nERROR: Type {_typeName} doesn't exist");
             }
-
-
         }
 
         static bool IsKeyword(string word)
         {
-            string _key = word.ToUpper();
-            foreach (var k in _keywords)
-                if (_key == k)
+            foreach (var key in _keywords)
+                if (word == key)
                     return true;
             return false;
         }
 
         static object GetData(string value, Column column)
         {
+            
             if (column.DataType == typeof(string))
                 return value;
             else if (column.DataType == typeof(int))
@@ -184,8 +183,18 @@ namespace UILayer.InterpreterMethods
             }
             else if (value == "null")
                 return null;
-            else return null;
+            else throw new Exception("\nERROR: Invalid data type\n");
+            
         }
-        
+
+        static bool IsValidSyntax(string command)
+        {
+            if (command.Contains('(') && command.Contains(')') &&
+                command.Where(x => x == '(').Count() == 1 &&
+                command.Where(x => x == ')').Count() == 1 &&
+                command[command.Length - 1] == ')' && command[command.IndexOf('(') - 1] == ' ')
+                return true;
+            return false;
+        }
     }
 }
