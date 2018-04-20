@@ -224,7 +224,9 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                     if (DataType == argument.GetType())
                     {
                         if (thisTable.returnIndexOfPrimaryKey(key) == -1) throw new NullReferenceException("There is no such Primary Key in this table");
-                        DataList[thisTable.returnIndexOfPrimaryKey(key)].Data = argument;
+                        if(argument ==null && AllowsNull)
+                        DataList[thisTable.returnIndexOfPrimaryKey(key)].Data = null;
+                        else DataList[thisTable.returnIndexOfPrimaryKey(key)].Data = argument;
                     }
                     else throw new ArgumentException("Type of argument is not similar to Column type");
                 }
