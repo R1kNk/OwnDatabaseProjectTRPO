@@ -34,5 +34,10 @@ namespace DataLayer.Shared.ExtentionMethods
             foreach (string op in selectComplexOperators) if (str == op) return true;
             return false;
         }
+        static public bool isStatusCodeOk(this string str)
+        {
+            if (str == "OK") return true;
+            return false;
+        }
     }
 }
