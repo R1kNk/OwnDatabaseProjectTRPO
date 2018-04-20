@@ -52,7 +52,7 @@ namespace UILayer
 
         public static void Run()
         {
-            ConnectionString = default(string);
+            ConnectionString = null;
             while (true)
             {
                 string _query = default(string);
@@ -79,9 +79,8 @@ namespace UILayer
         #region LocalMethods
         bool IsKeyword(string command)
         {
-            string _temp = command.ToUpper();
             foreach (var key in _keywords)
-                if (key == _temp)
+                if (key == command)
                     return true;
             return false;
         }
@@ -220,19 +219,13 @@ namespace UILayer
         private static void Create(string query)
         {
             string _command = query.Substring(6);
-            try
-            {
-                CreateMethods.Execute(_command);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
+            CreateMethods.Execute(_command);
+           
         }
         //
         /// <summary>
-        /// Insert column |tableName|->ColName,ColType,IsAllowNull(true/false),DefaultValue;...
-        /// Insert values |tableName|->(|params|)
+        /// Insert column |tableName| (ColName,ColType,IsAllowNull(true/false),DefaultValue;...)
+        /// Insert values |tableName| (|params|)
         /// </summary>
         /// <param name="query"></param>
         private static void Insert(string query)
@@ -242,9 +235,9 @@ namespace UILayer
         }
         //
         /// <summary>
-        /// Delete table |tableName|
-        /// Delete column |tableName| |ColName|
-        /// Delete element |tableName| |ID(int)|
+        /// DELETE TABLE table |tableName|
+        /// DELETE COLUMN |tableName| |colName|
+        /// DELETE ELEMENT |tableName| |ID(int)|
         /// </summary>
         /// <param name="query"></param>
         private static void Delete(string query)
@@ -254,7 +247,10 @@ namespace UILayer
         }
         //
         /// <summary>
-        /// Edit |tableName|
+        ///  EDIT |tableName| ELEMENT |ElementID| (<params>)
+        ///  EDIT |tableName| DEFAULT VALUE |colName| |value|
+        ///  EDIT |tableName| NULLPROPERTY |colName| |true/false|
+        ///  EDIT |tableName| TYPE |colName| |type|
         /// </summary>
         /// <param name="query"></param>
         private static void Edit(string query)

@@ -46,69 +46,90 @@ namespace UILayer.InterpreterMethods
 
         static void CreateDatabase(string dbName)
         {
-            Kernel.AddDBInstance(dbName);
-            Interpreter.ConnectionString = dbName;
-            Console.WriteLine($"\nDatabase created with name '{dbName}'\n");
+            try {
+                if (!Kernel.isDatabaseExists(dbName))
+                {
+                    Kernel.AddDBInstance(dbName);
+                    Interpreter.ConnectionString = dbName;
+                    Console.WriteLine($"\nDatabase created with name '{dbName}'\n");
+                }
+                else throw new Exception("\nERROR: Invalid database name. Some database have same name!\n");
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
 
         static void CreateTable(string _param)
         {
-            if (Interpreter.ConnectionString != null)
-            {
-                string _tableName = default(string);
-                string _tableParams = default(string);
-
-                if (IsCreateWithColums(_param))
+            try {
+                if (Interpreter.ConnectionString != null)
                 {
-                    if (IsValidSyntax(_param))
+                    string _tableName = default(string);
+                    string _tableParams = default(string);
+
+                    if (IsCreateWithColums(_param))
                     {
-                        char[] separetor = new char[] { ' ' };
-                        string[] queryList = _param.Split(separetor, 2, StringSplitOptions.RemoveEmptyEntries);
-                        _tableName = queryList[0];
-                        _tableParams = queryList[1];
-
-                    
-                        char[] _temp = new char[] { ')', ';', '(' };
-                        var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                        _inst.AddTable(_tableName);
-                        string[] _colParams = queryList[1].Split(_temp, StringSplitOptions.RemoveEmptyEntries);
-
-                        foreach (var _column in _colParams)
+                        if (IsValidSyntax(_param))
                         {
-                            char[] _tempery = new char[] { ',', '\'' };
-                            string[] _colParam = _column.Split(_tempery, StringSplitOptions.RemoveEmptyEntries);
-                            if (_colParam.Length == 4)
-                            {
-                                if (_inst.isTableExists(_tableName))
-                                {
-                                    _inst.GetTableByName(_tableName).AddColumn(GetColumn(_colParam, _inst.GetTableByName(_tableName)));
-                                }
-                                else throw new NullReferenceException($"There is no table '{_tableName}' in database '{_inst.Name}'!");
+                            char[] separetor = new char[] { ' ' };
+                            string[] queryList = _param.Split(separetor, 2, StringSplitOptions.RemoveEmptyEntries);
+                            _tableName = queryList[0];
+                            _tableParams = queryList[1];
 
+                            char[] _temp = new char[] { ')', ';', '(' };
+                            var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
+                            if (!_inst.isTableExists(_tableName))
+                            {
+                                _inst.AddTable(_tableName);
+                                string[] _colParams = queryList[1].Split(_temp, StringSplitOptions.RemoveEmptyEntries);
+
+                                foreach (var _column in _colParams)
+                                {
+                                    char[] _tempery = new char[] { ',', '\'' };
+                                    string[] _colParam = _column.Split(_tempery, StringSplitOptions.RemoveEmptyEntries);
+                                    if (_colParam.Length == 4)
+                                    {
+                                        if (_inst.isTableExists(_tableName))
+                                        {
+                                            _inst.GetTableByName(_tableName).AddColumn(GetColumn(_colParam, _inst.GetTableByName(_tableName)));
+                                        }
+                                        else throw new NullReferenceException($"There is no table '{_tableName}' in database '{_inst.Name}'!");
+                                    }
+                                    else throw new Exception("\nERROR: Invalid number of variables\n");
+                                }
+                                Console.WriteLine($"\nTable created with name '{_tableName}'\n");
                             }
-                            Console.WriteLine("\nERROR: Invalid number of variables\n");
+                            else throw new Exception("\nERROR: Invalid table name. Some table in this database have same name!\n");
                         }
-                        Console.WriteLine($"\nTable created with name '{_tableName}'\n");
-                    }
-                    else throw new Exception("\nERROR: Invalid command syntax\n");
-                }
-                else
-                {
-                    string[] temp = _param.Split(' ');
-                    if (temp.Length == 1)
-                    {                   
-                        var inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                        inst.AddTable(_param);
-                        Console.WriteLine($"\nTable created with name '{_param}'\n");
+                        else throw new Exception("\nERROR: Invalid command syntax\n");
                     }
                     else
-                        throw new Exception("\nERROR: Invalid number of variables\n");
-                }   
+                    {
+                        string[] temp = _param.Split(' ');
+                        if (temp.Length == 1)
+                        {
+                            var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
+                            if (!_inst.isTableExists(_param))
+                            {
+                                _inst.AddTable(_param);
+                                Console.WriteLine($"\nTable created with name '{_param}'\n");
+                            }
+                            else throw new Exception("\nERROR: Invalid table name. Some table in this database have same name!\n");
+                        }
+                        else
+                            throw new Exception("\nERROR: Invalid number of variables\n");
+                    }
+                }
+                else
+                    throw new Exception("\nERROR: There is no connection to database\n");
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
             }
-            else
-                throw new Exception("\nERROR: There is no connection to database\n");
         }
-
+    
         static bool IsCreateWithColums(string query)
         {
             if (query.Contains('(') && query.Contains(')') &&
@@ -126,10 +147,9 @@ namespace UILayer.InterpreterMethods
         }
 
         static bool IsKeyword(string param)
-        {
-            string temp = param.ToUpper();
+        {       
             foreach (var key in _keywords)
-                if (key == temp)
+                if (key == param)
                     return true;
             return false;
         }
