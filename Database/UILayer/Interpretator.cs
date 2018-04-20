@@ -155,7 +155,8 @@ namespace UILayer
         }
         //
         /// <summary>
-        /// savedb/savedb |dbName|
+        /// SAVEDB
+        /// SAVEDB |dbName|
         /// </summary>
         /// <param name="query"></param>
         private static void SaveDb(string query)
@@ -188,7 +189,7 @@ namespace UILayer
         }
         //
         /// <summary>
-        /// loadDb
+        /// LOADDB
         /// </summary>
         /// <param name="query"></param>
         private static void LoadDb(string query)
@@ -247,7 +248,7 @@ namespace UILayer
         }
         //
         /// <summary>
-        ///  EDIT |tableName| ELEMENT |ElementID| (<params>)
+        ///  EDIT |tableName| ELEMENT |ElementID| (ColName=Param,...)
         ///  EDIT |tableName| DEFAULT VALUE |colName| |value|
         ///  EDIT |tableName| NULLPROPERTY |colName| |true/false|
         ///  EDIT |tableName| TYPE |colName| |type|
@@ -344,7 +345,7 @@ namespace UILayer
                     string[] _params = query.Split(_seprator, StringSplitOptions.RemoveEmptyEntries);
                     if (_params.Length == 5)
                     {
-                        if (_params[1].ToUpper() == "DELETE")
+                        if (_params[1] == "DELETE")
                         {
                             var _inst = Kernel.GetInstance(ConnectionString);
                             var _tableFk = _inst.GetTableByName(_params[2]);

@@ -8,7 +8,7 @@ namespace UILayer.InterpreterMethods
 {
     class EditMethods
     {
-
+        //(ColName=Param,...)
 
         static List<string> _keywords = new List<string>()
         {
@@ -62,17 +62,25 @@ namespace UILayer.InterpreterMethods
                         if (_inst.isTableExists(tableName))
                         {
                             var _table = _inst.GetTableByName(tableName);
-                            if (_table.Columns.Count - 1 == _params.Length)
+                            foreach (var param in _params)
                             {
-                                object[] _data = new object[_params.Length];
-                                for (int i = 0; i < _params.Length; i++)
+                                char[] sep = new char[] { '=' };
+                                string[] temp = param.Split(sep, StringSplitOptions.RemoveEmptyEntries);
+                                if (temp.Length == 2)
                                 {
-                                    _data[i] = GetData(_params[i], _table.Columns[i + 1]);
+                                    string colName = temp[0];
+                                    string value = temp[1];
+                                    if (_table.isColumnExists(colName))
+                                    {
+                                        var _column = _table.GetColumnByName(colName);
+                                        object data = GetData(value, _column);
+                                        _column.EditColumnElementByPrimaryKey(_elementId, data);
+                                    }
+                                    else throw new Exception();
                                 }
-                                _table.EditTableElementByPrimaryKey(_elementId, _data);
-                                Console.WriteLine("\nAll data successfully edited\n");
-                            }
-                            else throw new Exception("\nERROR: Count of params doesn't equals count of columns\n");
+                                else throw new Exception();
+                            }                             
+                                Console.WriteLine("\nAll data successfully edited\n");                      
                         }
                         else throw new NullReferenceException($"There is no table '{tableName}' in database '{_inst.Name}'!\n");
 
@@ -194,20 +202,25 @@ namespace UILayer.InterpreterMethods
 
         static object GetData(string value, Column column)
         {
+            if (value.ToLower() == "null")
+            {
+                if (column.AllowsNull) return null;
+            }
+
             if (column.DataType == typeof(string))
                 return value;
             else if (column.DataType == typeof(int))
                 return Convert.ToInt32(value);
             else if (column.DataType == typeof(double))
-                return Convert.ToDouble(value);
-            else if (column.DataType == typeof(bool))
             {
                 value = value.Replace('.', ',');
+                return Convert.ToDouble(value);
+            }
+            else if (column.DataType == typeof(bool))
+            {
                 return Convert.ToBoolean(value);
             }
-            else if (value == "null")
-                return null;
-            else return null;
+            else throw new Exception("\nERROR\n");
         }
 
         static Type GetType(string typeName)
