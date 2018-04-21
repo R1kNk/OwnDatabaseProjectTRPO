@@ -122,10 +122,10 @@ namespace UILayer.InterpreterMethods
                         if (_inst.isTableExists(tableName))
                         {
                             var _table = _inst.GetTableByName(tableName);
-                            for(int i=0;i<_params.Length;i++)
+                            foreach(var param in _params)
                             {
                                 char[] sep = new char[] { '=' };
-                                string[] temp = _params[i].Split(sep, StringSplitOptions.RemoveEmptyEntries);
+                                string[] temp = param.Split(sep, StringSplitOptions.RemoveEmptyEntries);
                                 if (temp.Length == 2)
                                 {
                                     if (!_table.isColumnExists(temp[0]))
@@ -148,15 +148,11 @@ namespace UILayer.InterpreterMethods
                             {
                                 char[] sep = new char[] { '=' };
                                 string[] temp = param.Split(sep, StringSplitOptions.RemoveEmptyEntries);
-                                if (temp.Length == 2)
-                                {
-                                    string status;
-                                    var _column = _table.GetColumnByName(temp[0]);
-                                    object data = GetData(temp[1], _column, out status);
-                                    for (int i = 0; i < _column.DataList.Count; i++)
-                                        _column.EditColumnElementByPrimaryKey(_table.returnPrimaryKeyOfIndex(i), data);
-                                }
-                                else throw new Exception("\nERROR: Invalid number of variables\n");
+                                string status;
+                                var _column = _table.GetColumnByName(temp[0]);
+                                object data = GetData(temp[1], _column, out status);
+                                for (int i = 0; i < _column.DataList.Count; i++)
+                                    _column.EditColumnElementByPrimaryKey(_table.returnPrimaryKeyOfIndex(i), data);
                             }
                         }
                         else throw new Exception($"ERROR: Table with name '{tableName}' doesn't exist\n");
