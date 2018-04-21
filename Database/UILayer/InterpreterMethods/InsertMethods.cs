@@ -11,7 +11,8 @@ namespace UILayer.InterpreterMethods
         static List<string> _keywords = new List<string>()
         {
             "VALUES",
-            "COLUMN"
+            "COLUMN",
+            "INTO"
         };
         ///           0         1           2
         /// INSERT COLUMN |tableName| (ColName,ColType,IsAllowNull(true/false),DefaultValue;...)
@@ -169,16 +170,18 @@ namespace UILayer.InterpreterMethods
 
         static object GetData(string value, Column column)
         {
-            
+
             if (column.DataType == typeof(string))
                 return value;
             else if (column.DataType == typeof(int))
                 return Convert.ToInt32(value);
             else if (column.DataType == typeof(double))
-                return Convert.ToDouble(value);
-            else if (column.DataType == typeof(bool))
             {
                 value = value.Replace('.', ',');
+                return Convert.ToDouble(value);
+            }
+            else if (column.DataType == typeof(bool))
+            {
                 return Convert.ToBoolean(value);
             }
             else if (value == "null")

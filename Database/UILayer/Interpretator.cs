@@ -25,11 +25,12 @@ namespace UILayer
             "INSERT",
             "RENAME",
             "DELETE",
-            "EDIT",
             "DATABASES",
             "LINK",
             "UNLINK",
-            "CASCADE"
+            "CASCADE",
+            "SELECT",//to do
+            "UPDATE"// to do
         };
         public static string ConnectionString { get; set; }
 
@@ -227,6 +228,7 @@ namespace UILayer
         /// <summary>
         /// Insert column |tableName| (ColName,ColType,IsAllowNull(true/false),DefaultValue;...)
         /// Insert values |tableName| (|params|)
+        /// Insert values_into |tableName| (colName,...) values (|params|4) //////////TO DO
         /// </summary>
         /// <param name="query"></param>
         private static void Insert(string query)
@@ -239,6 +241,8 @@ namespace UILayer
         /// DELETE TABLE table |tableName|
         /// DELETE COLUMN |tableName| |colName|
         /// DELETE ELEMENT |tableName| |ID(int)|
+        /// DELETE ELEMENT |tableName| WHERE (colName=value,...)
+        /// DELETE ELEMENT |tableName| *-----
         /// </summary>
         /// <param name="query"></param>
         private static void Delete(string query)
@@ -248,16 +252,20 @@ namespace UILayer
         }
         //
         /// <summary>
-        ///  EDIT |tableName| ELEMENT |ElementID| (ColName=Param,...)
-        ///  EDIT |tableName| DEFAULT VALUE |colName| |value|
-        ///  EDIT |tableName| NULLPROPERTY |colName| |true/false|
-        ///  EDIT |tableName| TYPE |colName| |type|
+        ///  UPDATE |tableName| ELEMENT |ElementID| (ColName=value,...)
+        ///  UPDATE |tableName| VALUES (colName=Param,...)----
+        ///  UPDATE |tableName| VALUES (colName=Param,...) WHERE (colName=value,...)-----
+        ///  UPDATE |tableName| VALUES (colName=Param,...) WHERE |colName| BETWEEN (1,10)
+        ///  UPDATE |tableName| VALUES (colName=Param,...) WHERE |colName| IN (1,2,3,4)
+        ///  UPDATE |tableName| DEFAULT VALUE |colName| |value|
+        ///  UPDATE |tableName| NULLPROPERTY |colName| |true/false|
+        ///  UPDATE |tableName| TYPE |colName| |type|
         /// </summary>
         /// <param name="query"></param>
-        private static void Edit(string query)
+        private static void Update(string query)
         {
-            string _tableName = query.Substring(4);
-            EditMethods.Execute(_tableName);
+            string _tableName = query.Substring(6);
+            UpdateMethods.Execute(_tableName);
         }
         //
         /// <summary>
