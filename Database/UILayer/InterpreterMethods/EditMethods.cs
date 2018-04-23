@@ -74,7 +74,7 @@ namespace UILayer.InterpreterMethods
                                     {
                                         var _column = _table.GetColumnByName(colName);
                                         object data = GetData(value, _column);
-                                        _column.EditColumnElementByPrimaryKey(_elementId, data);
+                                        _column.EditColumnElementByPrimaryKey(_elementId, new object[] { data});
                                     }
                                     else throw new Exception();
                                 }
