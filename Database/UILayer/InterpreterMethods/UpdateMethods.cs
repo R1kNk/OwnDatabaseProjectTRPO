@@ -88,7 +88,7 @@ namespace UILayer.InterpreterMethods
                                     string status;
                                     var _column = _table.GetColumnByName(colName);
                                     object data = GetData(value, _column, out status);
-                                    _column.EditColumnElementByPrimaryKey(_elementId, data);
+                                    _column.EditColumnElementByPrimaryKey(_elementId, new object[] { data });
                                 }                   
                                 Console.WriteLine("\nAll data successfully updated\n");
                             }
@@ -119,7 +119,7 @@ namespace UILayer.InterpreterMethods
                                     var _column = _table.GetColumnByName(temp[0]);
                                     object data = GetData(temp[1], _column, out status);
                                     for (int i = 0; i < _column.DataList.Count; i++)
-                                        _column.EditColumnElementByPrimaryKey(_table.returnPrimaryKeyOfIndex(i), data);
+                                        _column.EditColumnElementByIndex(i, new object[] { data });
                                 }
                                 Console.WriteLine("\nAll data successfully updatet\n");
                             }
@@ -161,7 +161,6 @@ namespace UILayer.InterpreterMethods
                                         for (int i = 0; i < _columnCondition.DataList.Count; i++)
                                         {
                                             object data = _columnCondition.DataList[i].Data;
-                                            _inst
                                             if (dataCondition.Equals(data))
                                             {
                                                 int Id = _table.returnPrimaryKeyOfIndex(i);
@@ -173,7 +172,7 @@ namespace UILayer.InterpreterMethods
                                                     var columnReplace = _table.GetColumnByName(_colName);
                                                     object _dataReplace = GetData(_value, columnReplace, out stat);
 
-                                                    columnReplace.EditColumnElementByPrimaryKey(Id, _dataReplace);
+                                                    columnReplace.EditColumnElementByPrimaryKey(Id, new object[] { _dataReplace});
                                                 }
                                             }
                                            
@@ -225,7 +224,7 @@ namespace UILayer.InterpreterMethods
                                         int Id = _table.returnPrimaryKeyOfIndex(i);
                                         if(Id>=lowBoard&&Id<=upBoard)
                                         {
-                                            _column.EditColumnElementByPrimaryKey(Id, data);
+                                            _column.EditColumnElementByPrimaryKey(Id, new object[] { data });
                                         }
                                     }
                                 }
@@ -257,7 +256,7 @@ namespace UILayer.InterpreterMethods
                                         int Id = _table.returnPrimaryKeyOfIndex(i);
                                         if (Id < lowBoard || Id > upBoard)
                                         {
-                                            _column.EditColumnElementByPrimaryKey(Id, data);
+                                            _column.EditColumnElementByPrimaryKey(Id, new object[] { data });
                                         }
                                     }
                                 }
@@ -294,7 +293,7 @@ namespace UILayer.InterpreterMethods
                                         {
                                             if(condData[j].Equals(buff))
                                             {
-                                                column.EditColumnElementByPrimaryKey(_table.returnPrimaryKeyOfIndex(i), data);
+                                                column.EditColumnElementByIndex(i, new object[] { data });
                                             }
                                         }
                                     }
@@ -332,7 +331,7 @@ namespace UILayer.InterpreterMethods
                                         {
                                             if (!condData[j].Equals(buff))
                                             {
-                                                column.EditColumnElementByPrimaryKey(_table.returnPrimaryKeyOfIndex(i), data);
+                                                column.EditColumnElementByPrimaryKey(i, new object[] { data });
                                             }
                                         }
                                     }

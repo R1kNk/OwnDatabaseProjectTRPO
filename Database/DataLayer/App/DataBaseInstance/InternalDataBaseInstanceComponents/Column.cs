@@ -234,9 +234,8 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                 }
                 else throw new NullReferenceException("Table doesn't contain any data");
             }
-            catch(NullReferenceException e)
+            catch(NullReferenceException)
             {
-
             }
             catch (Exception e)
             {
@@ -252,11 +251,11 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                 {
                     if (IsPkey) throw new ArgumentException("You can't change the PrimaryKey Column Data");
                     if (argument == null && AllowsNull)
-                        DataList[thisTable.returnIndexOfPrimaryKey(key)].Data = null;
+                        DataList[index].Data = null;
                     else if (DataType == argument.GetType())
                     {
-                        if (thisTable.returnIndexOfPrimaryKey(key) == -1) throw new NullReferenceException("There is no such Primary Key in this table");
-                        else DataList[thisTable.returnIndexOfPrimaryKey(key)].Data = argument;
+                        if (index<0 || index >= DataList.Count) throw new NullReferenceException("Invalid Index");
+                        else DataList[index].Data = argument;
                     }
                     else throw new ArgumentException("Type of argument is not similar to Column type");
                 }
