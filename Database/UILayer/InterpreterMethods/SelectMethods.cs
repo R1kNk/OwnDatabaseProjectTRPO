@@ -14,11 +14,12 @@ namespace UILayer.InterpreterMethods
             "FROM",
             "ORDERBY",
             "DESC",
+            "ASC",
             "WHERE",
             "IN",
-            "NOT IN",
+            "NO_IN",
             "LIKE",
-            "NOT LIKE",
+            "NOT_LIKE",
         };
 
         static void Execute(string query)
