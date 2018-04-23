@@ -253,10 +253,9 @@ namespace UILayer
         //
         /// <summary>
         ///  UPDATE |tableName| ELEMENT |ElementID| (ColName=value,...)
-        ///  UPDATE |tableName| VALUES (colName=Param,...)----
-        ///  UPDATE |tableName| VALUES (colName=Param,...) WHERE (colName=value,...)-----
+        ///  UPDATE |tableName| VALUES (colName=Param,...)
         ///  UPDATE |tableName| VALUES (colName=Param,...) WHERE |colName| BETWEEN (1,10)
-        ///  UPDATE |tableName| VALUES (colName=Param,...) WHERE |colName| IN (1,2,3,4)
+        ///  UPDATE |tableName| VALUES (colName=Param,...) WHERE |colName| IN (1,2,3,4,kot)
         ///  UPDATE |tableName| DEFAULT VALUE |colName| |value|
         ///  UPDATE |tableName| NULLPROPERTY |colName| |true/false|
         ///  UPDATE |tableName| TYPE |colName| |type|

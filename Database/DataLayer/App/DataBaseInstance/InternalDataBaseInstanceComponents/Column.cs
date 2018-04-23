@@ -221,11 +221,11 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                 if (thisTable.isTableContainsData())
                 {
                     if (IsPkey) throw new ArgumentException("You can't change the PrimaryKey Column Data");
-                    if (DataType == argument.GetType())
+                    if (argument == null && AllowsNull)
+                        DataList[thisTable.returnIndexOfPrimaryKey(key)].Data = null;
+                    else if (DataType == argument.GetType())
                     {
                         if (thisTable.returnIndexOfPrimaryKey(key) == -1) throw new NullReferenceException("There is no such Primary Key in this table");
-                        if(argument ==null && AllowsNull)
-                        DataList[thisTable.returnIndexOfPrimaryKey(key)].Data = null;
                         else DataList[thisTable.returnIndexOfPrimaryKey(key)].Data = argument;
                     }
                     else throw new ArgumentException("Type of argument is not similar to Column type");
