@@ -265,7 +265,8 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                     if (args.Length != Columns.Count - 1) throw new ArgumentException("Count of arguments is not similar to count of tables");
                     for (int i = 0; i < Columns.Count - 1; i++)
                     {
-                        if (Columns[i + 1].DataList[0].Data.GetType() != args[i].GetType()) throw new ArgumentException("type of argument isn't the same as type of column!");
+                        if (args[i] != null && Columns[i+1].DataList[0].Data != null)
+                            if (Columns[i + 1].DataList[0].Data.GetType() != args[i].GetType()) throw new ArgumentException("type of argument isn't the same as type of column!");
                     }
                     for (int i = 0; i < Columns.Count - 1; i++)
                     {
@@ -288,7 +289,9 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                 if (args.Length != Columns.Count) throw new ArgumentException("Count of arguments is not similar to count of tables");
                 for (int i = 0; i < Columns.Count; i++)
                 {
-                    if (Columns[i].DataList[0].Data.GetType() != args[i].GetType()) throw new ArgumentException("type of argument isn't the same as type of column!");
+                    if (args[i] != null && Columns[i].DataList[0].Data != null)
+
+                        if (Columns[i].DataList[0].Data.GetType() != args[i].GetType()) throw new ArgumentException("type of argument isn't the same as type of column!");
                 }
                 for (int i = 0; i < Columns.Count; i++)
                 {
@@ -308,7 +311,8 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                 if (args.Length != Columns.Count) throw new ArgumentException("Count of arguments is not similar to count of tables");
                 for (int i = 0; i < Columns.Count; i++)
                 {
-                    if (Columns[i].DataList[0].Data.GetType() != args[i].Data.GetType()) throw new ArgumentException("type of argument isn't the same as type of column!");
+                    if (args[i].Data != null && Columns[i].DataList[0].Data != null)
+                        if (Columns[i].DataList[0].Data.GetType() != args[i].Data.GetType()) throw new ArgumentException("type of argument isn't the same as type of column!");
                 }
                 for (int i = 0; i < Columns.Count; i++)
                 {
@@ -433,9 +437,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         public Column GetColumnByName(string name)
         {
             try
-            {
-                if (name == "ID" + Name) throw new ArgumentException("You can't get PrimaryKey column");
-           
+            {           
             if (isTableContainsColumns())
                 {
                     if (getIndexOfColumn(name) != -1)

@@ -131,7 +131,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         {
             try
             {
-                if (!IsFkey && !Name.Contains("Id"))
+                if (!IsFkey && !IsPkey)
                 {
                     AllowsNull = isNullable;
                     UpdateDataHashCode();
@@ -151,8 +151,11 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         {
             try
             {
-                if (defaultObject.GetType() == DataType) Default = defaultObject;
-                else throw new ArgumentException("Type of your defaultObject isn't similar to type of column");
+                if (!IsFkey && !IsPkey)
+                {
+                    if (defaultObject.GetType() == DataType) Default = defaultObject;
+                    else throw new ArgumentException("Type of your defaultObject isn't similar to type of column");
+                }
             }
             catch (Exception e)
             {
@@ -243,23 +246,27 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
         } //UI 
         //
-        virtual public void EditColumnElementByIndex(int index, object argument)
+        virtual public void EditColumnElementByIndex(int index, object[] arguments)
         {
             try
             {
                 if (thisTable.isTableContainsData())
                 {
                     if (IsPkey) throw new ArgumentException("You can't change the PrimaryKey Column Data");
-                    if (argument == null && AllowsNull)
+                    if (arguments[0] == null && AllowsNull)
                         DataList[index].Data = null;
-                    else if (DataType == argument.GetType())
+                    else if (DataType == arguments[0].GetType())
                     {
                         if (index<0 || index >= DataList.Count) throw new NullReferenceException("Invalid Index");
-                        else DataList[index].Data = argument;
+                        else DataList[index].Data = arguments[0];
                     }
                     else throw new ArgumentException("Type of argument is not similar to Column type");
                 }
                 else throw new NullReferenceException("Table doesn't contain any data");
+            }
+            catch (NullReferenceException e)
+            {
+                Console.WriteLine("e");
             }
             catch (Exception e)
             {

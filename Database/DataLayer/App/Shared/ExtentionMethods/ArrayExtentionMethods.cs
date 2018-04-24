@@ -11,9 +11,10 @@ namespace DataModels.App.Shared.ExtentionMethods
     {
       public static bool  IsArrayContainOnlyTValues(this object[] array, Type T)
       {
-            foreach (object item in array)
+            foreach (var item in array)
             {
-                if (item.GetType() != T) return false;
+                if (item != null)
+                    if (item.GetType() != T) return false;
             }
             return true;
       }
@@ -21,6 +22,7 @@ namespace DataModels.App.Shared.ExtentionMethods
         {
             foreach (object item in array)
             {
+                if(item!=null)
                 if ((int)item == value) return true;
             }
             return false;
@@ -29,7 +31,8 @@ namespace DataModels.App.Shared.ExtentionMethods
         {
             foreach (object item in array)
             {
-                if ((double)item == value) return true;
+                if (item != null)
+                    if ((double)item == value) return true;
             }
             return false;
         }
@@ -37,7 +40,8 @@ namespace DataModels.App.Shared.ExtentionMethods
         {
             foreach (object item in array)
             {
-                if ((bool)item == value) return true;
+                if (item != null)
+                    if ((bool)item == value) return true;
             }
             return false;
         }
@@ -45,7 +49,8 @@ namespace DataModels.App.Shared.ExtentionMethods
         {
             foreach (object item in array)
             {
-                if ((string)item == value) return true;
+                if (item != null)
+                    if ((string)item == value) return true;
             }
             return false;
         }
