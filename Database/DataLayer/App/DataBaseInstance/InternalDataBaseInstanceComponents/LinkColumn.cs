@@ -67,24 +67,27 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
         }
         //
-        public override void  EditColumnElementByIndex(int index, object argument)
+        public override void  EditColumnElementByIndex(int index, object[] arguments)
         {
             try
             {
                 if (ThisTable.isTableContainsData())
                 {
-                    if (DataType == argument.GetType())
+                    if (DataType == arguments[0].GetType())
                     {
-                        if (isLinkedColumnContainsSuchValue(argument))
+                        if (isLinkedColumnContainsSuchValue(arguments[0]))
                         {
                             if (index == -1) throw new NullReferenceException("There is no such Primary Key in this table");
-                            DataList[index].Data = argument;
+                            DataList[index].Data = arguments[0];
                         }
-                        else throw new ArgumentException("There is no such argument (" + argument.ToString() + ") in linkedColumn (" + linkedColumn.Name + ")!");
+                        else throw new ArgumentException("There is no such argument (" + arguments[0].ToString() + ") in linkedColumn (" + linkedColumn.Name + ")!");
                     }
                     else throw new ArgumentException("Type of argument is not similar to Column type");
                 }
                 else throw new NullReferenceException("Table doesn't contain any data");
+            }
+            catch (NullReferenceException)
+            {
             }
             catch (Exception e)
             {

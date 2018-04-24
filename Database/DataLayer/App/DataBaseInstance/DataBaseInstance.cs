@@ -294,7 +294,7 @@ namespace DataLayer
                 foreach (string name in ColumnNames)
                 {
                     Column oldColumn = tableForQuery.GetColumnByName(name);
-                    Column toAdd = new Column(oldColumn.SystemName, oldColumn.DataType, oldColumn.AllowsNull, oldColumn.Default, queryresult);
+                    Column toAdd = new Column(oldColumn.Name, oldColumn.DataType, oldColumn.AllowsNull, oldColumn.Default, queryresult);
                     toAdd.DataList = oldColumn.CloneData();
                     queryresult.Columns.Add(toAdd);
                 }
@@ -334,7 +334,10 @@ namespace DataLayer
                     List<object> columnData = new List<object>();
 
                     for (int i = 0; i < columnToSort.DataList.Count; i++)
+                    {
+                        if (columnToSort.DataList[i].Data != null)
                         columnData.Add(columnToSort.DataList[i].Data);
+                    }
                     columnData.Sort();
                     if (!isAscending) columnData.Reverse();
                     for (int i = 0; i < columnData.Count; i++)
@@ -343,7 +346,7 @@ namespace DataLayer
                         {
                             object[] dataArray = new object[queryResult.Columns.Count];
                             bool finded = false;
-                            if (data[j][columnSortIndex].Data == columnData[i])
+                            if (data[j][columnSortIndex].Data == columnData[i] && data[j][columnSortIndex].Data!=null)
                             {
                                 queryResult.EditTableElementByIndex(i, data[j]);
                                 data.RemoveAt(j);
