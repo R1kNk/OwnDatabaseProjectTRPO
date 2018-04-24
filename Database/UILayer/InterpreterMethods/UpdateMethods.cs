@@ -119,7 +119,7 @@ namespace UILayer.InterpreterMethods
                                     var _column = _table.GetColumnByName(temp[0]);
                                     object data = GetData(temp[1], _column, out status);
                                     for (int i = 0; i < _column.DataList.Count; i++)
-                                        _column.EditColumnElementByIndex(i, new object[] { data });
+                                        _column.EditColumnElementByPrimaryKey(_table.returnPrimaryKeyOfIndex(i), new object[] { data });
                                 }
                                 Console.WriteLine("\nAll data successfully updatet\n");
                             }
@@ -190,6 +190,8 @@ namespace UILayer.InterpreterMethods
                 }//With ColName and value
                 else if(_queryList.Length==5)
                 {
+                    //    0                 1       2      3      4
+                    //(colName=value,...) WHERE colName BETWEEN (1,3)
                     if (_queryList[1] == "WHERE" && IsValidSyntax(_queryList[0]) && IsValidSyntax(_queryList[4]) && IsKeyword(_queryList[3]))
                     {
                         var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
@@ -199,157 +201,42 @@ namespace UILayer.InterpreterMethods
                             var _table = _inst.GetTableByName(tableName);
                             string[] replaceParams = _queryList[0].Split(separator,StringSplitOptions.RemoveEmptyEntries);
                             string[] condtionParams = _queryList[4].Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                            string colName = _queryList[2];
                             string keyword = _queryList[3];
-                            if (keyword == "BETWEEN")
+                            string[] colNames=new string[replaceParams.Length];
+                            object[] values=new object[replaceParams.Length];
+                            object[] condition = new object[condtionParams.Length];
+                            if (!IsValidSyntax(replaceParams, _table)) throw new Exception();
+                            
+                            for (int i = 0; i < replaceParams.Length;i++)
                             {
-                                if (condtionParams.Length != 2) throw new Exception("\nERROR: Invalid command syntax in BETWEEN params\n");
-
-                                int lowBoard = int.Parse(condtionParams[0]);
-                                int upBoard = int.Parse(condtionParams[1]);
-
-                                if (lowBoard >= upBoard) throw new Exception("\nERROR: Low board can't be more than up board\n");
-                                if (!IsValidSyntax(replaceParams, _table)) throw new Exception("\nERROR: Invalid command syntax in params for replace\n");
-
-                                foreach(var param in replaceParams)
-                                {
-                                    char[] temp = new char[] { '=' };
-                                    string colName = param.Split(temp, StringSplitOptions.RemoveEmptyEntries)[0];
-                                    string value= param.Split(temp, StringSplitOptions.RemoveEmptyEntries)[1];
-                                    string status;
-                                    var _column = _table.GetColumnByName(colName);
-                                    object data = GetData(value, _column, out status);
-
-                                    for(int i=0;i<_column.DataList.Count;i++)
-                                    {
-                                        int Id = _table.returnPrimaryKeyOfIndex(i);
-                                        if(Id>=lowBoard&&Id<=upBoard)
-                                        {
-                                            _column.EditColumnElementByPrimaryKey(Id, new object[] { data });
-                                        }
-                                    }
-                                }
-                                Console.WriteLine("\nAll data successfully updatet\n");
-
-                            }
-                            else if (keyword == "NOT_BETWEEN")
-                            {
-                                if (condtionParams.Length != 2) throw new Exception("\nERROR: Invalid command syntax in BETWEEN params\n");
-
-                                int lowBoard = int.Parse(condtionParams[0]);
-                                int upBoard = int.Parse(condtionParams[1]);
-
-                                if (lowBoard >= upBoard) throw new Exception("\nERROR: Low board can't be more than up board\n");
-                                if (!IsValidSyntax(replaceParams, _table)) throw new Exception("\nERROR: Invalid command syntax in params for replace\n");
-
-
-                                foreach (var param in replaceParams)
-                                {
-                                    char[] temp = new char[] { '=' };
-                                    string colName = param.Split(temp, StringSplitOptions.RemoveEmptyEntries)[0];
-                                    string value = param.Split(temp, StringSplitOptions.RemoveEmptyEntries)[1];
-                                    string status;
-                                    var _column = _table.GetColumnByName(colName);
-                                    object data = GetData(value, _column, out status);
-
-                                    for (int i = 0; i < _column.DataList.Count; i++)
-                                    {
-                                        int Id = _table.returnPrimaryKeyOfIndex(i);
-                                        if (Id < lowBoard || Id > upBoard)
-                                        {
-                                            _column.EditColumnElementByPrimaryKey(Id, new object[] { data });
-                                        }
-                                    }
-                                }
-                                Console.WriteLine("\nAll data successfully updatet\n");
-                            }
-                            else if(keyword=="IN")
-                            {
-                                if (!_table.isColumnExists(_queryList[2])) throw new Exception();
-
-                                var _column = _table.GetColumnByName(_queryList[2]);
-                                string status;
-                                object[] condData = new object[condtionParams.Length];
-                                for(int i=0;i<condtionParams.Length;i++)
-                                {
-                                    object data = GetData(condtionParams[i], _column, out status);
-                                    if (status == "OK")
-                                        condData[i] = data;
-                                    else throw new Exception("\nERROR:Type of condition params doesn't equals type of column\n");
-                                }
-
-                                foreach(var param in replaceParams)
-                                {
-                                    char[] temp = new char[] { '=' };
-                                    string stat;
-                                    string colName = param.Split(temp, StringSplitOptions.RemoveEmptyEntries)[0];
-                                    string value= param.Split(temp, StringSplitOptions.RemoveEmptyEntries)[1];
-                                    var column = _table.GetColumnByName(colName);
-                                    object data = GetData(value, column, out stat);
-
-                                    for(int i=0;i<_column.DataList.Count;i++)
-                                    {
-                                        object buff = _column.DataList[i].Data;
-                                        for(int j=0;j<condData.Length;j++)
-                                        {
-                                            if(condData[j].Equals(buff))
-                                            {
-                                                column.EditColumnElementByIndex(i, new object[] { data });
-                                            }
-                                        }
-                                    }
-                                }
-                                Console.WriteLine("\nAll data successfully updatet\n");
-                            }
-                            else
-                            {
-                                if (!_table.isColumnExists(_queryList[2])) throw new Exception();
-
-                                var _column = _table.GetColumnByName(_queryList[2]);
-                                string status;
-                                object[] condData = new object[condtionParams.Length];
-                                for (int i = 0; i < condtionParams.Length; i++)
-                                {
-                                    object data = GetData(condtionParams[i], _column, out status);
-                                    if (status == "OK")
-                                        condData[i] = data;
-                                    else throw new Exception("\nERROR:Type of condition params doesn't equals type of column\n");
-                                }
-
-                                foreach (var param in replaceParams)
-                                {
-                                    char[] temp = new char[] { '=' };
-                                    string stat;
-                                    string colName = param.Split(temp, StringSplitOptions.RemoveEmptyEntries)[0];
-                                    string value = param.Split(temp, StringSplitOptions.RemoveEmptyEntries)[1];
-                                    var column = _table.GetColumnByName(colName);
-                                    object data = GetData(value, column, out stat);
-
-                                    for (int i = 0; i < _column.DataList.Count; i++)
-                                    {
-                                        object buff = _column.DataList[i].Data;
-                                        for (int j = 0; j < condData.Length; j++)
-                                        {
-                                            if (!condData[j].Equals(buff))
-                                            {
-                                                column.EditColumnElementByPrimaryKey(i, new object[] { data });
-                                            }
-                                        }
-                                    }
-                                }
-                                Console.WriteLine("\nAll data successfully updatet\n");
+                                char[] sep = new char[] { '=' };
+                                string[] temp = replaceParams[i].Split(sep, StringSplitOptions.RemoveEmptyEntries);
+                                if (temp.Length != 2) throw new Exception();
+                                colNames[i] = temp[0];
+                                values[i] = GetData(temp[1], _table.GetColumnByName(temp[0]), out string status);
                             }
 
+                            var condColumn = _table.GetColumnByName(colName);
+                            string buff;
+                            for (int i = 0; i < condtionParams.Length; i++)
+                                condition[i] = GetData(condtionParams[i],condColumn,out buff);
+
+                            string stat = "OK";
+                            _inst.QueryWhereConditionUpdate(_table, colName, _queryList[3], condition, colNames, values,ref stat);
+
+                            
+
+             
                         }
-                        else throw new Exception($"ERROR: Table with name '{tableName}' doesn't exist\n");
                     }
-                    else throw new Exception("\nERROR: Invalid command syntax\n");
+                    Console.WriteLine("\nAll data successfully updatet\n");
                 }
-                else throw new Exception("\nERROR: Invalid number of variables\n");
             }catch(Exception e)
             {
                 Console.WriteLine(e.Message);
             }
-        }
+        }           
 
         static void UpdateNullProperty(string tableName, string query)
         {

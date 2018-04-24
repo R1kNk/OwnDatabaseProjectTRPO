@@ -13,7 +13,7 @@ namespace UILayer
     {
         static void Main(string[] args)
         {
-            //Interpreter.Run();
+            Interpreter.Run();
 
 
 
