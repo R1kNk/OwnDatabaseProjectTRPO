@@ -239,10 +239,16 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
         }
         //
-       public void DeleteAllData()
+
+        //
+        public void DeleteAllData()
         {
+           
             for (int i = 0; i < Columns[0].DataList.Count; i++)
+            {
                 DeleteTableElementByIndex(i);
+                i--;
+            }
         }
         //
         /// <summary>
@@ -264,7 +270,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                     for (int i = 0; i < Columns.Count - 1; i++)
                     {
 
-                        Columns[i + 1].EditColumnElementByPrimaryKey(key, args[i]);
+                        Columns[i + 1].EditColumnElementByPrimaryKey(key, args[i].toObjectArray());
                     }
                 }
                 else throw new ArgumentException("This table doesn't containt Primary Key!");
@@ -505,6 +511,8 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             return false;
         } 
         //
+       
+        //
         bool isTableContainsColumns()
         {
             if (Columns.Count == 1) return false;
@@ -519,8 +527,9 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             {
                 int biggestcharData = default(int);
                 if (isTableContainsData())
-                    biggestcharData = Columns[i].DataList.Select(x => x.Data.ToString().Length).Max();
+                    biggestcharData = Columns[i].DataList.Where(x=>x.Data!=null).Select(x => x.Data.ToString().Length).Max();
                 else biggestcharData = 0;
+                if (biggestcharData < 4) biggestcharData = 4;
                 int ColumnNameLength = Columns[i].Name.Length;
                 if (biggestcharData > ColumnNameLength) maxCharSizesArray[i] = biggestcharData;
                 else maxCharSizesArray[i] = ColumnNameLength;
@@ -550,9 +559,12 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                 Data += "\n" + VertDash;
                 for (int i = 0; i < maxCharSizesArray.Length; i++)
                 {
-
-                    int SpacesAfter = maxCharSizesArray[i] - Columns[i].DataList[j].Data.ToString().Length + 1;
-                    Data += Space; Data += Columns[i].DataList[j].Data.ToString();
+                    string bufData = default(string);
+                    if (Columns[i].DataList[j].Data == null)
+                        bufData = "null";
+                    else bufData = Columns[i].DataList[j].Data.ToString();
+                    int SpacesAfter = maxCharSizesArray[i] - bufData.Length + 1;
+                    Data += Space; Data += bufData;
                     for (int k = 0; k < SpacesAfter; k++)
                         Data += Space;
                     Data += VertDash;
