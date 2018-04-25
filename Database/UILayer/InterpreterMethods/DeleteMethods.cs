@@ -1,4 +1,5 @@
 ﻿using DataLayer;
+using DataModels.App.InternalDataBaseInstanceComponents;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,21 @@ namespace UILayer.InterpreterMethods
             "TABLE",
             "COLUMN",
             "ELEMENT"
+        };
+        static List<string> _operators = new List<string>() {
+            "IN",
+            "NOT_IN",
+            "BETWEEN",
+            "NOT_BETWEEN"
+        };
+        static List<string> _separtors = new List<string>()
+        {
+            "!=",
+            "<=",
+            ">=",
+            "=",
+             "<",
+            ">",
         };
 
         public static void Execute(string query)
@@ -133,6 +149,9 @@ namespace UILayer.InterpreterMethods
         //
         /// <summary>
         /// delete element |tableName| |primaryKeyId|
+        /// DELETE ELEMENT |tableName| WHERE (colName=value,...)
+        /// DELETE ELEMENT |tableName| WHERE |colName| BETWEEN (1,2) 
+        /// DELETE ELEMENT |tableName| *
         /// </summary>
         /// <param name="query"></param>
         static void DeleteElement(string query)
@@ -153,7 +172,67 @@ namespace UILayer.InterpreterMethods
                             Console.WriteLine("\nData successfully deleted\n");
                         }
                          else throw new NullReferenceException($"There is no table '{_params[0]}' in database '{_inst.Name}'!");
-                    }   
+                    }   //With ID
+                    else if(_params.Length==3)
+                    {
+                        if (!(_params[1] == "WHERE"&&IsValidSyntax(_params[2]))) throw new Exception("\nERROR: Invalid command syntax\n");//syntax check
+
+                        var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
+                        string tableName = _params[0];
+
+                        if (!_inst.isTableExists(tableName)) throw new Exception($"There is no table '{_params[0]}' in database '{_inst.Name}'!");//Is table exist check
+
+                        var _table = _inst.GetTableByName(tableName);
+
+                        char[] _sep = new char[] { '(', ',', ')' };
+                        string[] condParams = _params[2].Split(_sep, StringSplitOptions.RemoveEmptyEntries);
+
+                        if (!(condParams.Length == 1)) throw new Exception("\nERROR: Invalid number of variables in condition params\n");//Is valid params check
+                        if (!IsValidSyntax(condParams, _table)) throw new Exception("\nERROR: Invalid command syntax in condition params\n");//check types and values of condition
+
+                        string condOperator = GetSeparator(condParams[0]);
+                        string[] temp = new string[] { condOperator };
+                        string status;
+                        string buff = "OK";
+
+                        string colName = condParams[0].Split(temp,StringSplitOptions.None)[0];
+                        string value= condParams[0].Split(temp, StringSplitOptions.None)[1];
+                        object data = GetData(value, _table.GetColumnByName(colName), out status);
+
+                        _inst.setNewTable(_table,_inst.QueryWhereConditionDelete(_table, colName, condOperator, data, ref buff));
+                        Console.WriteLine("\nAll data successfully deleted\n");
+                    } //With Column and value
+                    else if(_params.Length==5)
+                    {
+                        if (!(_params[1] == "WHERE" && IsOperator(_params[3]))&&IsValidSyntax(_params[4])) throw new Exception("\nERROR: Invalid command syntax\n");
+
+                        var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
+                        string tableName = _params[0];
+
+                        if (!_inst.isTableExists(tableName)) throw new Exception($"There is no table '{_params[0]}' in database '{_inst.Name}'!");
+
+                        var _table = _inst.GetTableByName(tableName);
+                        string colName = _params[2];
+
+                        if (!_table.isColumnExists(colName)) throw new Exception($"There is no column '{colName}' in table '{tableName}'!");
+
+                        var _column = _table.GetColumnByName(colName);
+
+                        char[] _sep = new char[] { '(', ',', ')' };
+                        string[] values = _params[4].Split(_sep, StringSplitOptions.RemoveEmptyEntries);
+                        object[] data = new object[values.Length];
+
+                        for (int i = 0; i < data.Length; i++)
+                        {
+                            string status;
+                            data[i] = GetData(values[i], _column, out status);
+                            if (!(status == "OK")) throw new Exception("\nERROR: Invalid variables in condition params\n");
+                        }
+
+                        string buff = "OK";
+                        _inst.setNewTable(_table, _inst.QueryWhereConditionDelete(_table, colName, _params[3], data, ref buff));
+                        Console.WriteLine("\nAll data successfully deleted\n");
+                    }
                     else throw new Exception("\nERROR: Invalid number of variables\n");
                 }
                 else throw new Exception("\nThere is no connection to database\n");
@@ -171,5 +250,101 @@ namespace UILayer.InterpreterMethods
             return false;
         }
 
+        static bool IsValidSyntax(string command)
+        {
+            if (command.Contains('(') && command.Contains(')') &&
+                command.Where(x => x == '(').Count() == 1 &&
+                command.Where(x => x == ')').Count() == 1 &&
+                command[command.Length - 1] == ')')
+                return true;
+            return false;
+        }
+
+        static bool IsOperator(string operat)
+        {
+            foreach (var op in _operators)
+                if (op == operat)
+                    return true;
+            return false;
+        }
+
+        static object GetData(string value, Column column, out string status)
+        {
+            try
+            {
+                if (value.ToLower() == "null")
+                {
+                    if (column.AllowsNull)
+                    {
+                        status = "OK";
+                        return null;
+                    }
+                }
+
+                if (column.DataType == typeof(string))
+                {
+                    status = "OK";
+                    return value;
+                }
+                else if (column.DataType == typeof(int))
+                {
+                    status = "OK";
+                    return Convert.ToInt32(value);
+                }
+                else if (column.DataType == typeof(double))
+                {
+                    status = "OK";
+                    value = value.Replace('.', ',');
+                    return Convert.ToDouble(value);
+                }
+                else if (column.DataType == typeof(bool))
+                {
+                    status = "OK";
+                    return Convert.ToBoolean(value);
+                }
+                else throw new Exception("\nERROR\n");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                status = "ERROR";
+                return null;
+            }
+        }
+
+        static string GetSeparator(string param)
+        {
+            foreach (var sep in _separtors)
+                if (param.Contains(sep))
+                    return sep;
+            throw new Exception("\nERROR: Invalid charecter in condition params\n");
+        }
+
+        static bool IsValidSyntax(string[] variables, Table table)
+        {
+            foreach (var param in variables)
+            {
+                string[] tem = new string[1];
+                tem[0] = GetSeparator(param);
+                string[] temp = param.Split(tem, StringSplitOptions.RemoveEmptyEntries);
+                if (temp.Length == 2)
+                {
+                    if (!table.isColumnExists(temp[0]))
+                    {
+                        throw new Exception($"\nERROR: Column with name '{temp[0]}' doesn't exist\n");
+                    }
+                    else
+                    {
+                        var _column = table.GetColumnByName(temp[0]);
+                        string status;
+                        object data = GetData(temp[1], _column, out status);
+                        if (status != "OK")
+                            throw new Exception("\nERROR: Ivalid type of data\n");
+                    }
+                }
+                else throw new Exception("\nERROR: Invalid number of variables\n");
+            }
+            return true;
+        }
     }
 }

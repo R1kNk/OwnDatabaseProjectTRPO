@@ -242,7 +242,8 @@ namespace UILayer
         /// DELETE COLUMN |tableName| |colName|
         /// DELETE ELEMENT |tableName| |ID(int)|
         /// DELETE ELEMENT |tableName| WHERE (colName=value,...)
-        /// DELETE ELEMENT |tableName| *-----
+        /// DELETE ELEMENT |tableName| WHERE |colName| BETWEEN (1,2) 
+        /// DELETE ELEMENT |tableName| *
         /// </summary>
         /// <param name="query"></param>
         private static void Delete(string query)
@@ -268,7 +269,7 @@ namespace UILayer
         }
         //
         /// <summary>
-        /// Link |TableNameWithFK| |GeneralTableName| |true/false|
+        /// LINK |TableNameWithFK| WITH |GeneralTableName| |true/false|
         /// </summary>
         /// <param name="query"></param>
         private static void Link(string query)
@@ -278,7 +279,7 @@ namespace UILayer
                 {
                     char[] _separator = new char[] { ' ' };
                     string[] _params = query.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
-                    if (_params.Length == 4)
+                    if (_params.Length == 5&&_params[2]=="WITH")
                     {
                         var _inst = Kernel.GetInstance(ConnectionString);
                         if (_inst.isTableExists(_params[1]))
@@ -286,17 +287,17 @@ namespace UILayer
                             var _tableWithFk = _inst.GetTableByName(_params[1]);
                             if (_inst.isTableExists(_params[2]))
                             {
-                                var _generalTable = _inst.GetTableByName(_params[2]);
-                                bool _isCascadeDelete = Convert.ToBoolean(_params[3]);
+                                var _generalTable = _inst.GetTableByName(_params[3]);
+                                bool _isCascadeDelete = Convert.ToBoolean(_params[4]);
                                 _inst.LinkTables(_tableWithFk, _generalTable, _isCascadeDelete);
                             }
-                            else throw new NullReferenceException($"There is no table '{_params[2]}' in database '{_inst.Name}'!");
+                            else throw new NullReferenceException($"There is no table '{_params[3]}' in database '{_inst.Name}'!");
                         }
                         else throw new NullReferenceException($"There is no table '{_params[1]}' in database '{_inst.Name}'!");
                     }
-                    else throw new Exception("\nERROR: Invalid number of variables\n");
+                    else throw new Exception("\nERROR: Invalid command syntax\n");
                 }
-                else throw new Exception("\nERROR: Invalid number of variables\n");
+                else throw new Exception("\nERROR: There is no connection to database\n");
             }catch(Exception e)
             {
                 Console.WriteLine(e.Message);
@@ -304,7 +305,7 @@ namespace UILayer
         }
         //
         /// <summary>
-        /// UnLink |TableNameWithFK| |GeneralTableName|
+        /// UnLink |TableNameWithFK| WITH |GeneralTableName|
         /// </summary>
         /// <param name="query"></param>
         private static void UnLink(string query)
@@ -314,7 +315,7 @@ namespace UILayer
                 {
                     char[] _separator = new char[] { ' ' };
                     string[] _params = query.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
-                    if (_params.Length == 3)
+                    if (_params.Length == 4&&_params[2]=="WITH")
                     {
                         var _inst = Kernel.GetInstance(ConnectionString);
                         if (_inst.isTableExists(_params[1]))
@@ -324,11 +325,10 @@ namespace UILayer
                                 _inst.UnLinkTables(_inst.GetTableByName(_params[1]), _inst.GetTableByName(_params[3]));
                             }
                             else throw new NullReferenceException($"There is no table '{_params[3]}' in database '{_inst.Name}'!");
-
                         }
                         else throw new NullReferenceException($"There is no table '{_params[1]}' in database '{_inst.Name}'!");
                     }
-                    else throw new Exception("\nERROR: Invalid number of variables\n");
+                    else throw new Exception("\nERROR: Invalid command syntax\n");
                 }
                 else throw new Exception("\nERROR: There is no connection to database\n");
             }
