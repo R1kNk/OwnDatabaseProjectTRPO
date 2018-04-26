@@ -16,10 +16,18 @@ namespace UILayer.InterpreterMethods
             "DEFAULT",
             "TYPE",
             "VALUES",
+        };
+
+        static List<string> _operators = new List<string>()
+        {
             "IN",
             "NOT_IN",
             "BETWEEN",
             "NOT_BETWEEN",
+        };
+
+        static List<string> _separtors = new List<string>()
+        {
             "!=",
             "<=",
             ">=",
@@ -27,7 +35,6 @@ namespace UILayer.InterpreterMethods
              "<",
             ">",
         };
-
 
         public static void Execute(string queru)
         {
@@ -121,7 +128,7 @@ namespace UILayer.InterpreterMethods
                                     for (int i = 0; i < _column.DataList.Count; i++)
                                         _column.EditColumnElementByPrimaryKey(_table.returnPrimaryKeyOfIndex(i), new object[] { data });
                                 }
-                                Console.WriteLine("\nAll data successfully updatet\n");
+                                Console.WriteLine("\nAll data successfully updated\n");
                             }
                             else throw new Exception("\nERROR: Invalid command syntax\n");
                         }
@@ -131,60 +138,50 @@ namespace UILayer.InterpreterMethods
                 }//All columns
                 else if(_queryList.Length==3)
                 {
-                    if (_queryList[1] == "WHERE")
+                    //UPDATE Persons VALUES (colname=value) WHERE (Colname!=value)
+                    if (_queryList[1] == "WHERE"&& IsValidSyntax(_queryList[2]) && IsValidSyntax(_queryList[0]))
                     {
-                        if (IsValidSyntax(_queryList[2]) && IsValidSyntax(_queryList[0]))
+                        var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
+                        if (_inst.isTableExists(tableName))
                         {
+                            var _table = _inst.GetTableByName(tableName);
+
                             char[] _separ = new char[] { '(', ',', ')' };
                             string[] _paramsForReplace = _queryList[0].Split(_separ, StringSplitOptions.RemoveEmptyEntries);
                             string[] _conditionParams = _queryList[2].Split(_separ, StringSplitOptions.RemoveEmptyEntries);
+                            if (!(_conditionParams.Length == 1)) throw new Exception("\nERROR: Invalid number of variables in condition params\n");
+                            if (!(IsValidSyntax(_paramsForReplace,_table)&&IsValidSyntax(_conditionParams,_table))) throw new Exception("\nERROR: Invalid command syntax\n");
 
-                            if (_conditionParams.Length != 1) throw new Exception("\nERROR: Invalid number of variables\n");
 
-                            var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                            if (_inst.isTableExists(tableName))
+                            foreach (var param in _conditionParams)
                             {
-                                var _table = _inst.GetTableByName(tableName);
-                                if (IsValidSyntax(_paramsForReplace, _table) && IsValidSyntax(_conditionParams, _table))
-                                {
-                                    foreach (var param in _conditionParams)
-                                    {
-                                        string[] sep = new string[1];
-                                        sep[0] = GetSeparator(param);
+                                string[] sep = new string[1];
+                                sep[0] = GetSeparator(param);
                                         
-                                        string colName = param.Split(sep,StringSplitOptions.RemoveEmptyEntries)[0];
-                                        string value = param.Split(sep,StringSplitOptions.RemoveEmptyEntries)[1];
-                                        string status;
-                                        var _columnCondition = _table.GetColumnByName(colName);
+                                string condColName = param.Split(sep,StringSplitOptions.RemoveEmptyEntries)[0];
+                                string condValue = param.Split(sep,StringSplitOptions.RemoveEmptyEntries)[1];
+                                string status;
 
-                                        object dataCondition = GetData(value, _columnCondition, out status);
-                                        for (int i = 0; i < _columnCondition.DataList.Count; i++)
-                                        {
-                                            object data = _columnCondition.DataList[i].Data;
-                                            if (dataCondition.Equals(data))
-                                            {
-                                                int Id = _table.returnPrimaryKeyOfIndex(i);
-                                                foreach (var colParam in _paramsForReplace)
-                                                {
-                                                    string _colName = colParam.Split(sep, StringSplitOptions.RemoveEmptyEntries)[0];
-                                                    string _value = colParam.Split(sep, StringSplitOptions.RemoveEmptyEntries)[1];
-                                                    string stat;
-                                                    var columnReplace = _table.GetColumnByName(_colName);
-                                                    object _dataReplace = GetData(_value, columnReplace, out stat);
+                                var _columnCondition = _table.GetColumnByName(condColName);
+                                object dataCondition = GetData(condValue, _columnCondition, out status);
 
-                                                    columnReplace.EditColumnElementByPrimaryKey(Id, new object[] { _dataReplace});
-                                                }
-                                            }
-                                           
-                                        }
-                                    }
-                                    Console.WriteLine("\nAll data successfully updatet\n");
+                                string[] colNames = new string[_paramsForReplace.Length];
+                                object[] colValues = new object[_paramsForReplace.Length];
+
+                                for(int i=0;i<_paramsForReplace.Length;i++)
+                                {
+                                    char[] separ = new char[] { '=' };
+                                    string[] temp = _paramsForReplace[i].Split(separ, StringSplitOptions.RemoveEmptyEntries);
+                                    colNames[i] = temp[0];
+                                    string stat;
+                                    colValues[i] = GetData(temp[1], _table.GetColumnByName(temp[0]), out stat);      
                                 }
-                                else throw new Exception("\nERROR: Invalid command syntax\n");
+                                string buff = "OK";
+                                _inst.QueryWhereConditionUpdate(_table, condColName, sep[0], dataCondition, colNames, colValues, ref buff);
                             }
-                            else throw new Exception($"ERROR: Table with name '{tableName}' doesn't exist\n");
+                            Console.WriteLine("\nAll data successfully updated\n");
                         }
-                        else throw new Exception("\nERROR: Invalid command syntax\n");
+                        else throw new Exception($"ERROR: Table with name '{tableName}' doesn't exist\n"); 
                     }
                     else throw new Exception("\nERROR: Invalid command syntax\n");
                 }//With ColName and value
@@ -192,46 +189,47 @@ namespace UILayer.InterpreterMethods
                 {
                     //    0                 1       2      3      4
                     //(colName=value,...) WHERE colName BETWEEN (1,3)
-                    if (_queryList[1] == "WHERE" && IsValidSyntax(_queryList[0]) && IsValidSyntax(_queryList[4]) && IsKeyword(_queryList[3]))
+                    if (_queryList[1] == "WHERE" && IsValidSyntax(_queryList[0]) && IsValidSyntax(_queryList[4]) && IsOperator(_queryList[3]))
                     {
                         var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
                         if (_inst.isTableExists(tableName))
                         {
-                            char[] separator = new char[] { '(', ',', ')' };
                             var _table = _inst.GetTableByName(tableName);
+
+                            char[] separator = new char[] { '(', ',', ')' };
                             string[] replaceParams = _queryList[0].Split(separator,StringSplitOptions.RemoveEmptyEntries);
                             string[] condtionParams = _queryList[4].Split(separator, StringSplitOptions.RemoveEmptyEntries);
+
                             string colName = _queryList[2];
+                            if (!_table.isColumnExists(colName)) throw new Exception($"\nERROR: Column with name '{colName}' doesn't exist in table '{tableName}'\n");
+                            var condColumn = _table.GetColumnByName(colName);
+                            object[] conditionValues = new object[condtionParams.Length];
+
                             string keyword = _queryList[3];
-                            string[] colNames=new string[replaceParams.Length];
-                            object[] values=new object[replaceParams.Length];
-                            object[] condition = new object[condtionParams.Length];
-                            if (!IsValidSyntax(replaceParams, _table)) throw new Exception();
-                            
+
+                            if (!IsValidSyntax(replaceParams, _table)) throw new Exception("\nERROR: Invalid command syntax\n");
+                            string[] colNames = new string[replaceParams.Length];
+                            object[] values = new object[replaceParams.Length];
+
+
                             for (int i = 0; i < replaceParams.Length;i++)
                             {
                                 char[] sep = new char[] { '=' };
                                 string[] temp = replaceParams[i].Split(sep, StringSplitOptions.RemoveEmptyEntries);
-                                if (temp.Length != 2) throw new Exception();
                                 colNames[i] = temp[0];
                                 values[i] = GetData(temp[1], _table.GetColumnByName(temp[0]), out string status);
                             }
 
-                            var condColumn = _table.GetColumnByName(colName);
                             string buff;
                             for (int i = 0; i < condtionParams.Length; i++)
-                                condition[i] = GetData(condtionParams[i],condColumn,out buff);
+                                conditionValues[i] = GetData(condtionParams[i],condColumn,out buff);
 
                             string stat = "OK";
-                            _inst.QueryWhereConditionUpdate(_table, colName, _queryList[3], condition, colNames, values,ref stat);
-
-                            
-
-             
+                            _inst.QueryWhereConditionUpdate(_table, colName, _queryList[3], conditionValues, colNames, values,ref stat);
                         }
                     }
-                    Console.WriteLine("\nAll data successfully updatet\n");
-                }
+                    Console.WriteLine("\nAll data successfully updated\n");
+                }// With (BETWENN/NOT_BETWEEN\IN\NOT_IN) 
             }catch(Exception e)
             {
                 Console.WriteLine(e.Message);
@@ -348,7 +346,7 @@ namespace UILayer.InterpreterMethods
                 {
                     if (!table.isColumnExists(temp[0]))
                     {
-                        throw new Exception($"\nERROR: Column with name '{temp[0]}' doesn't exist");
+                        throw new Exception($"\nERROR: Column with name '{temp[0]}' doesn't exist\n");
                     }
                     else
                     {
@@ -368,6 +366,14 @@ namespace UILayer.InterpreterMethods
         {
             foreach (var key in _keywords)
                 if (key == param)
+                    return true;
+            return false;
+        }
+
+        static bool IsOperator(string operat)
+        {
+            foreach (var op in _operators)
+                if (op == operat)
                     return true;
             return false;
         }
@@ -432,9 +438,9 @@ namespace UILayer.InterpreterMethods
         
         static string GetSeparator(string param)
         {
-            foreach (var key in _keywords)
-                if (param.Contains(key))
-                    return key;
+            foreach (var sep in _separtors)
+                if (param.Contains(sep))
+                    return sep;
             throw new Exception("\nERROR: Invalid charecter in condition params\n");
         }
         
