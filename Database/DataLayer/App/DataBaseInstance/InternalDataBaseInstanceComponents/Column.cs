@@ -119,7 +119,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
 
         } //UI
@@ -140,7 +140,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         } //UI
         /// <summary>
@@ -159,7 +159,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         } //UI
         /// <summary>
@@ -244,7 +244,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         } //UI 
         //
@@ -269,11 +269,11 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (NullReferenceException e)
             {
-                Console.WriteLine("e");
+                Console.WriteLine(e.Message);
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         } //UI 
         //
@@ -314,12 +314,12 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
 
         public override string ToString()
         {
-            string columnInfo = "[COLUMN] " + Name + " contains data of " + DataType.Name + " variables,";
-            if (AllowsNull) columnInfo += " allows null data,";
-            else columnInfo += " doesn't allows null data,";
-            if (IsPkey) columnInfo += " PrimaryKey,";
-            if (IsFkey) columnInfo += " ForeignKey,";
-            columnInfo += " default object = " + Default.ToString()+", hash = "+ GetHashCode();
+            string columnInfo = "[COLUMN] " +"<"+Name + "> DataType = " + DataType.Name + ",";
+            if (AllowsNull) columnInfo += " AllowsNull,";
+            else columnInfo += " !AllowsNull,";
+            if (IsPkey) columnInfo += " isPrimaryKey,";
+            if (IsFkey) columnInfo += " isForeignKey,";
+            columnInfo += " DefaultValue = " + Default.ToString()+", hash = "+ GetHashCode();
             return columnInfo;
         }
     }

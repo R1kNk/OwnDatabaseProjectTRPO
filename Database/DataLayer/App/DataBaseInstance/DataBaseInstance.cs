@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using DataLayer.Shared.DataModels;
 using DataModels.App.Shared.ExtentionMethods;
+using System.Linq;
 
 namespace DataLayer
 {
@@ -56,7 +57,7 @@ namespace DataLayer
             }
             catch(Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         } //UI done
         //
@@ -102,7 +103,7 @@ namespace DataLayer
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         } //UI done
         //
@@ -124,7 +125,7 @@ namespace DataLayer
             }
             catch(Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         } //UI done
         //
@@ -192,7 +193,7 @@ namespace DataLayer
             }
             catch(Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         } //UI (do not care about what table is on the first place and what table on the second)
         /// <summary>
@@ -220,7 +221,7 @@ namespace DataLayer
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         } //UI (do not care about places of table's in parametres)
         //
@@ -254,7 +255,7 @@ namespace DataLayer
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
                 return null;
             }
         }
@@ -278,108 +279,9 @@ namespace DataLayer
 
         //query methods
 
-        /// <summary>
-        /// selects columns from a table and return result
-        /// </summary>
-        /// <param name="ColumnNames"></param>
-        /// <param name="tableForQuery"></param>
-        /// <returns></returns>
-        public Table QueryColumnSelection(List<string> ColumnNames, Table tableForQuery, ref string outResult)
-        {
-            try
-            {
-                if (!outResult.isStatusCodeOk()) return null;
-                foreach (string name in ColumnNames) if (!name.Contains(".") || !tableForQuery.isColumnExists(name)) throw new ArgumentException("Invalid column name!");
-                Table queryresult = new Table(tableForQuery.Name, false);
-                foreach (string name in ColumnNames)
-                {
-                    Column oldColumn = tableForQuery.GetColumnByName(name);
-                    Column toAdd = new Column(oldColumn.Name, oldColumn.DataType, oldColumn.AllowsNull, oldColumn.Default, queryresult);
-                    toAdd.DataList = oldColumn.CloneData();
-                    queryresult.Columns.Add(toAdd);
-                }
-                outResult = "OK";
-                return queryresult;
-            }
-            catch (Exception e)
-            {
-                outResult = "Critical Error: " + e.ToString();
-                Console.WriteLine(e);
-                return null;
-            }
 
-        }
-
-        /// <summary>
-        /// Sorts table by values in column
-        /// </summary>
-        /// <param name="columnNameSortBy"></param>
-        /// <param name="tableForQuery"></param>
-        /// <param name="isAscending"></param>
-        /// <returns></returns>
-        public Table QuerySortTable(string columnNameSortBy, Table tableForQuery, bool isAscending, ref string outResult)
-        {
-            if (!outResult.isStatusCodeOk()) return null;
-            try
-            {
-                Table queryResult = new Table(tableForQuery);
-                if (queryResult.isColumnExists(columnNameSortBy))
-                {
-                    List<DataObject[]> data = new List<DataObject[]>();
-                    for (int i = 0; i < queryResult.Columns[0].DataList.Count; i++)
-                        data.Add(queryResult.GetDataByIndex(i));
-
-                    int columnSortIndex = queryResult.getIndexOfColumn(columnNameSortBy);
-                    Column columnToSort = queryResult.Columns[columnSortIndex];
-                    List<object> columnData = new List<object>();
-
-                    for (int i = 0; i < columnToSort.DataList.Count; i++)
-                    {
-                        if (columnToSort.DataList[i].Data != null)
-                        columnData.Add(columnToSort.DataList[i].Data);
-                    }
-                    columnData.Sort();
-                    if (!isAscending) columnData.Reverse();
-                    for (int i = 0; i < columnData.Count; i++)
-                    {
-                        for (int j = 0; j < data.Count; j++)
-                        {
-                            object[] dataArray = new object[queryResult.Columns.Count];
-                            bool finded = false;
-                            if (data[j][columnSortIndex].Data == columnData[i])
-                            {
-                                if (data[j][columnSortIndex].Data != null)
-                                {
-                                    queryResult.EditTableElementByIndex(i, data[j]);
-                                    data.RemoveAt(j);
-                                    finded = true;
-                                }
-                            }
-                            if (finded)
-                                break;
-                        }
-                    }
-                    int nullIndex = queryResult.Columns[0].DataList.Count - data.Count;
-                    if(nullIndex!= queryResult.Columns[0].DataList.Count)
-                    for (int i = nullIndex, j = 0; i < queryResult.Columns[0].DataList.Count || j < data.Count; i++, j++)
-                    {
-                        queryResult.EditTableElementByIndex(i, data[j]);
-
-                    }
-
-                }
-                else throw new ArgumentException("There is no " + columnNameSortBy + " column in " + tableForQuery.Name + "!");
-                return queryResult;
-            }
-            catch (Exception e)
-            {
-                outResult = "Critical Error: " + e.ToString();
-                Console.WriteLine(e);
-                return null;
-            }
-        }
-        
         //for selection
+
         /// <summary>
         /// Condition selection
         /// </summary>
@@ -412,25 +314,25 @@ namespace DataLayer
                                             if (selectObject.GetType() == typeof(string))
                                             {
                                                 for (int i = 0; i < queryColumn.DataList.Count; i++)
-                                                    if ((string)queryColumn.DataList[i].Data != (string)selectObject) { queryResult.DeleteTableElementByIndex(i); i--;}
+                                                    if ((string)queryColumn.DataList[i].Data != (string)selectObject) { queryResult.DeleteTableElementByIndex(i); i--; }
                                             }
                                             else if (selectObject.GetType() == typeof(int))
                                                 for (int i = 0; i < queryColumn.DataList.Count; i++)
                                                 {
-                                                    if ((int)queryColumn.DataList[i].Data != (int)selectObject) { queryResult.DeleteTableElementByIndex(i); i--;}
+                                                    if ((int)queryColumn.DataList[i].Data != (int)selectObject) { queryResult.DeleteTableElementByIndex(i); i--; }
                                                 }
                                             else if (selectObject.GetType() == typeof(double))
                                             {
                                                 for (int i = 0; i < queryColumn.DataList.Count; i++)
                                                 {
-                                                    if ((double)queryColumn.DataList[i].Data != (double)selectObject) { queryResult.DeleteTableElementByIndex(i); i--;}
+                                                    if ((double)queryColumn.DataList[i].Data != (double)selectObject) { queryResult.DeleteTableElementByIndex(i); i--; }
                                                 }
                                             }
                                             else if (selectObject.GetType() == typeof(bool))
                                             {
                                                 for (int i = 0; i < queryColumn.DataList.Count; i++)
                                                 {
-                                                    if ((bool)queryColumn.DataList[i].Data != (bool)selectObject) { queryResult.DeleteTableElementByIndex(i); i--;}
+                                                    if ((bool)queryColumn.DataList[i].Data != (bool)selectObject) { queryResult.DeleteTableElementByIndex(i); i--; }
                                                 }
                                             }
                                             return queryResult;
@@ -555,8 +457,8 @@ namespace DataLayer
             }
             catch (Exception e)
             {
-                outResult = "Critical Error: " + e.ToString();
-                Console.WriteLine(e);
+                outResult = "Critical Error: " + e.Message;
+                Console.WriteLine(outResult);
                 return null;
             }
         }
@@ -712,10 +614,281 @@ namespace DataLayer
             }
             catch (Exception e)
             {
-                outResult = "Critical Error: " + e.ToString();
-                Console.WriteLine(e);
+                outResult = "Critical Error: " + e.Message;
+                Console.WriteLine(outResult);
                 return null;
             }
+        }
+
+        /// <summary>
+        /// selects columns from a table and return result
+        /// </summary>
+        /// <param name="ColumnNames"></param>
+        /// <param name="tableForQuery"></param>
+        /// <returns></returns>
+        public Table QueryColumnSelection(List<string> ColumnNames, Table tableForQuery, ref string outResult)
+        {
+            try
+            {
+                if (!outResult.isStatusCodeOk()) return null;
+                foreach (string name in ColumnNames) if (!name.Contains(".") || !tableForQuery.isColumnExists(name)) throw new ArgumentException("Invalid column name!");
+                Table queryresult = new Table(tableForQuery.Name, false);
+                foreach (string name in ColumnNames)
+                {
+                    Column oldColumn = tableForQuery.GetColumnByName(name);
+                    Column toAdd = new Column(oldColumn.Name, oldColumn.DataType, oldColumn.AllowsNull, oldColumn.Default, queryresult);
+                    toAdd.DataList = oldColumn.CloneData();
+                    queryresult.Columns.Add(toAdd);
+                }
+                outResult = "OK";
+                return queryresult;
+            }
+            catch (Exception e)
+            {
+                outResult = "Critical Error: " + e.Message;
+                Console.WriteLine(outResult);
+                return null;
+            }
+
+        }
+
+        /// <summary>
+        /// Returns table with one column which contains number of records in table
+        /// </summary>
+        /// <param name="tableforQuery"></param>
+        /// <param name="outResult"></param>
+        /// <returns></returns>
+        public Table QueryCountSelection(Table tableforQuery, ref string outResult)
+        {
+            try
+            {
+                if (!outResult.isStatusCodeOk()) return null;
+                if (tableforQuery.Columns.Count <= 1) throw new ArgumentException("Table " + tableforQuery.Name + " doesn't contains any columns");
+                Table queryresult = new Table(tableforQuery.Name, false);
+                Column toAdd = new Column($"RECORDS_COUNT({tableforQuery.Name})", typeof(int), false, 0, queryresult);
+                toAdd.DataList.Add(new DataObject(toAdd.GetHashCode(), tableforQuery.Columns[0].DataList.Count));
+                queryresult.Columns.Add(toAdd);
+                outResult = "OK";
+                return queryresult;
+            }
+            catch (Exception e)
+            {
+                outResult = "Critical Error: " + e.Message;
+                Console.WriteLine(outResult);
+                return null;
+            }
+        }
+        
+        /// <summary>
+        /// Returns first values from table according to percents or values 
+        /// </summary>
+        /// <param name="tableforQuery"></param>
+        /// <param name="Value"></param>
+        /// <param name="isValueCount"></param>
+        /// <param name="outResult"></param>
+        /// <returns></returns>
+        public Table QueryTopSelection(Table tableforQuery, int Value, bool isValueCount, ref string outResult)
+        {
+            try
+            {
+                if (!outResult.isStatusCodeOk()) return null;
+                Table queryresult = new Table(tableforQuery);
+
+                if (isValueCount)
+                {
+                    if (Value < 1) throw new ArgumentException("Value must be more than zero to select!");
+                    if (Value > queryresult.Columns[0].DataList.Count) Value = queryresult.Columns[0].DataList.Count;
+
+                }
+                else
+                {
+                    if (Value < 1 || Value > 100) throw new ArgumentException("Percents must be more than 0 and less than 100 to select!");
+                    Value = (int)Math.Truncate(Convert.ToDouble(queryresult.Columns[0].DataList.Count) * Convert.ToDouble(Convert.ToDouble(Value) / 100));
+
+
+                    for (int i = Value; i < queryresult.Columns[0].DataList.Count; i++)
+                    {
+                        queryresult.DeleteTableElementByIndex(i); i--;
+                    }
+                }
+                    outResult = "OK";
+                    return queryresult;
+            }
+            catch (Exception e)
+            {
+                outResult = "Critical Error: " + e.Message;
+                Console.WriteLine(outResult);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Sorts table by values in column
+        /// </summary>
+        /// <param name="columnNameSortBy"></param>
+        /// <param name="tableForQuery"></param>
+        /// <param name="isAscending"></param>
+        /// <returns></returns>
+        public Table QuerySortTable(string columnNameSortBy, Table tableForQuery, bool isAscending, ref string outResult)
+        {
+            if (!outResult.isStatusCodeOk()) return null;
+            try
+            {
+                Table queryResult = new Table(tableForQuery);
+                if (queryResult.isColumnExists(columnNameSortBy))
+                {
+                    List<DataObject[]> data = new List<DataObject[]>();
+                    for (int i = 0; i < queryResult.Columns[0].DataList.Count; i++)
+                        data.Add(queryResult.GetDataByIndex(i));
+
+                    int columnSortIndex = queryResult.getIndexOfColumn(columnNameSortBy);
+                    Column columnToSort = queryResult.Columns[columnSortIndex];
+                    List<object> columnData = new List<object>();
+
+                    for (int i = 0; i < columnToSort.DataList.Count; i++)
+                    {
+                        if (columnToSort.DataList[i].Data != null)
+                        columnData.Add(columnToSort.DataList[i].Data);
+                    }
+                    columnData.Sort();
+                    if (!isAscending) columnData.Reverse();
+                    for (int i = 0; i < columnData.Count; i++)
+                    {
+                        for (int j = 0; j < data.Count; j++)
+                        {
+                            object[] dataArray = new object[queryResult.Columns.Count];
+                            bool finded = false;
+                            if (data[j][columnSortIndex].Data == columnData[i])
+                            {
+                                if (data[j][columnSortIndex].Data != null)
+                                {
+                                    queryResult.EditTableElementByIndex(i, data[j]);
+                                    data.RemoveAt(j);
+                                    finded = true;
+                                }
+                            }
+                            if (finded)
+                                break;
+                        }
+                    }
+                    int nullIndex = queryResult.Columns[0].DataList.Count - data.Count;
+                    if(nullIndex!= queryResult.Columns[0].DataList.Count)
+                    for (int i = nullIndex, j = 0; i < queryResult.Columns[0].DataList.Count || j < data.Count; i++, j++)
+                    {
+                        queryResult.EditTableElementByIndex(i, data[j]);
+
+                    }
+
+                }
+                else throw new ArgumentException("There is no " + columnNameSortBy + " column in " + tableForQuery.Name + "!");
+                return queryResult;
+            }
+            catch (Exception e)
+            {
+                outResult = "Critical Error: " + e.Message;
+                Console.WriteLine(outResult);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Average value from column, available only for int32 and double
+        /// </summary>
+        /// <param name="ColumnName"></param>
+        /// <param name="tableForQuery"></param>
+        /// <param name="outResult"></param>
+        /// <returns></returns>
+        public Table QueryAvgSelection(string ColumnName, Table tableForQuery, ref string outResult)
+        {
+            try
+            {
+                if (!outResult.isStatusCodeOk()) return null;
+                if (!ColumnName.Contains(".") || !tableForQuery.isColumnExists(ColumnName)) throw new ArgumentException("Invalid column name!");
+                Table queryresult = new Table(tableForQuery.Name, false);
+               
+                    Column oldColumn = tableForQuery.GetColumnByName(ColumnName);
+
+                if (oldColumn.DataType == typeof(string)) throw new ArgumentException("Average selections don't work with string variables!");
+                if (oldColumn.DataType == typeof(bool)) throw new ArgumentException("Average selections don't work with bool variables!");
+                string averageData = default(string);
+                if (!tableForQuery.isTableContainsData()) throw new ArgumentException($"There is no data in {tableForQuery.Name}!");
+                if (oldColumn.DataList.Where(x => x.Data != null).Count() != 0)
+                {
+                    if (oldColumn.DataType == typeof(int))
+                        averageData = oldColumn.DataList.Where(x => x.Data != null).Average(x => (int)x.Data).ToString();
+                    else if (oldColumn.DataType == typeof(double))
+                        averageData = oldColumn.DataList.Where(x => x.Data != null).Average(x => (double)x.Data).ToString();
+                    else throw new ArgumentException("Invalid data type!");
+                }
+                else averageData = "null";
+                //
+                Column AvgInfo = new Column($"AVG_VALUE({ColumnName})", typeof(string), false, 0.0, queryresult);
+                AvgInfo.DataList.Add(new DataObject(AvgInfo.GetHashCode(), averageData));
+                queryresult.Columns.Add(AvgInfo);
+                outResult = "OK";
+                return queryresult;
+            }
+            catch (Exception e)
+            {
+                outResult = "Critical Error: " + e.Message;
+                Console.WriteLine(outResult);
+                return null;
+            }
+
+        }
+
+        public Table QueryMINMAXSUMSelection(string ColumnName, Table tableForQuery, string Action, ref string outResult)
+        {
+            try
+            {
+                if (!outResult.isStatusCodeOk()) return null;
+                if (!ColumnName.Contains(".") || !tableForQuery.isColumnExists(ColumnName)) throw new ArgumentException("Invalid column name!");
+                Table queryresult = new Table(tableForQuery.Name, false);
+
+                Column oldColumn = tableForQuery.GetColumnByName(ColumnName);
+                if (Action != "MIN" && Action != "MAX" && Action != "SUM") throw new ArgumentException("Invalid action for selection!");
+                if (oldColumn.DataType == typeof(string)) throw new ArgumentException("MIN/MAX selections don't work with string variables!");
+                if (oldColumn.DataType == typeof(bool)) throw new ArgumentException("MIN/MAX selections don't work with bool variables!");
+                string averageData = default(string);
+                if (!tableForQuery.isTableContainsData()) throw new ArgumentException($"There is no data in {tableForQuery.Name}!");
+                if (oldColumn.DataList.Where(x => x.Data != null).Count() != 0)
+                {
+                    if (oldColumn.DataType == typeof(int))
+                    {
+                        if (Action == "MIN")
+                            averageData = oldColumn.DataList.Where(x => x.Data != null).Min(x => (int)x.Data).ToString();
+                        else if (Action == "MAX") averageData = oldColumn.DataList.Where(x => x.Data != null).Max(x => (int)x.Data).ToString();
+                        else if (Action == "SUM") averageData = oldColumn.DataList.Where(x => x.Data != null).Sum(x => (int)x.Data).ToString();
+                    }
+                    else if (oldColumn.DataType == typeof(double))
+                    {
+                        if (Action == "MIN")
+                            averageData = oldColumn.DataList.Where(x => x.Data != null).Min(x => (double)x.Data).ToString();
+                        else if(Action=="MAX")averageData = oldColumn.DataList.Where(x => x.Data != null).Max(x => (double)x.Data).ToString();
+                        else if(Action=="SUM") averageData = oldColumn.DataList.Where(x => x.Data != null).Sum(x => (double)x.Data).ToString();
+                    }
+                    else throw new ArgumentException("Invalid data type!");
+                }
+                else averageData = "null";
+                //
+                string name = default(string);
+                if (Action=="MIN")
+                    name = $"MIN({ColumnName})";
+                else if(Action=="MAX") name = $"MAX({ColumnName})";
+                else name = $"SUM({ColumnName})";
+                Column Info = new Column(name, typeof(string), false, 0.0, queryresult);
+                Info.DataList.Add(new DataObject(Info.GetHashCode(), averageData));
+                queryresult.Columns.Add(Info);
+                outResult = "OK";
+                return queryresult;
+            }
+            catch (Exception e)
+            {
+                outResult = "Critical Error: " + e.Message;
+                Console.WriteLine(outResult);
+                return null;
+            }
+
         }
 
         //for update
@@ -964,7 +1137,7 @@ namespace DataLayer
             }
             catch (Exception e)
             {
-                outResult = "Critical Error: " + e.ToString();
+                outResult = "Critical Error: " + e.Message;
                 return;
             }
         }
@@ -1174,7 +1347,7 @@ namespace DataLayer
             }
             catch (Exception e)
             {
-                outResult = "Critical Error: " + e.ToString();
+                outResult = "Critical Error: " + e.Message;
                 return;
             }
         }
@@ -1367,7 +1540,7 @@ namespace DataLayer
             }
             catch (Exception e)
             {
-                outResult = "Critical Error: " + e.ToString();
+                outResult = "Critical Error: " + e.Message;
                 return;
             }
         }
@@ -1531,7 +1704,7 @@ namespace DataLayer
             }
             catch (Exception e)
             {
-                outResult = "Critical Error: " + e.ToString();
+                outResult = "Critical Error: " + e.Message;
                 return;
             }
         }

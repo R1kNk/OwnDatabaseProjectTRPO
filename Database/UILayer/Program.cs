@@ -54,14 +54,15 @@ namespace UILayer
             inst.GetTableByName("Cars").GetColumnByName("Cars.Price").SetNullableProperty(true);
             inst.GetTableByName("Cars").GetColumnByName("Cars.Price").EditColumnElementByPrimaryKey(2, new object[] { null });
             inst.GetTableByName("Cars").GetColumnByName("Cars.Price").EditColumnElementByPrimaryKey(1, new object[] { null });
-            inst.GetTableByName("Cars").GetColumnByName("Cars.Price").EditColumnElementByPrimaryKey(3, new object[] { 20 });
+            inst.GetTableByName("Cars").GetColumnByName("Cars.Price").EditColumnElementByPrimaryKey(3, new object[] { null });
             inst.GetTableByName("Cars").GetColumnByName("Cars.Price").EditColumnElementByPrimaryKey(4, new object[] { null });
 
 
 
             Kernel.OutDatabaseInfo();
-
-            Table query = inst.QuerySortTable("Cars.Price", inst.GetTableByName("Cars"), true, ref l);
+            //Table kek = new Table("ul");
+            //Console.WriteLine(kek.OutTable());
+            Table query = inst.QueryMINMAXSUMSelection("Cars.DoubleValue",inst.GetTableByName("Cars"), "MIN",ref l);
             
              Console.WriteLine(query.OutTable());
 

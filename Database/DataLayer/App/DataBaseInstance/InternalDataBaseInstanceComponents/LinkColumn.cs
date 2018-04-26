@@ -33,7 +33,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
 
         }
@@ -63,7 +63,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         }
         //
@@ -92,7 +92,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         } //UI 
         bool isLinkedColumnContainsSuchValue(object value)
