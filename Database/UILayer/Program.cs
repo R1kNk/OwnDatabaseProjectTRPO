@@ -13,7 +13,7 @@ namespace UILayer
     {
         static void Main(string[] args)
         {
-            Interpreter.Run();
+           // Interpreter.Run();
 
 
 
@@ -23,17 +23,17 @@ namespace UILayer
             //var inst = Kernel.GetInstance("inst2");
 
             //    //Kernel.SaveAllDatabases();
-            //    //    Kernel.OutDatabaseInfo();
+   Kernel.OutDatabaseInfo();
             //    // Console.WriteLine(inst.GetTableByName("Cars").OutTable());
             //    // Interpreter.Run();
 
 
 
-            //var inst = Kernel.GetInstance("inst2");
-            //inst.LinkTables(inst.GetTableByName("Persons"), inst.GetTableByName("Cars"), true);
-            //inst.GetTableByName("Persons").GetColumnByName("FK_IDCars").EditColumnElementByPrimaryKey(1, 1.toObjectArray());
-            //inst.GetTableByName("Persons").GetColumnByName("FK_IDCars").EditColumnElementByPrimaryKey(2, 1.toObjectArray());
-            //inst.GetTableByName("Persons").GetColumnByName("FK_IDCars").EditColumnElementByPrimaryKey(3, 2.toObjectArray());
+            var inst = Kernel.GetInstance("inst2");
+            inst.LinkTables(inst.GetTableByName("Persons"), inst.GetTableByName("Cars"), true);
+            inst.GetTableByName("Persons").GetColumnByName("FK_IDCars").EditColumnElementByPrimaryKey(1, 1.toObjectArray());
+            inst.GetTableByName("Persons").GetColumnByName("FK_IDCars").EditColumnElementByPrimaryKey(2, 1.toObjectArray());
+            inst.GetTableByName("Persons").GetColumnByName("FK_IDCars").EditColumnElementByPrimaryKey(3, 2.toObjectArray());
             //inst.GetTableByName("Cars").GetColumnByName("Man").SetNullableProperty(true);
             //inst.GetTableByName("Cars").GetColumnByName("Man").EditColumnElementByPrimaryKey(1, new object[] { null });
             //inst.GetTableByName("Cars").GetColumnByName("Price").SetNullableProperty(true);
@@ -48,9 +48,22 @@ namespace UILayer
 
             //Kernel.OutDatabaseInfo();
             //Console.WriteLine(query.OutTable());
-            //Table query = inst.QueryWhereConditionSelection(inst.GetTableByName("Cars"), "Cars.DoubleValue", "NOT_BETWEEN",  new object[] { 0.0 , 120.5} );
-           // query = inst.QuerySortTable("Cars.CarMark", query, false);
-           // Console.WriteLine(query.OutTable());
+            string l = "OK";
+            //inst.QueryWhereConditionDelete(inst.GetTableByName("Cars"), "Cars.IDCars", "NOT_BETWEEN",  new object[] { 1,4}, ref l );
+
+            inst.GetTableByName("Cars").GetColumnByName("Cars.Price").SetNullableProperty(true);
+            inst.GetTableByName("Cars").GetColumnByName("Cars.Price").EditColumnElementByPrimaryKey(2, new object[] { null });
+            inst.GetTableByName("Cars").GetColumnByName("Cars.Price").EditColumnElementByPrimaryKey(1, new object[] { null });
+            inst.GetTableByName("Cars").GetColumnByName("Cars.Price").EditColumnElementByPrimaryKey(3, new object[] { 20 });
+            inst.GetTableByName("Cars").GetColumnByName("Cars.Price").EditColumnElementByPrimaryKey(4, new object[] { null });
+
+
+
+            Kernel.OutDatabaseInfo();
+
+            Table query = inst.QuerySortTable("Cars.Price", inst.GetTableByName("Cars"), true, ref l);
+            
+             Console.WriteLine(query.OutTable());
 
 
         }

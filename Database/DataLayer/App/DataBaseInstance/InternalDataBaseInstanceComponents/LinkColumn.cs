@@ -73,6 +73,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             {
                 if (ThisTable.isTableContainsData())
                 {
+                    if (arguments[0] == null) throw new ArgumentException("You can't change value of FK column to null");
                     if (DataType == arguments[0].GetType())
                     {
                         if (isLinkedColumnContainsSuchValue(arguments[0]))

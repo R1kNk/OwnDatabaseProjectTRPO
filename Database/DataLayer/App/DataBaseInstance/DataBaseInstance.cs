@@ -346,15 +346,25 @@ namespace DataLayer
                         {
                             object[] dataArray = new object[queryResult.Columns.Count];
                             bool finded = false;
-                            if (data[j][columnSortIndex].Data == columnData[i] && data[j][columnSortIndex].Data!=null)
+                            if (data[j][columnSortIndex].Data == columnData[i])
                             {
-                                queryResult.EditTableElementByIndex(i, data[j]);
-                                data.RemoveAt(j);
-                                finded = true;
+                                if (data[j][columnSortIndex].Data != null)
+                                {
+                                    queryResult.EditTableElementByIndex(i, data[j]);
+                                    data.RemoveAt(j);
+                                    finded = true;
+                                }
                             }
                             if (finded)
                                 break;
                         }
+                    }
+                    int nullIndex = queryResult.Columns[0].DataList.Count - data.Count;
+                    if(nullIndex!= queryResult.Columns[0].DataList.Count)
+                    for (int i = nullIndex, j = 0; i < queryResult.Columns[0].DataList.Count || j < data.Count; i++, j++)
+                    {
+                        queryResult.EditTableElementByIndex(i, data[j]);
+
                     }
 
                 }
@@ -717,9 +727,9 @@ namespace DataLayer
         /// <param name="selectOperator"></param>
         /// <param name="selectObject"></param>
         /// <returns></returns>
-        public Table QueryWhereConditionUpdate(Table tableForSelection, string columnName, string selectOperator, object selectObject, string[] columnsName, object[] values, ref string outResult)
+        public void QueryWhereConditionUpdate(Table tableForSelection, string columnName, string selectOperator, object selectObject, string[] columnsName, object[] values, ref string outResult)
         {
-            if (!outResult.isStatusCodeOk()) return null;
+            if (!outResult.isStatusCodeOk()) return;
             try
             {
                 
@@ -785,7 +795,7 @@ namespace DataLayer
                                                     }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return ;
                                         }
                                     case "!=":
                                         {
@@ -829,7 +839,7 @@ namespace DataLayer
                                                     }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return ;
                                         }
                                     case ">":
                                         {
@@ -857,7 +867,7 @@ namespace DataLayer
                                                     }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return ;
                                         }
                                     case "<":
                                         {
@@ -885,7 +895,7 @@ namespace DataLayer
                                                     }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return;
                                         }
                                     case "<=":
                                         {
@@ -913,7 +923,7 @@ namespace DataLayer
                                                     }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return ;
                                         }
                                     case ">=":
                                         {
@@ -941,7 +951,7 @@ namespace DataLayer
                                                     }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return;
                                         }
                                 }
                             else throw new ArgumentException("Invalid object for select!");
@@ -950,14 +960,12 @@ namespace DataLayer
                     }
                     else throw new ArgumentException("There is no " + columnName + " column in " + tableForSelection.Name + " table");
                 }
-                else return tableForSelection;
-                return tableForSelection;
+                else return;
             }
             catch (Exception e)
             {
                 outResult = "Critical Error: " + e.ToString();
-                Console.WriteLine(e);
-                return null;
+                return;
             }
         }
 
@@ -970,9 +978,9 @@ namespace DataLayer
         /// <param name="selectObjects"></param>
         /// <param name="outResult"></param>
         /// <returns></returns>
-        public Table QueryWhereConditionUpdate(Table tableForSelection, string columnName, string selectOperator, object[] selectObjects, string[] columnsName, object[] values, ref string outResult)
+        public void QueryWhereConditionUpdate(Table tableForSelection, string columnName, string selectOperator, object[] selectObjects, string[] columnsName, object[] values, ref string outResult)
         {
-            if (!outResult.isStatusCodeOk()) return null;
+            if (!outResult.isStatusCodeOk()) return;
             try
             {
                
@@ -1027,7 +1035,7 @@ namespace DataLayer
                                                     }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return;
                                         }
                                     case "IN":
                                         {
@@ -1074,7 +1082,7 @@ namespace DataLayer
                                                     }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return;
                                         }
                                     case "NOT_BETWEEN":
                                         {
@@ -1103,7 +1111,7 @@ namespace DataLayer
                                                     }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return;
                                         }
                                     case "NOT_IN":
                                         {
@@ -1150,7 +1158,7 @@ namespace DataLayer
                                                     }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return;
                                         }
                                 }
 
@@ -1162,14 +1170,12 @@ namespace DataLayer
                     }
                     else throw new ArgumentException("There is no " + columnName + " column in " + tableForSelection.Name + " table");
                 }
-                else return tableForSelection;
-                return tableForSelection;
+                else return;
             }
             catch (Exception e)
             {
                 outResult = "Critical Error: " + e.ToString();
-                Console.WriteLine(e);
-                return null;
+                return;
             }
         }
 
@@ -1182,9 +1188,9 @@ namespace DataLayer
         /// <param name="selectOperator"></param>
         /// <param name="selectObject"></param>
         /// <returns></returns>
-        public Table QueryWhereConditionDelete(Table tableForSelection, string columnName, string selectOperator, object selectObject, ref string outResult)
+        public void QueryWhereConditionDelete(Table tableForSelection, string columnName, string selectOperator, object selectObject, ref string outResult)
         {
-            if (!outResult.isStatusCodeOk()) return null;
+            if (!outResult.isStatusCodeOk()) return;
             try
             {
 
@@ -1228,7 +1234,7 @@ namespace DataLayer
                                                     { tableForSelection.DeleteTableElementByIndex(i); i--; }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return;
                                         }
                                     case "!=":
                                         {
@@ -1260,7 +1266,7 @@ namespace DataLayer
                                                     { tableForSelection.DeleteTableElementByIndex(i); i--; }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return;
                                         }
                                     case ">":
                                         {
@@ -1282,7 +1288,7 @@ namespace DataLayer
                                                     { tableForSelection.DeleteTableElementByIndex(i); i--; }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return;
                                         }
                                     case "<":
                                         {
@@ -1304,7 +1310,7 @@ namespace DataLayer
                                                     { tableForSelection.DeleteTableElementByIndex(i); i--; }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return;
                                         }
                                     case "<=":
                                         {
@@ -1326,7 +1332,7 @@ namespace DataLayer
                                                     { tableForSelection.DeleteTableElementByIndex(i); i--; }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return;
                                         }
                                     case ">=":
                                         {
@@ -1348,7 +1354,7 @@ namespace DataLayer
                                                     { tableForSelection.DeleteTableElementByIndex(i); i--; }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return;
                                         }
                                 }
                             else throw new ArgumentException("Invalid object for select!");
@@ -1357,14 +1363,12 @@ namespace DataLayer
                     }
                     else throw new ArgumentException("There is no " + columnName + " column in " + tableForSelection.Name + " table");
                 }
-                else return tableForSelection;
-                return tableForSelection;
+                else return;
             }
             catch (Exception e)
             {
                 outResult = "Critical Error: " + e.ToString();
-                Console.WriteLine(e);
-                return null;
+                return;
             }
         }
 
@@ -1377,9 +1381,9 @@ namespace DataLayer
         /// <param name="selectObjects"></param>
         /// <param name="outResult"></param>
         /// <returns></returns>
-        public Table QueryWhereConditionDelete(Table tableForSelection, string columnName, string selectOperator, object[] selectObjects, ref string outResult)
+        public void QueryWhereConditionDelete(Table tableForSelection, string columnName, string selectOperator, object[] selectObjects, ref string outResult)
         {
-            if (!outResult.isStatusCodeOk()) return null;
+            if (!outResult.isStatusCodeOk()) return;
             try
             {
 
@@ -1407,18 +1411,18 @@ namespace DataLayer
                                             if (selectObjects[0].GetType() == typeof(int))
                                                 for (int i = 0; i < queryColumn.DataList.Count; i++)
                                                 {
-                                                    if ((int)queryColumn.DataList[i].Data > (int)selectObjects[0] || (int)queryColumn.DataList[i].Data < (int)selectObjects[1])
+                                                    if ((int)queryColumn.DataList[i].Data > (int)selectObjects[0] && (int)queryColumn.DataList[i].Data < (int)selectObjects[1])
                                                     { tableForSelection.DeleteTableElementByIndex(i); i--; }
                                                 }
                                             else if (selectObjects[0].GetType() == typeof(double))
                                             {
                                                 for (int i = 0; i < queryColumn.DataList.Count; i++)
                                                 {
-                                                    if ((double)queryColumn.DataList[i].Data > (double)selectObjects[0] || (double)queryColumn.DataList[i].Data < (double)selectObjects[1])
+                                                    if ((double)queryColumn.DataList[i].Data > (double)selectObjects[0] && (double)queryColumn.DataList[i].Data < (double)selectObjects[1])
                                                     { tableForSelection.DeleteTableElementByIndex(i); i--; }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return;
                                         }
                                     case "IN":
                                         {
@@ -1426,14 +1430,14 @@ namespace DataLayer
                                             if (selectObjects[0].GetType() == typeof(int))
                                                 for (int i = 0; i < queryColumn.DataList.Count; i++)
                                                 {
-                                                    if (!selectObjects.IsArrayContainThisValue((int)queryColumn.DataList[i].Data))
+                                                    if (selectObjects.IsArrayContainThisValue((int)queryColumn.DataList[i].Data))
                                                     { tableForSelection.DeleteTableElementByIndex(i); i--; }
                                                 }
                                             else if (selectObjects[0].GetType() == typeof(double))
                                             {
                                                 for (int i = 0; i < queryColumn.DataList.Count; i++)
                                                 {
-                                                    if (!selectObjects.IsArrayContainThisValue((double)queryColumn.DataList[i].Data))
+                                                    if (selectObjects.IsArrayContainThisValue((double)queryColumn.DataList[i].Data))
                                                     { tableForSelection.DeleteTableElementByIndex(i); i--; }
                                                 }
                                             }
@@ -1441,7 +1445,7 @@ namespace DataLayer
                                             {
                                                 for (int i = 0; i < queryColumn.DataList.Count; i++)
                                                 {
-                                                    if (!selectObjects.IsArrayContainThisValue((string)queryColumn.DataList[i].Data))
+                                                    if (selectObjects.IsArrayContainThisValue((string)queryColumn.DataList[i].Data))
                                                     { tableForSelection.DeleteTableElementByIndex(i); i--; }
                                                 }
                                             }
@@ -1449,11 +1453,11 @@ namespace DataLayer
                                             {
                                                 for (int i = 0; i < queryColumn.DataList.Count; i++)
                                                 {
-                                                    if (!selectObjects.IsArrayContainThisValue((bool)queryColumn.DataList[i].Data))
+                                                    if (selectObjects.IsArrayContainThisValue((bool)queryColumn.DataList[i].Data))
                                                     { tableForSelection.DeleteTableElementByIndex(i); i--; }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return;
                                         }
                                     case "NOT_BETWEEN":
                                         {
@@ -1465,18 +1469,18 @@ namespace DataLayer
                                             if (selectObjects[0].GetType() == typeof(int))
                                                 for (int i = 0; i < queryColumn.DataList.Count; i++)
                                                 {
-                                                    if (((int)queryColumn.DataList[i].Data < (int)selectObjects[0] && (int)queryColumn.DataList[i].Data > (int)selectObjects[1]) || (int)queryColumn.DataList[i].Data == (int)selectObjects[1] || (int)queryColumn.DataList[i].Data == (int)selectObjects[0])
+                                                    if (((int)queryColumn.DataList[i].Data <= (int)selectObjects[0] || (int)queryColumn.DataList[i].Data >= (int)selectObjects[1]))
                                                     { tableForSelection.DeleteTableElementByIndex(i); i--; }
                                                 }
                                             else if (selectObjects[0].GetType() == typeof(double))
                                             {
                                                 for (int i = 0; i < queryColumn.DataList.Count; i++)
                                                 {
-                                                    if (((double)queryColumn.DataList[i].Data < (double)selectObjects[0] && (double)queryColumn.DataList[i].Data > (double)selectObjects[1]) || (double)queryColumn.DataList[i].Data == (double)selectObjects[1] || (double)queryColumn.DataList[i].Data == (double)selectObjects[0])
+                                                    if (((double)queryColumn.DataList[i].Data <= (double)selectObjects[0] || (double)queryColumn.DataList[i].Data >= (double)selectObjects[1]))
                                                     { tableForSelection.DeleteTableElementByIndex(i); i--; }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return;
                                         }
                                     case "NOT_IN":
                                         {
@@ -1511,7 +1515,7 @@ namespace DataLayer
                                                     { tableForSelection.DeleteTableElementByIndex(i); i--; }
                                                 }
                                             }
-                                            return tableForSelection;
+                                            return;
                                         }
                                 }
 
@@ -1523,14 +1527,12 @@ namespace DataLayer
                     }
                     else throw new ArgumentException("There is no " + columnName + " column in " + tableForSelection.Name + " table");
                 }
-                else return tableForSelection;
-                return tableForSelection;
+                else return ;
             }
             catch (Exception e)
             {
                 outResult = "Critical Error: " + e.ToString();
-                Console.WriteLine(e);
-                return null;
+                return;
             }
         }
 
