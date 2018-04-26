@@ -119,7 +119,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
 
         } //UI
@@ -140,7 +140,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         } //UI
         /// <summary>
@@ -159,7 +159,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         } //UI
         /// <summary>
@@ -227,6 +227,8 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                     if (IsPkey) throw new ArgumentException("You can't change the PrimaryKey Column Data");
                     if (arguments[0] == null && AllowsNull)
                         DataList[thisTable.returnIndexOfPrimaryKey(key)].Data = null;
+                    else if(arguments[0]==null) DataList[thisTable.returnIndexOfPrimaryKey(key)].Data = _Default;
+
                     if (DataType == arguments[0].GetType())
                     {
                         if (thisTable.returnIndexOfPrimaryKey(key) == -1) throw new NullReferenceException("There is no such Primary Key in this table");
@@ -242,7 +244,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         } //UI 
         //
@@ -255,6 +257,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                     if (IsPkey) throw new ArgumentException("You can't change the PrimaryKey Column Data");
                     if (arguments[0] == null && AllowsNull)
                         DataList[index].Data = null;
+                    else if (arguments[0] == null) DataList[index].Data = _Default;
                     else if (DataType == arguments[0].GetType())
                     {
                         if (index<0 || index >= DataList.Count) throw new NullReferenceException("Invalid Index");
@@ -266,11 +269,11 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (NullReferenceException e)
             {
-                Console.WriteLine("e");
+                Console.WriteLine(e.Message);
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         } //UI 
         //
@@ -311,12 +314,12 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
 
         public override string ToString()
         {
-            string columnInfo = "[COLUMN] " + Name + " contains data of " + DataType.Name + " variables,";
-            if (AllowsNull) columnInfo += " allows null data,";
-            else columnInfo += " doesn't allows null data,";
-            if (IsPkey) columnInfo += " PrimaryKey,";
-            if (IsFkey) columnInfo += " ForeignKey,";
-            columnInfo += " default object = " + Default.ToString()+", hash = "+ GetHashCode();
+            string columnInfo = "[COLUMN] " +"<"+Name + "> DataType = " + DataType.Name + ",";
+            if (AllowsNull) columnInfo += " AllowsNull,";
+            else columnInfo += " !AllowsNull,";
+            if (IsPkey) columnInfo += " isPrimaryKey,";
+            if (IsFkey) columnInfo += " isForeignKey,";
+            columnInfo += " DefaultValue = " + Default.ToString()+", hash = "+ GetHashCode();
             return columnInfo;
         }
     }

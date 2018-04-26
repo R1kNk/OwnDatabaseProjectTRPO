@@ -33,7 +33,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
 
         }
@@ -63,7 +63,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         }
         //
@@ -73,6 +73,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             {
                 if (ThisTable.isTableContainsData())
                 {
+                    if (arguments[0] == null) throw new ArgumentException("You can't change value of FK column to null");
                     if (DataType == arguments[0].GetType())
                     {
                         if (isLinkedColumnContainsSuchValue(arguments[0]))
@@ -91,7 +92,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         } //UI 
         bool isLinkedColumnContainsSuchValue(object value)

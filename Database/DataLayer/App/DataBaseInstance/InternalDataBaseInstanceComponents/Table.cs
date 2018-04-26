@@ -102,7 +102,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
 
         }  
@@ -137,7 +137,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         } //UI done
         //
@@ -190,7 +190,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
 
         } //UI done
@@ -211,7 +211,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch(Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         } //UI done
         //
@@ -235,7 +235,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         }
         //
@@ -278,7 +278,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         } //UI
         //
@@ -300,7 +300,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         }
         //
@@ -321,7 +321,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         }
         //
@@ -343,7 +343,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
 
         } //UI done
@@ -367,7 +367,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
             return -1;
 
@@ -391,7 +391,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
                 return -1;
             }
         }
@@ -410,7 +410,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
                 return -1;
             }
         }
@@ -429,7 +429,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
                 return null;
             }
         } //UI ??? (under question)
@@ -448,7 +448,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
                 return null;
             }
 
@@ -477,7 +477,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
                 return null;
             }
 
@@ -529,7 +529,11 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             {
                 int biggestcharData = default(int);
                 if (isTableContainsData())
-                    biggestcharData = Columns[i].DataList.Where(x=>x.Data!=null).Select(x => x.Data.ToString().Length).Max();
+                {
+                    if (Columns[i].DataList.Count != 0)
+                        if(Columns[i].DataList.Where(x => x.Data != null).Count()!=0)
+                    biggestcharData = Columns[i].DataList.Where(x => x.Data != null).Select(x => x.Data.ToString().Length).Max();
+                }
                 else biggestcharData = 0;
                 if (biggestcharData < 4) biggestcharData = 4;
                 int ColumnNameLength = Columns[i].Name.Length;
