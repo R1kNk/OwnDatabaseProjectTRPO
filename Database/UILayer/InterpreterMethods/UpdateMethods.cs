@@ -178,6 +178,7 @@ namespace UILayer.InterpreterMethods
                                 }
                                 string buff = "OK";
                                 _inst.QueryWhereConditionUpdate(_table, condColName, sep[0], dataCondition, colNames, colValues, ref buff);
+                                if (!(buff == "OK")) throw new Exception(buff);     
                             }
                             Console.WriteLine("\nAll data successfully updated\n");
                         }
@@ -226,6 +227,7 @@ namespace UILayer.InterpreterMethods
 
                             string stat = "OK";
                             _inst.QueryWhereConditionUpdate(_table, colName, _queryList[3], conditionValues, colNames, values,ref stat);
+                            if (stat != "OK") throw new Exception(stat);
                         }
                     }
                     Console.WriteLine("\nAll data successfully updated\n");
