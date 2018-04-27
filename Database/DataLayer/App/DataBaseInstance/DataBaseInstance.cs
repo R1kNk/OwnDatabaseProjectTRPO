@@ -152,15 +152,24 @@ namespace DataLayer
         /// <param name="tableToLinkWith"></param>
         public void LinkTables(Table tableToLink, Table tableToLinkWith, bool isCascadeDelete)
         {
-            LinkColumn newLink = new LinkColumn("FK_"+tableToLinkWith.Columns[0].Name, typeof(int), false, 0, tableToLink, tableToLinkWith.Columns[0]);
-            newLink.IsCascadeDeleteOn = isCascadeDelete;
+            try
+            {
+
+                if (tableToLink.isColumnExists("FK_" + tableToLinkWith.Columns[0].Name) || tableToLinkWith.isColumnExists("FK_" + tableToLink.Columns[0].Name)) throw new Exception("Those tables already linked!");
+                LinkColumn newLink = new LinkColumn("FK_" + tableToLinkWith.Columns[0].Name, typeof(int), false, 0, tableToLink, tableToLinkWith.Columns[0]);
+                newLink.IsCascadeDeleteOn = isCascadeDelete;
                 for (int i = 0; i < tableToLink.Columns[0].DataList.Count; i++)
                 {
                     newLink.DataList.Add(new DataObject(newLink.GetHashCode(), newLink.Default));
                 }
-            tableToLink.Columns.Add(newLink);
-            if(newLink.IsCascadeDeleteOn)
-            tableToLinkWith.cascadeDelete += tableToLink.ExecuteCascadeDelete;
+                tableToLink.Columns.Add(newLink);
+                if (newLink.IsCascadeDeleteOn)
+                    tableToLinkWith.cascadeDelete += tableToLink.ExecuteCascadeDelete;
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Critical Error: " + e.Message+"\n");
+            }
         } //UI (second table will be general)
         //
         public void EditCascadeDeleteOption(Table tableToEditLink, Table tableToEditLinkWith, bool isCascadeDelete)
@@ -934,7 +943,7 @@ namespace DataLayer
                                                     if ((string)queryColumn.DataList[i].Data == (string)selectObject)
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                             }
                                             else if (selectObject.GetType() == typeof(int))
@@ -943,7 +952,7 @@ namespace DataLayer
                                                     if ((int)queryColumn.DataList[i].Data == (int)selectObject)
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                        columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             else if (selectObject.GetType() == typeof(double))
@@ -953,7 +962,7 @@ namespace DataLayer
                                                     if ((double)queryColumn.DataList[i].Data == (double)selectObject)
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                        columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             }
@@ -964,7 +973,7 @@ namespace DataLayer
                                                     if ((bool)queryColumn.DataList[i].Data == (bool)selectObject)
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                        columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             }
@@ -978,7 +987,7 @@ namespace DataLayer
                                                     if ((string)queryColumn.DataList[i].Data != (string)selectObject)
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                        columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                             }
                                             else if (selectObject.GetType() == typeof(int))
@@ -987,7 +996,7 @@ namespace DataLayer
                                                     if ((int)queryColumn.DataList[i].Data != (int)selectObject)
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                        columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             else if (selectObject.GetType() == typeof(double))
@@ -997,7 +1006,7 @@ namespace DataLayer
                                                     if ((double)queryColumn.DataList[i].Data != (double)selectObject)
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                        columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             }
@@ -1008,7 +1017,7 @@ namespace DataLayer
                                                     if ((bool)queryColumn.DataList[i].Data != (bool)selectObject)
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             }
@@ -1026,7 +1035,7 @@ namespace DataLayer
                                                     if ((int)queryColumn.DataList[i].Data > (int)selectObject)
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             else if (selectObject.GetType() == typeof(double))
@@ -1036,7 +1045,7 @@ namespace DataLayer
                                                     if ((double)queryColumn.DataList[i].Data > (double)selectObject)
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             }
@@ -1054,7 +1063,7 @@ namespace DataLayer
                                                     if ((int)queryColumn.DataList[i].Data < (int)selectObject)
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             else if (selectObject.GetType() == typeof(double))
@@ -1064,7 +1073,7 @@ namespace DataLayer
                                                     if ((double)queryColumn.DataList[i].Data < (double)selectObject)
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             }
@@ -1082,7 +1091,7 @@ namespace DataLayer
                                                     if ((int)queryColumn.DataList[i].Data < (int)selectObject || (int)queryColumn.DataList[i].Data == (int)selectObject)
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             else if (selectObject.GetType() == typeof(double))
@@ -1092,7 +1101,7 @@ namespace DataLayer
                                                     if ((double)queryColumn.DataList[i].Data < (double)selectObject || (double)queryColumn.DataList[i].Data == (double)selectObject)
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             }
@@ -1110,7 +1119,7 @@ namespace DataLayer
                                                     if ((int)queryColumn.DataList[i].Data > (int)selectObject || (int)queryColumn.DataList[i].Data == (int)selectObject)
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             else if (selectObject.GetType() == typeof(double))
@@ -1120,7 +1129,7 @@ namespace DataLayer
                                                     if ((double)queryColumn.DataList[i].Data > (double)selectObject || (double)queryColumn.DataList[i].Data == (double)selectObject)
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             }
@@ -1194,7 +1203,7 @@ namespace DataLayer
                                                     if ((int)queryColumn.DataList[i].Data > (int)selectObjects[0] && (int)queryColumn.DataList[i].Data < (int)selectObjects[1])
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             else if (selectObjects[0].GetType() == typeof(double))
@@ -1204,7 +1213,7 @@ namespace DataLayer
                                                     if ((double)queryColumn.DataList[i].Data > (double)selectObjects[0] && (double)queryColumn.DataList[i].Data < (double)selectObjects[1])
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             }
@@ -1219,7 +1228,7 @@ namespace DataLayer
                                                     if (selectObjects.IsArrayContainThisValue((int)queryColumn.DataList[i].Data))
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             else if (selectObjects[0].GetType() == typeof(double))
@@ -1229,7 +1238,7 @@ namespace DataLayer
                                                     if (selectObjects.IsArrayContainThisValue((double)queryColumn.DataList[i].Data))
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             }
@@ -1240,7 +1249,7 @@ namespace DataLayer
                                                     if (selectObjects.IsArrayContainThisValue((string)queryColumn.DataList[i].Data))
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             }
@@ -1251,7 +1260,7 @@ namespace DataLayer
                                                     if (selectObjects.IsArrayContainThisValue((bool)queryColumn.DataList[i].Data))
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             }
@@ -1270,7 +1279,7 @@ namespace DataLayer
                                                     if ((int)queryColumn.DataList[i].Data <= (int)selectObjects[0] || (int)queryColumn.DataList[i].Data >= (int)selectObjects[1])
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             else if (selectObjects[0].GetType() == typeof(double))
@@ -1280,7 +1289,7 @@ namespace DataLayer
                                                     if ((double)queryColumn.DataList[i].Data <= (double)selectObjects[0] && (double)queryColumn.DataList[i].Data >= (double)selectObjects[1])
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             }
@@ -1295,7 +1304,7 @@ namespace DataLayer
                                                     if (!selectObjects.IsArrayContainThisValue((int)queryColumn.DataList[i].Data))
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             else if (selectObjects[0].GetType() == typeof(double))
@@ -1305,7 +1314,7 @@ namespace DataLayer
                                                     if (!selectObjects.IsArrayContainThisValue((double)queryColumn.DataList[i].Data))
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             }
@@ -1316,7 +1325,7 @@ namespace DataLayer
                                                     if (!selectObjects.IsArrayContainThisValue((string)queryColumn.DataList[i].Data))
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             }
@@ -1327,7 +1336,7 @@ namespace DataLayer
                                                     if (!selectObjects.IsArrayContainThisValue((bool)queryColumn.DataList[i].Data))
                                                     {
                                                         for (int j = 0; j < columns.Count; j++)
-                                                            columns[j].DataList[i].Data = values[j];
+                                                            columns[j].EditColumnElementByIndex(i,values[j].toObjectArray());
                                                     }
                                                 }
                                             }
