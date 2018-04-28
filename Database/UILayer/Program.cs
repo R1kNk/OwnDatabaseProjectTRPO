@@ -51,16 +51,16 @@ namespace UILayer
    //         string l = "OK";
    //         //inst.QueryWhereConditionDelete(inst.GetTableByName("Cars"), "Cars.IDCars", "NOT_BETWEEN",  new object[] { 1,4}, ref l );
 
-            inst.GetTableByName("Cars").GetColumnByName("Cars.Price").SetNullableProperty(true);
-            inst.GetTableByName("Cars").GetColumnByName("Cars.Price").EditColumnElementByPrimaryKey(2, new object[] { null });
-            inst.GetTableByName("Cars").GetColumnByName("Cars.Price").EditColumnElementByPrimaryKey(1, new object[] { null });
-            inst.GetTableByName("Cars").GetColumnByName("Cars.Price").EditColumnElementByPrimaryKey(3, new object[] { null });
-            inst.GetTableByName("Cars").GetColumnByName("Cars.Price").EditColumnElementByPrimaryKey(4, new object[] { null });
-           inst.LinkTables(inst.GetTableByName("Persons"), inst.GetTableByName("Cars"), true);
-            inst.QueryWhereConditionUpdate(inst.GetTableByName("Persons"), "IDPersons", ">", 1, new string[] { "FK_IDCars" }, 5.toObjectArray(), ref l);
+           // inst.GetTableByName("Cars").GetColumnByName("Cars.Price").SetNullableProperty(true);
+           // inst.GetTableByName("Cars").GetColumnByName("Cars.Price").EditColumnElementByPrimaryKey(2, new object[] { null });
+           // inst.GetTableByName("Cars").GetColumnByName("Cars.Price").EditColumnElementByPrimaryKey(1, new object[] { null });
+           // inst.GetTableByName("Cars").GetColumnByName("Cars.Price").EditColumnElementByPrimaryKey(3, new object[] { null });
+           // inst.GetTableByName("Cars").GetColumnByName("Cars.Price").EditColumnElementByPrimaryKey(4, new object[] { null });
+           //inst.LinkTables(inst.GetTableByName("Persons"), inst.GetTableByName("Cars"), true);
+           // inst.QueryWhereConditionUpdate(inst.GetTableByName("Persons"), "IDPersons", ">", 1, new string[] { "FK_IDCars" }, 5.toObjectArray(), ref l);
 
 
-            Kernel.OutDatabaseInfo();
+           // Kernel.OutDatabaseInfo();
             //Table kek = new Table("ul");
             //Console.WriteLine(kek.OutTable());
             //Table query = inst.QueryMINMAXSUMSelection("Cars.DoubleValue",inst.GetTableByName("Cars"), "MIN",ref l);
