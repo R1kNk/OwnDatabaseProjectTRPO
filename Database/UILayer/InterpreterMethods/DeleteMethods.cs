@@ -200,7 +200,9 @@ namespace UILayer.InterpreterMethods
                         object data = GetData(value, _table.GetColumnByName(colName), out status);
 
                         _inst.QueryWhereConditionDelete(_table, colName, condOperator, data, ref buff);
-                        Console.WriteLine("\nAll data successfully deleted\n");
+                        if (buff == "OK")
+                            Console.WriteLine("\nAll data successfully deleted\n");
+                        else throw new Exception(buff);
                     } //With Column and value
                     else if(_params.Length==5)
                     {
@@ -231,7 +233,9 @@ namespace UILayer.InterpreterMethods
 
                         string buff = "OK";
                         _inst.QueryWhereConditionDelete(_table, colName, _params[3], data, ref buff);
-                        Console.WriteLine("\nAll data successfully deleted\n");
+                        if (buff == "OK")
+                            Console.WriteLine("\nAll data successfully deleted\n");
+                        else throw new Exception(buff);
                     }
                     else throw new Exception("\nERROR: Invalid number of variables\n");
                 }

@@ -30,7 +30,7 @@ namespace UILayer
             "UNLINK",
             "CASCADE",
             "SELECT",//to do
-            "UPDATE"// to do
+            "UPDATE"
         };
         public static string ConnectionString { get; set; }
 
@@ -228,7 +228,6 @@ namespace UILayer
         /// <summary>
         /// Insert column |tableName| (ColName,ColType,IsAllowNull(true/false),DefaultValue;...)
         /// Insert values |tableName| (|params|)
-        /// Insert values_into |tableName| (colName,...) values (|params|4) //////////TO DO
         /// </summary>
         /// <param name="query"></param>
         private static void Insert(string query)
@@ -285,11 +284,34 @@ namespace UILayer
                         if (_inst.isTableExists(_params[1]))
                         {
                             var _tableWithFk = _inst.GetTableByName(_params[1]);
-                            if (_inst.isTableExists(_params[2]))
+                            if (_inst.isTableExists(_params[3]))
                             {
                                 var _generalTable = _inst.GetTableByName(_params[3]);
-                                bool _isCascadeDelete = Convert.ToBoolean(_params[4]);
+                                bool _isCascadeDelete;
+                                if (_params[4] == "CASCADE_DELETE")
+                                    _isCascadeDelete = true;
+                                else if (_params[4] == "NOT_CASCADE_DELETE")
+                                    _isCascadeDelete = false;
+                                else throw new Exception("\nERROR: Invalid command syntax\n");
                                 _inst.LinkTables(_tableWithFk, _generalTable, _isCascadeDelete);
+                                Console.WriteLine("\nTables successfully linked\n");
+                            }
+                            else throw new NullReferenceException($"There is no table '{_params[3]}' in database '{_inst.Name}'!");
+                        }
+                        else throw new NullReferenceException($"There is no table '{_params[1]}' in database '{_inst.Name}'!");
+                    }
+                    else if (_params.Length == 4 && _params[2] == "WITH")
+                    {
+                        var _inst = Kernel.GetInstance(ConnectionString);
+                        if (_inst.isTableExists(_params[1]))
+                        {
+                            var _tableWithFk = _inst.GetTableByName(_params[1]);
+                            if (_inst.isTableExists(_params[3]))
+                            {
+                                var _generalTable = _inst.GetTableByName(_params[3]);
+                                bool _isCascadeDelete = true;
+                                _inst.LinkTables(_tableWithFk, _generalTable, _isCascadeDelete);
+                                Console.WriteLine("\nTables successfully linked\n");
                             }
                             else throw new NullReferenceException($"There is no table '{_params[3]}' in database '{_inst.Name}'!");
                         }
@@ -339,7 +361,7 @@ namespace UILayer
         }
         //
         /// <summary>
-        /// Cascade dalete |tableNameFK| |GeneralTableName| |true/fasle|
+        /// Cascade dalete |tableNameWithFK| AND |GeneralTableName| |true/fasle|
         /// </summary>
         /// <param name="query"></param>
         private static void Cascade(string query)
@@ -350,14 +372,14 @@ namespace UILayer
                 {
                     char[] _seprator = new char[] { ' ' };
                     string[] _params = query.Split(_seprator, StringSplitOptions.RemoveEmptyEntries);
-                    if (_params.Length == 5)
+                    if (_params.Length == 6)
                     {
-                        if (_params[1] == "DELETE")
+                        if (_params[1] == "DELETE"&&_params[3]=="AND")
                         {
                             var _inst = Kernel.GetInstance(ConnectionString);
                             var _tableFk = _inst.GetTableByName(_params[2]);
-                            var _tableGenral = _inst.GetTableByName(_params[3]);
-                            bool _isCascadeDelete = Convert.ToBoolean(_params[4]);
+                            var _tableGenral = _inst.GetTableByName(_params[4]);
+                            bool _isCascadeDelete = Convert.ToBoolean(_params[5]);
                             _inst.EditCascadeDeleteOption(_tableFk, _tableGenral, _isCascadeDelete);
                         }
                         else throw new Exception("\nERROR: Invalid command syntax\n");
@@ -414,6 +436,18 @@ namespace UILayer
             {
                 Console.WriteLine(e.Message);
             }
+        }
+        //
+        /// <summary>
+        /// SELECT (|TableName.colName|,...) ||FROM |tableName1| {INNER_JOIN |tableName2| ON (TableName1.colName=TableName2.colname)||WHERE (TableName.colName=value)/|colName | |BETWEEN| (values)  ||ORDER_BY (TableName.colName) DESC/ASC/null}
+        /// SELECT (COUNT) FROM ...
+        /// SELECT (AVG/MIN/MAX/SUM,TableName.ColName) FROM
+        /// SELECT (TOP,VALUES/PERC=5) FROM
+        /// </summary>
+        /// <param name="query"></param>
+        private static void Select(string query)
+        {
+            SelectMethods.Execute(query);
         }
         #endregion
 
