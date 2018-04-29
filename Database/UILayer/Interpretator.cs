@@ -439,7 +439,6 @@ namespace UILayer
         }
         //
         /// <summary>
-        ///  0            1                      2      3           4               5     6                      7                     4/8      5/9                       5/9       6/10       7/11
         /// SELECT (|TableName.colName|,...) ||FROM |tableName1| {INNER_JOIN |tableName2| ON (TableName1.colName=TableName2.colname)||WHERE (TableName.colName=value)/|colName | |BETWEEN| (values)  ||ORDER_BY (TableName.colName) DESC/ASC/null}
         /// SELECT (COUNT) FROM ...
         /// SELECT (AVG/MIN/MAX/SUM,TableName.ColName) FROM
