@@ -1736,8 +1736,8 @@ namespace DataLayer
                 Column queryColumnSecond=null;
                 for (int i = 0; i < ColumnNames.Count; i++)
                 {
-                    if (queryFirstTable.isColumnExists(ColumnNames[i])) { if (queryColumnFirst == null) queryColumnFirst = new Column(queryFirstTable.GetColumnByName(ColumnNames[i]), queryFirstTable); }
-                    else if (querySecondTable.isColumnExists(ColumnNames[i])) { if(queryColumnSecond==null) queryColumnSecond = new Column(querySecondTable.GetColumnByName(ColumnNames[i]), querySecondTable); }
+                    if (queryFirstTable.isColumnExists(ColumnNames[i])) { if (queryColumnFirst == null) queryColumnFirst = new Column(queryFirstTable.GetColumnByName(ColumnNames[i]), querySecondTable); }
+                    else if (querySecondTable.isColumnExists(ColumnNames[i])) { if(queryColumnSecond==null) queryColumnSecond = new Column(querySecondTable.GetColumnByName(ColumnNames[i]), queryFirstTable); }
                     else throw new ArgumentException("There is no column " + ColumnNames[i] + " in both tables!");
                 }
                 if (queryColumnFirst.DataType != queryColumnSecond.DataType) throw new ArgumentException("DataType of columns is not similar!");
