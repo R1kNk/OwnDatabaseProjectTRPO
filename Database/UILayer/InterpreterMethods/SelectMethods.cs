@@ -40,7 +40,14 @@ namespace UILayer.InterpreterMethods
         };
 
         static string _status;
-       
+       /*FK_table_2     |    id_table_2     FK_table3 |   id_tabl_e3
+          1             |    1              1         |   1
+          2             |    2              2         |   2
+                        |    3              3         |   3
+                        |    4              4         |   4
+             
+         FROM table1 INNER_JOIN (table_2,table_3) ON (FK_2=ID_2, FK_3=ID_3)
+             */
 
         public static void Execute(string query)
         {
@@ -58,6 +65,8 @@ namespace UILayer.InterpreterMethods
                 {
                     var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
                     var _table = GetTable(_queryList, _inst);
+                    Console.WriteLine();
+                    Console.WriteLine(_table.OutTable());
                     if (_status != "OK") throw new Exception(_status);
 
                     if (query.Contains(" WHERE "))
@@ -88,25 +97,43 @@ namespace UILayer.InterpreterMethods
             try
             {
                 string _generalTableName = queryList[3];
-
+                Table tempTable=null;
                 if (!inst.isTableExists(_generalTableName)) throw new Exception($"There is no table '{_generalTableName}' in database '{inst.Name}'!\n");
                 var _generalTable = inst.GetTableByName(_generalTableName);
                 if (queryList.Length >= 8)
                 {
                     if (queryList[4] == "INNER_JOIN" && queryList[6] == "ON")
                     {
-                        string _innerTableName = queryList[5];
-                        if (!inst.isTableExists(_innerTableName)) throw new Exception($"There is no table '{_innerTableName}' in database '{inst.Name}'!\n");
+                        char[] _separator = new char[] { '(', ' ', ',', ')' };
+                        if (!IsValidSyntax(queryList[5])) throw new Exception("\nERROR: Invlid query syntax\n");
+                        string[] _innerTableNames = queryList[5].Split(_separator,StringSplitOptions.RemoveEmptyEntries);
+                        if (_innerTableNames.Length == 0) throw new Exception("ERROR: There is no table names in INNER_JOIN params\n");
+                        for (int i= _innerTableNames.Length-1; i>=0;i-- )
+                        {
+                            if (!inst.isTableExists(_innerTableNames[i])) throw new Exception($"There is no table '{_innerTableNames[i]}' in database '{inst.Name}'!\n");
 
-                        var _innerTable = inst.GetTableByName(_innerTableName);
-                        if (!IsValidSyntax(queryList[7])) throw new Exception("\nERROR: Invalid command syntax\n");
+                            if (!IsValidSyntax(queryList[7])) throw new Exception("\nERROR: Invalid query syntax\n");
 
-                        char[] _separator = new char[] { '(', '=', ')' };
-                        string[] colNames = queryList[7].Split(_separator, StringSplitOptions.RemoveEmptyEntries);
-                        if (!(colNames.Length == 2)) throw new Exception("\nERROR: Invalid number of variable in INNER_JOIN params\n");
+                            string[] _joinParams = queryList[7].Split(_separator, StringSplitOptions.RemoveEmptyEntries);
+                            if (_joinParams.Length != _innerTableNames.Length) throw new Exception();
 
-                        var colNameList = colNames.ToList();
-                        return inst.QueryInnerJoinSelection(_generalTable, _innerTable, colNameList, ref _status);
+                            char[] _separ = new char[] { '=', ' ' };
+                            string[] colNames = _joinParams[i].Split(_separ, StringSplitOptions.RemoveEmptyEntries);
+                            if (!(colNames.Length == 2)) throw new Exception("\nERROR: Invalid number of variable in INNER_JOIN params\n");
+
+                            if (i == 0) break;
+                            var _table = inst.GetTableByName(_innerTableNames[i - 1]);
+                            var _innerTable = inst.GetTableByName(_innerTableNames[i]);
+                            var colNameList = colNames.ToList();
+                            tempTable = inst.QueryInnerJoinSelection(_table,_innerTable, colNameList, ref _status);
+                        }
+
+                        char[] _sep = new char[] { '=', ' ' };
+                        string joinParam = queryList[7].Split(_separator, StringSplitOptions.RemoveEmptyEntries)[0];
+                        string[] columnNames = joinParam.Split(_sep, StringSplitOptions.RemoveEmptyEntries);
+                        if (!(columnNames.Length == 2)) throw new Exception("\nERROR: Invalid number of variable in INNER_JOIN params\n");
+                        var param = columnNames.ToList();
+                        return inst.QueryInnerJoinSelection(_generalTable,tempTable,param,ref _status);
                     }
                     else if (queryList[4] == "WHERE" || queryList[4] == "ORDER_BY")
                     {

@@ -439,7 +439,7 @@ namespace UILayer
         }
         //
         /// <summary>
-        /// SELECT (|TableName.colName|,...) ||FROM |tableName1| {INNER_JOIN |tableName2| ON (TableName1.colName=TableName2.colname)||WHERE (TableName.colName=value)/|colName | |BETWEEN| (values)  ||ORDER_BY (TableName.colName) DESC/ASC/null}
+        /// SELECT (|TableName.colName|,...) ||FROM |tableName1| {INNER_JOIN (|tableName2|,...) ON (TableName1.colName=TableName2.colname)||WHERE (TableName.colName=value)/|colName | |BETWEEN| (values)  ||ORDER_BY (TableName.colName) DESC/ASC/null}
         /// SELECT (COUNT) FROM ...
         /// SELECT (AVG/MIN/MAX/SUM,TableName.ColName) FROM
         /// SELECT (TOP,VALUES/PERC=5) FROM
