@@ -65,8 +65,6 @@ namespace UILayer.InterpreterMethods
                 {
                     var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
                     var _table = GetTable(_queryList, _inst);
-                    Console.WriteLine();
-                    Console.WriteLine(_table.OutTable());
                     if (_status != "OK") throw new Exception(_status);
 
                     if (query.Contains(" WHERE "))
@@ -80,7 +78,7 @@ namespace UILayer.InterpreterMethods
                     }
                     _table = QuerySelect(_inst, _table, _queryList);
                     if (_status != "OK") throw new Exception(_status);
-                    Console.WriteLine("\n" + _table.OutTable());
+                    Console.WriteLine("\n" + _table.QueryOutTable());
                 }
                 else throw new Exception("\nERROR: Invalid command syntax\n");
                 _status = null;

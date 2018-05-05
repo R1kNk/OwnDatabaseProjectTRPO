@@ -24,7 +24,12 @@ namespace DataLayer
                     if (instance == null)
                     {
                         instance = new List<DataBaseInstance>();
+                        Console.WriteLine("<Databases load process from folder was started!>", instance.Count);
+
                         LoadAllDatabases(true);
+                        if(instance.Count==1) Console.WriteLine("One database was loaded from folder!");
+                        else
+                        Console.WriteLine("{0} databases were loaded from folder!", instance.Count);
 
                     }
                 }
