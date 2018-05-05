@@ -726,14 +726,12 @@ namespace DataLayer
                 {
                     if (Value < 1 || Value > 100) throw new ArgumentException("Percents must be more than 0 and less than 100 to select!");
                     Value = (int)Math.Truncate(Convert.ToDouble(queryresult.Columns[0].DataList.Count) * Convert.ToDouble(Convert.ToDouble(Value) / 100));
-
-
-                    for (int i = Value; i < queryresult.Columns[0].DataList.Count; i++)
-                    {
-                        queryresult.DeleteTableElementByIndex(i); i--;
-                    }
                 }
-                    outResult = "OK";
+                for (int i = Value; i < queryresult.Columns[0].DataList.Count; i++)
+                {
+                    queryresult.DeleteTableElementByIndex(i); i--;
+                }
+                outResult = "OK";
                     return queryresult;
             }
             catch (Exception e)

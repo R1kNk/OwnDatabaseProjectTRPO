@@ -29,15 +29,14 @@ namespace UILayer
 
 
 
-            //var inst = Kernel.GetInstance("inst2");
-            //inst.LinkTables(inst.GetTableByName("Persons"), inst.GetTableByName("Cars"), true);
-            //inst.GetTableByName("Persons").GetColumnByName("FK_IDCars").EditColumnElementByPrimaryKey(1, 1.toObjectArray());
-            //inst.GetTableByName("Persons").GetColumnByName("FK_IDCars").EditColumnElementByPrimaryKey(2, 1.toObjectArray());
-            //inst.GetTableByName("Persons").GetColumnByName("FK_IDCars").EditColumnElementByPrimaryKey(3, 2.toObjectArray());
-            //Kernel.SaveAllDatabases();
-            //         //inst.GetTableByName("Cars").GetColumnByName("Man").SetNullableProperty(true);
-            //         //inst.GetTableByName("Cars").GetColumnByName("Man").EditColumnElementByPrimaryKey(1, new object[] { null });
-            //         //inst.GetTableByName("Cars").GetColumnByName("Price").SetNullableProperty(true);
+   //         var inst = Kernel.GetInstance("inst2");
+   //         inst.LinkTables(inst.GetTableByName("Persons"), inst.GetTableByName("Cars"), true);
+   //         inst.GetTableByName("Persons").GetColumnByName("FK_IDCars").EditColumnElementByPrimaryKey(1, 1.toObjectArray());
+   //         inst.GetTableByName("Persons").GetColumnByName("FK_IDCars").EditColumnElementByPrimaryKey(2, 1.toObjectArray());
+   //         inst.GetTableByName("Persons").GetColumnByName("FK_IDCars").EditColumnElementByPrimaryKey(3, 2.toObjectArray());
+   //         //inst.GetTableByName("Cars").GetColumnByName("Man").SetNullableProperty(true);
+   //         //inst.GetTableByName("Cars").GetColumnByName("Man").EditColumnElementByPrimaryKey(1, new object[] { null });
+   //         //inst.GetTableByName("Cars").GetColumnByName("Price").SetNullableProperty(true);
 
             //         //inst.GetTableByName("Cars").GetColumnByName("Price").EditColumnElementByIndex(0, new object[] { null });
             //         //string l = "OK";

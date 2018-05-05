@@ -160,15 +160,21 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                         //Columns+1 because of column "Primary Key"
                         for (int i = 0; i < arguments.Length; i++)
                         {
+                            if(!Columns[i + 1].isLinkedColumnContainsSuchValue(arguments[i])) throw new ArgumentException("There is no such argument (" + arguments[i].ToString() + ") in linkedColumn (" + Columns[i+1].Name + ")!"); ;
+                        }
+                            for (int i = 0; i < arguments.Length; i++)
+                            {
                             if (Columns[i + 1].AllowsNull && arguments[i] == null) Columns[i + 1].DataList.Add(new DataObject(Columns[i + 1].GetHashCode(), arguments[i]));
                             else if (!Columns[i + 1].AllowsNull && arguments[i] == null) Columns[i + 1].DataList.Add(new DataObject(Columns[i + 1].GetHashCode(), Columns[i + 1].Default));
                             else
                             if (arguments[i].GetType() == Columns[i + 1].DataType)
                             {
-                                Columns[i + 1].DataList.Add(new DataObject(Columns[i + 1].GetHashCode(), arguments[i]));
+                                
+                                Columns[i + 1].DataList.Add(new DataObject(Columns[i + 1].GetHashCode(), new object[] {0}));
+                                Columns[i + 1].EditColumnElementByIndex(Columns[i + 1].DataList.Count - 1, arguments[i].toObjectArray());
                             }
                             else throw new FormatException("Incorrect data type for " + Columns[i + 1].Name + " column!");
-                        }
+                            }
                     }
                     else
                     {
@@ -579,6 +585,63 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             return MainFrame + "\n" + ColumnNamesFrame + "\n" + MainFrame + Data + "\n" + MainFrame;
         }
         //
+        public string QueryOutTable()
+        {
+            int[] maxCharSizesArray = new int[Columns.Count];
+            for (int i = 0; i < maxCharSizesArray.Length; i++)
+            {
+                int biggestcharData = default(int);
+                if (isTableContainsData())
+                {
+                    if (Columns[i].DataList.Count != 0)
+                        if (Columns[i].DataList.Where(x => x.Data != null).Count() != 0)
+                            biggestcharData = Columns[i].DataList.Where(x => x.Data != null).Select(x => x.Data.ToString().Length).Max();
+                }
+                else biggestcharData = 0;
+                if (biggestcharData < 4) biggestcharData = 4;
+                int ColumnNameLength = Columns[i].SystemName.Length;
+                if (biggestcharData > ColumnNameLength) maxCharSizesArray[i] = biggestcharData;
+                else maxCharSizesArray[i] = ColumnNameLength;
+            }
+            string Space = " ";
+            string VertDash = "|";
+            string Plus = "+";
+            string Dash = "-";
+            string MainFrame = Plus;
+            for (int i = 0; i < maxCharSizesArray.Length; i++)
+            {
+                for (int j = 0; j < maxCharSizesArray[i] + 2; j++) MainFrame += Dash;
+                MainFrame += Plus;
+            }
+            string ColumnNamesFrame = VertDash;
+            for (int i = 0; i < maxCharSizesArray.Length; i++)
+            {
+                int SpacesAfter = maxCharSizesArray[i] - Columns[i].SystemName.Length + 1;
+                ColumnNamesFrame += Space; ColumnNamesFrame += Columns[i].SystemName;
+                for (int j = 0; j < SpacesAfter; j++)
+                    ColumnNamesFrame += Space;
+                ColumnNamesFrame += VertDash;
+            }
+            string Data = default(string);
+            for (int j = 0; j < Columns[0].DataList.Count; j++)
+            {
+                Data += "\n" + VertDash;
+                for (int i = 0; i < maxCharSizesArray.Length; i++)
+                {
+                    string bufData = default(string);
+                    if (Columns[i].DataList[j].Data == null)
+                        bufData = "null";
+                    else bufData = Columns[i].DataList[j].Data.ToString();
+                    int SpacesAfter = maxCharSizesArray[i] - bufData.Length + 1;
+                    Data += Space; Data += bufData;
+                    for (int k = 0; k < SpacesAfter; k++)
+                        Data += Space;
+                    Data += VertDash;
+                }
+            }
+            return MainFrame + "\n" + ColumnNamesFrame + "\n" + MainFrame + Data + "\n" + MainFrame;
+        }
+        //
         public bool isColumnExists(string name)
         {
             foreach (Column column in Columns) if (column.SystemName == name || column.Name == name) return true;
@@ -606,6 +669,10 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                 return result;
             }
             return "There is no columns in this table";
+        }
+        public void setCurrentPrimaryKey(int newKey)
+        {
+            CurrentPrimaryKey = newKey;
         }
         //
       //  public Column GetColumn(string name)

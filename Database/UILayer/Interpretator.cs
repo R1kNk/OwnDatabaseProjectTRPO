@@ -7,6 +7,7 @@ using DataLayer;
 //using DataLayer.InternalDataBaseInstanceComponents;
 using System.Reflection;
 using UILayer.InterpreterMethods;
+using System.Diagnostics;
 
 namespace UILayer
 {
@@ -30,7 +31,8 @@ namespace UILayer
             "UNLINK",
             "CASCADE",
             "SELECT",//to do
-            "UPDATE"
+            "UPDATE",
+            "HELP"
         };
         public static string ConnectionString { get; set; }
 
@@ -53,6 +55,9 @@ namespace UILayer
 
         public static void Run()
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            Console.WriteLine("SOOS Database™ ©2018 SOOS Inc. All Rights Reserved.\nSOOS Database® is a trademark or registered trademark of SOOS Inc in the Republic of Belarus and elsewhere.\nAny resembalance to actual events or locales or persons, living or dead, is entirely coincidental.\nVersion 0.7.1 BETA\n===========================================================================================================\n ");
+            Kernel.GetInstance();
             ConnectionString = null;
             while (true)
             {
@@ -242,7 +247,6 @@ namespace UILayer
         /// DELETE ELEMENT |tableName| |ID(int)|
         /// DELETE ELEMENT |tableName| WHERE (colName=value,...)
         /// DELETE ELEMENT |tableName| WHERE |colName| BETWEEN (1,2) 
-        /// DELETE ELEMENT |tableName| *
         /// </summary>
         /// <param name="query"></param>
         private static void Delete(string query)
@@ -252,7 +256,7 @@ namespace UILayer
         }
         //
         /// <summary>
-        ///  UPDATE |tableName| ELEMENT |ElementID| (ColName=value,...)
+        ///  UPDATE |tableName| VALUES |ElementID| (ColName=value,...)
         ///  UPDATE |tableName| VALUES (colName=Param,...)
         ///  UPDATE |tableName| VALUES (colName=Param,...) WHERE |colName| BETWEEN (1,10)
         ///  UPDATE |tableName| VALUES (colName=Param,...) WHERE |colName| IN (1,2,3,4,kot)
@@ -439,7 +443,7 @@ namespace UILayer
         }
         //
         /// <summary>
-        /// SELECT (|TableName.colName|,...) ||FROM |tableName1| {INNER_JOIN |tableName2| ON (TableName1.colName=TableName2.colname)||WHERE (TableName.colName=value)/|colName | |BETWEEN| (values)  ||ORDER_BY (TableName.colName) DESC/ASC/null}
+        /// SELECT (|TableName.colName|,...) FROM |tableName1| {INNER_JOIN (|tableName2|,...) ON (TableName1.colName=TableName2.colname)} {WHERE (TableName.colName=value)/|TableName.colName| BETWEEN/NOT_BETWEEN/IN/NOT_IN (values)} {ORDER_BY (TableName.colName) DESC/ASC}
         /// SELECT (COUNT) FROM ...
         /// SELECT (AVG/MIN/MAX/SUM,TableName.ColName) FROM
         /// SELECT (TOP,VALUES/PERC=5) FROM
@@ -448,6 +452,49 @@ namespace UILayer
         private static void Select(string query)
         {
             SelectMethods.Execute(query);
+        }
+
+        private static void Help(string query)
+        {
+
+            string info = "\nCONNECT TO |dbName|" +
+                "\nSAVEDB" +
+                "\nSAVEDB |dbName|" +
+                "\nLOADDB\n" +
+                "\nCREATE DATABASE |dbName|" +
+                "\nCREATE TABLE |tableName|" +
+                "\nCREATE TABLE |tableName| (ColName,ColType,IsAllowNull(true/false),DefaultValue;...)\n" +
+                "\nINSERT COLUMN |tableName| (ColName,ColType,IsAllowNull(true/false),DefaultValue;...)" +
+                "\nINSERT VALUES |tableName| (|params|)\n" +
+                "\nDELETE TABLE table |tableName|" +
+                "\nDELETE COLUMN |tableName| |colName|" +
+                "\nDELETE ELEMENT |tableName| |ID(int)|" +
+                "\nDELETE ELEMENT |tableName| WHERE (colName=value,...)" +
+                "\nDELETE ELEMENT |tableName| WHERE |colName| BETWEEN/NOT_BETWEEN/IN/NOT_IN (<params>)\n" +
+                "\nUPDATE |tableName| VALUES |ElementID| (ColName=value,...)" +
+                "\nUPDATE |tableName| VALUES (colName=Param,...)" +
+                "\nUPDATE |tableName| VALUES (colName=Param,...) WHERE |colName| BETWEEN/NOT_BETWEEN (1,10)" +
+                "\nUPDATE |tableName| VALUES (colName=Param,...) WHERE |colName| IN/NOT_IN (1,2,3,4,Name)" +
+                "\nUPDATE |tableName| DEFAULT VALUE |colName| |value|" +
+                "\nUPDATE |tableName| NULLPROPERTY |colName| |true/false|" +
+                "\nUPDATE |tableName| TYPE |colName| |type|\n" +
+                "\nLINK |TableNameWithFK| WITH |GeneralTableName| |true/false|" +
+                "\nUNLINK |TableNameWithFK| WITH |GeneralTableName|" +
+                "\nCASCASE DELETE |tableNameWithFK| AND |GeneralTableName| |true/fasle|\n" +
+                "\nCLEAR\n" +
+                "\nRENAME DATABASE |oldName| |newName|" +
+                "\nRENAME TABLE |oldName| |newName|" +
+                "\nRENAME COLUMN |oldName| |newName|\n" +
+                "\nDATABASES" +
+                "\n\n----QUERY METHODS----\n" +
+                "\nSELECT (|TableName.colName|,...) FROM |tableName1| ..." +
+                "\nSELECT (COUNT) FROM |tableName1| ..." +
+                "\nSELECT (AVG/MIN/MAX/SUM,TableName.ColName) FROM |tableName1| ..." +
+                "\nSELECT (TOP,VALUES/PERC=5) FROM |tableName1| ..." +
+                "\n{INNER_JOIN (|tableName2|,...) ON (TableName1.colName=TableName2.colname)}" +
+                "\n{WHERE (TableName.colName=value)/|TableName.colName| BETWEEN/NOT_BETWEEN/IN/NOT_IN (values)}" +
+                "\n{ORDER_BY (TableName.colName) DESC/ASC}";
+            Console.WriteLine(info);
         }
         #endregion
 
