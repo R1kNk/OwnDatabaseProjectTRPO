@@ -93,11 +93,30 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine("Error: "+e.Message);
             }
         } //UI 
-        bool isLinkedColumnContainsSuchValue(object value)
+        //
+        public override void AddDataElement(object argument)
         {
+            try
+            {
+
+                if (isLinkedColumnContainsSuchValue(argument))
+                {
+                    DataList.Add(new DataObject(GetHashCode(), argument));
+                }
+                else throw new ArgumentException("There is no such argument (" + argument.ToString() + ") in linkedColumn (" + linkedColumn.Name + ")!");
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+
+            }
+        }
+     public override bool isLinkedColumnContainsSuchValue(object value)
+        {
+
             for (int i = 0; i < linkedColumn.DataList.Count; i++)
             {
                 if ((int)linkedColumn.DataList[i].Data == (int)value) return true;

@@ -211,6 +211,12 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             SystemName = ThisTable.Name + "." + Name;
         }
         //
+        public virtual void AddDataElement(object argument)
+        {
+            DataList.Add(new DataObject(GetHashCode(), argument));
+
+        }
+        //
         /// <summary>
         /// edit data of single clumn by primary key
         /// </summary>
@@ -283,6 +289,11 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             for (int i = 0; i < DataList.Count; i++)
                 list.Add(new DataObject(DataList[i].DataHashcode,DataList[i].Data));
             return list;
+        }
+        //
+        public virtual bool isLinkedColumnContainsSuchValue(object value)
+        {
+            return true;
         }
         //
         public override bool Equals(object obj)

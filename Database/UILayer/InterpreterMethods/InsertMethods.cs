@@ -95,8 +95,13 @@ namespace UILayer.InterpreterMethods
                         {
                             char[] _separators = new char[] { ',' };
                             string[] _valuesList = _val.Split(_separators, StringSplitOptions.RemoveEmptyEntries);
-                            if (_table.Columns.Count - 1 == _valuesList.Length)
+                            if (_table.Columns.Count - 1 != _valuesList.Length) throw new Exception("\nERROR: One of the entered rows of data have count of values that doesn't equals count of columns");
+                        }
+                            foreach (var _val in _values)
                             {
+                            char[] _separators = new char[] { ',' };
+                            string[] _valuesList = _val.Split(_separators, StringSplitOptions.RemoveEmptyEntries);
+                            
                                 object[] _colData = new object[_valuesList.Length];
                                 for (int i = 0; i < _valuesList.Length; i++)
                                 {
@@ -104,9 +109,7 @@ namespace UILayer.InterpreterMethods
                                 }
                                 _table.AddTableElement(_colData);
                             }
-                            else throw new Exception("\nERROR: Count of values doesn't equals count of columns");
-                        }
-                        Console.WriteLine("\nAll data successfully inserted\n");
+                        Console.WriteLine("\nInsert process finished\n");
                     }
                     else throw new Exception("\nERROR: There is no columns in this table");
                 }

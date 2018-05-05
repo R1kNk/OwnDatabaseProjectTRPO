@@ -24,7 +24,7 @@ namespace SecurityLayer.Modules
             }
         }
         static internal DataLayer.DataBaseInstance ByteArrayToDatabaseObject(byte[] dbObjectArray)
-        {
+        {if (dbObjectArray == null) return null;
             MemoryStream memStream = new MemoryStream(dbObjectArray);
             BinaryFormatter formatter = new BinaryFormatter();
 
@@ -44,10 +44,16 @@ namespace SecurityLayer.Modules
         }
         static internal DataBaseObjectShell ByteArrayToDatabaseObjectShell(byte[] dbObjectArray)
         {
-            MemoryStream memStream = new MemoryStream(dbObjectArray);
-            BinaryFormatter formatter = new BinaryFormatter();
+            try
+            {
+                MemoryStream memStream = new MemoryStream(dbObjectArray);
+                BinaryFormatter formatter = new BinaryFormatter();
 
-            return (DataBaseObjectShell)formatter.Deserialize(memStream);
+                return (DataBaseObjectShell)formatter.Deserialize(memStream);
+            } catch(System.Runtime.Serialization.SerializationException e)
+            {
+                return null;
+            }
         }
         //
         static internal string xorString(string input, string key)
@@ -86,7 +92,7 @@ namespace SecurityLayer.Modules
         }
         static internal byte[] DecryptDatabaseObjectShellArrayToDatabaseBytes(byte[] dbShellbytes)
         {
-            DataBaseObjectShell shellObject = ByteArrayToDatabaseObjectShell(dbShellbytes);
+            DataBaseObjectShell shellObject = ByteArrayToDatabaseObjectShell(dbShellbytes);if (shellObject == null) return null;
             byte[] _dbInstance;
             byte[] password = SharedCryptingMethods.GetKeyBytes(SharedCryptingMethods.SecretCryptKeyFormula(shellObject.CryptKey));
             using (var myAes = Aes.Create())

@@ -71,9 +71,15 @@ namespace DataAccessLayer.Modules
             if (SharedDataAccessMethods.isDirectoryExists())
             {
                 string[] _filePaths = System.IO.Directory.GetFiles("./DataBases", "*.soos");
+                
                 for (int i = 0; i < _filePaths.Length; i++)
                 {
+                    char[] name = new char[_filePaths[i].Length - 17];
+                    _filePaths[i].CopyTo(12, name, 0, _filePaths[i].Length - 17);
+                    string DBName = new string(name);
                     bufInst = DecryptDataBaseFromPath(_filePaths[i]);
+                    if(bufInst==null) Console.WriteLine("Error: Database {0} is corrupted and can't be loaded!", DBName);
+                    else
                     if (!bufList.isDatabaseExistsInList((bufInst.Name))) bufList.Add(bufInst);
                 }
             }
@@ -85,7 +91,8 @@ namespace DataAccessLayer.Modules
         {
             byte[] _array = File.ReadAllBytes(filePathToDecrypt);
             //
-            return SecurityLayer.Modules.DecryptionModule.DecryptDataBase(_array);
+            DataBaseInstance inst = SecurityLayer.Modules.DecryptionModule.DecryptDataBase(_array);
+            return inst;
         }
     }
 }
