@@ -581,7 +581,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         //
         public bool isColumnExists(string name)
         {
-            foreach (Column column in Columns) if (column.Name == name || column.SystemName == name) return true;
+            foreach (Column column in Columns) if (column.SystemName == name || column.Name == name) return true;
             return false;
         }
         //

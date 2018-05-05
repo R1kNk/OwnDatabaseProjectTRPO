@@ -69,6 +69,7 @@ namespace UILayer.InterpreterMethods
                     {
                         _table = QuerySort(_inst, _table, _queryList);
                     }
+                    if (_status != "OK") throw new Exception(_status);
                     _table = QuerySelect(_inst, _table, _queryList);
                     if (_status != "OK") throw new Exception(_status);
                     Console.WriteLine("\n" + _table.OutTable());

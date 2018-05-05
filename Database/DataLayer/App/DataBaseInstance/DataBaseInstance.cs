@@ -305,8 +305,21 @@ namespace DataLayer
             try
             {
                 Table queryResult = new Table(tableForSelection.Name, false);
+                
+
                 for (int i = 0; i < tableForSelection.Columns.Count; i++)
-                    queryResult.Columns.Add(new Column(tableForSelection.Columns[i], queryResult));
+                {
+                    string SystemName = tableForSelection.Columns[i].SystemName;
+                    int indexDot = SystemName.IndexOf('.');
+                    string ParentName = default(string);
+                    for (int j = 0; j < indexDot; j++)
+                    {
+                        ParentName += SystemName[j];
+                    }
+                    if (isTableExists(ParentName))
+                        queryResult.Columns.Add(new Column(tableForSelection.Columns[i], GetTableByName(ParentName)));
+                    else throw new ArgumentException($"There is no column {ParentName} in {tableForSelection.Name} table!");
+                }
 
                 if (tableForSelection.isTableContainsData())
                 {
@@ -645,7 +658,7 @@ namespace DataLayer
                 foreach (string name in ColumnNames)
                 {
                     Column oldColumn = tableForQuery.GetColumnByName(name);
-                    Column toAdd = new Column(oldColumn.Name, oldColumn.DataType, oldColumn.AllowsNull, oldColumn.Default, queryresult);
+                    Column toAdd = new Column(oldColumn.SystemName, oldColumn.DataType, oldColumn.AllowsNull, oldColumn.Default, queryresult);
                     toAdd.DataList = oldColumn.CloneData();
                     queryresult.Columns.Add(toAdd);
                 }
@@ -743,7 +756,7 @@ namespace DataLayer
             if (!outResult.isStatusCodeOk()) return null;
             try
             {
-                Table queryResult = new Table(tableForQuery);
+                Table queryResult = tableForQuery;
                 if (queryResult.isColumnExists(columnNameSortBy))
                 {
                     List<DataObject[]> data = new List<DataObject[]>();
@@ -1786,16 +1799,16 @@ namespace DataLayer
             queryFirstTable.DeleteAllData();
             querySecondTable.DeleteAllData();
             for (int i = 0; i < querySecondTable.Columns.Count; i++)
-                    queryFirstTable.Columns.Add(new Column(querySecondTable.Columns[i], queryFirstTable));
+                    queryFirstTable.Columns.Add(new Column(querySecondTable.Columns[i], querySecondTable));
             for (int i = 0; i < finalData.Count; i++)
-                {
+            {
                     List<object> currentRow = finalData[i];
                     for (int j = 0; j < queryFirstTable.Columns.Count; j++)
                     {
-                    DataObject k = new DataObject(queryFirstTable.Columns[j].GetHashCode(), currentRow[j]);
+                        DataObject k = new DataObject(queryFirstTable.Columns[j].GetHashCode(), currentRow[j]);
                         queryFirstTable.Columns[j].DataList.Add(k);
                     }
-                }
+            }
                 return queryFirstTable;
            
 
