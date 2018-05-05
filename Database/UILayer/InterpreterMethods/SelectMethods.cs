@@ -95,8 +95,8 @@ namespace UILayer.InterpreterMethods
             try
             {
                 string _generalTableName = queryList[3];
-                Table tempTable=null;
                 if (!inst.isTableExists(_generalTableName)) throw new Exception($"There is no table '{_generalTableName}' in database '{inst.Name}'!\n");
+
                 var _generalTable = inst.GetTableByName(_generalTableName);
                 if (queryList.Length >= 8)
                 {
@@ -104,16 +104,17 @@ namespace UILayer.InterpreterMethods
                     {
                         char[] _separator = new char[] { '(', ' ', ',', ')' };
                         if (!IsValidSyntax(queryList[5])) throw new Exception("\nERROR: Invlid query syntax\n");
-                        string[] _innerTableNames = queryList[5].Split(_separator,StringSplitOptions.RemoveEmptyEntries);
+
+                        string[] _innerTableNames = queryList[5].Split(_separator, StringSplitOptions.RemoveEmptyEntries);
+                        if (!IsValidSyntax(queryList[7])) throw new Exception("\nERROR: Invalid query syntax\n");
+
+                        string[] _joinParams = queryList[7].Split(_separator, StringSplitOptions.RemoveEmptyEntries);
+                        if (_joinParams.Length != _innerTableNames.Length) throw new Exception("\nERROR: Count of tables doesn't equals count of params\n");
                         if (_innerTableNames.Length == 0) throw new Exception("ERROR: There is no table names in INNER_JOIN params\n");
-                        for (int i= _innerTableNames.Length-1; i>=0;i-- )
+
+                        for (int i = 0; i < _joinParams.Length; i++)
                         {
                             if (!inst.isTableExists(_innerTableNames[i])) throw new Exception($"There is no table '{_innerTableNames[i]}' in database '{inst.Name}'!\n");
-
-                            if (!IsValidSyntax(queryList[7])) throw new Exception("\nERROR: Invalid query syntax\n");
-
-                            string[] _joinParams = queryList[7].Split(_separator, StringSplitOptions.RemoveEmptyEntries);
-                            if (_joinParams.Length != _innerTableNames.Length) throw new Exception();
 
                             char[] _separ = new char[] { '=', ' ' };
                             string[] colNames = _joinParams[i].Split(_separ, StringSplitOptions.RemoveEmptyEntries);
@@ -121,21 +122,11 @@ namespace UILayer.InterpreterMethods
                                 if (!name.Contains('.')) throw new Exception("ERROR: Invalid name of column. It doesn't contains dot\n");
                             if (!(colNames.Length == 2)) throw new Exception("\nERROR: Invalid number of variable in INNER_JOIN params\n");
 
-                            if (i == 0) break;
-                            var _table = inst.GetTableByName(_innerTableNames[i - 1]);
                             var _innerTable = inst.GetTableByName(_innerTableNames[i]);
                             var colNameList = colNames.ToList();
-                            tempTable = inst.QueryInnerJoinSelection(_table,_innerTable, colNameList, ref _status);
+                            _generalTable = inst.QueryInnerJoinSelection(_generalTable, _innerTable, colNameList, ref _status);
                         }
-
-                        char[] _sep = new char[] { '=', ' ' };
-                        string joinParam = queryList[7].Split(_separator, StringSplitOptions.RemoveEmptyEntries)[0];
-                        string[] columnNames = joinParam.Split(_sep, StringSplitOptions.RemoveEmptyEntries);
-                        if (!(columnNames.Length == 2)) throw new Exception("\nERROR: Invalid number of variable in INNER_JOIN params\n");
-                        foreach (var name in columnNames)
-                            if (!name.Contains('.')) throw new Exception("ERROR: Invalid name of column. It doesn't contains dot\n");
-                        var param = columnNames.ToList();
-                        return inst.QueryInnerJoinSelection(_generalTable,tempTable,param,ref _status);
+                        return _generalTable;
                     }
                     else if (queryList[4] == "WHERE" || queryList[4] == "ORDER_BY")
                     {
@@ -149,7 +140,7 @@ namespace UILayer.InterpreterMethods
                 }
                 else throw new Exception("\nERROR: Invalid query syntax\n");
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _status = e.Message;
                 return null;
