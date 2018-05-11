@@ -55,6 +55,7 @@ namespace UILayer
 
         public static void Run()
         {
+            Console.Title = "SOOS Database™ Inc.";
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             Console.WriteLine("SOOS Database™ ©2018 SOOS Inc. All Rights Reserved.\nSOOS Database® is a trademark or registered trademark of SOOS Inc in the Republic of Belarus and elsewhere.\nAny resembalance to actual events or locales or persons, living or dead, is entirely coincidental.\nVersion 0.7.1 BETA\n===========================================================================================================\n ");
             Kernel.GetInstance();

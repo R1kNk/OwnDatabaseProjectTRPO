@@ -64,6 +64,28 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                 _dataList.Add(new DataObject(GetHashCode(), copyColumn.DataList[i].Data));
             }
         }
+        public Column(Column copyColumn)
+        {
+            _name = copyColumn.Name;
+            _systemName += copyColumn.thisTable.Name + "." + copyColumn.Name;
+            dataType = copyColumn.DataType;
+            allowsNull = copyColumn.allowsNull;
+            _Default = DataType.GetDefaultValue();
+            isFkey = false;
+            isPkey = false;
+            thisTable = copyColumn.thisTable;
+            if (copyColumn.Default != null)
+            {
+                Type buf = copyColumn.Default.GetType();
+
+                if (copyColumn.Default.GetType() == dataType) _Default = copyColumn.Default;
+            }
+            _dataList = new List<DataObject>();
+            for (int i = 0; i < copyColumn.DataList.Count; i++)
+            {
+                _dataList.Add(new DataObject(GetHashCode(), copyColumn.DataList[i].Data));
+            }
+        }
         //fields
         private Table thisTable;
         //

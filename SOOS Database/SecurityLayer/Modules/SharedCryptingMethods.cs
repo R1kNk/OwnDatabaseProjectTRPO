@@ -50,7 +50,7 @@ namespace SecurityLayer.Modules
                 BinaryFormatter formatter = new BinaryFormatter();
 
                 return (DataBaseObjectShell)formatter.Deserialize(memStream);
-            } catch(System.Runtime.Serialization.SerializationException e)
+            } catch(System.Runtime.Serialization.SerializationException)
             {
                 return null;
             }

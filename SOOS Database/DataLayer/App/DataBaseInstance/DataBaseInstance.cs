@@ -1740,8 +1740,8 @@ namespace DataLayer
         {
             if (!outResult.isStatusCodeOk()) return null;
 
-                Table queryFirstTable = new Table(firstTableToJoin);
-                Table querySecondTable = new Table(secondTableToJoin);
+                Table queryFirstTable = new Table(firstTableToJoin, true);
+                Table querySecondTable = new Table(secondTableToJoin, true);
                 if (ColumnNames.Count != 2) throw new ArgumentException("The number of columns to join must be 2!");
                 Column queryColumnFirst=null;
                 Column queryColumnSecond=null;

@@ -62,15 +62,23 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                 Columns.Add(PrimaryKey);
             }
         }
-        public Table(Table copyTable)
+        public Table(Table copyTable, bool inner=false)
         {
             Name = copyTable.Name;
             _isPKNeed = copyTable._isPKNeed;
             _columns = new List<Column>();
             currentPrimaryKey = 0;
+            if (inner == true)
+            {
+                for (int i = 0; i < copyTable.Columns.Count; i++)
+                {
+                    Columns.Add(new Column(copyTable.Columns[i]));
+                }
+            }
+            else
             for (int i = 0; i < copyTable.Columns.Count; i++)
             {
-                Columns.Add( new Column(copyTable.Columns[i], this));
+                Columns.Add( new Column(copyTable.Columns[i], copyTable));
             }
         }
         //
