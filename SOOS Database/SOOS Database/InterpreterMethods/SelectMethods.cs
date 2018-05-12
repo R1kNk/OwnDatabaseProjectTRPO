@@ -40,14 +40,7 @@ namespace UILayer.InterpreterMethods
         };
 
         static string _status;
-       /*FK_table_2     |    id_table_2     FK_table3 |   id_tabl_e3
-          1             |    1              1         |   1
-          2             |    2              2         |   2
-                        |    3              3         |   3
-                        |    4              4         |   4
-             
-         FROM table1 INNER_JOIN (table_2,table_3) ON (FK_2=ID_2, FK_3=ID_3)
-             */
+       
 
         public static void Execute(string query)
         {
@@ -103,7 +96,7 @@ namespace UILayer.InterpreterMethods
                 {
                     if (queryList[4] == "INNER_JOIN" && queryList[6] == "ON")
                     {
-                        char[] _separator = new char[] { '(', ' ', ',', ')' };
+                        char[] _separator = new char[] { '(',',', ')' };
                         if (!IsValidSyntax(queryList[5])) throw new Exception("\nERROR: Invlid query syntax\n");
 
                         string[] _innerTableNames = queryList[5].Split(_separator, StringSplitOptions.RemoveEmptyEntries);
@@ -117,7 +110,7 @@ namespace UILayer.InterpreterMethods
                         {
                             if (!inst.isTableExists(_innerTableNames[i])) throw new Exception($"There is no table '{_innerTableNames[i]}' in database '{inst.Name}'!\n");
 
-                            char[] _separ = new char[] { '=', ' ' };
+                            char[] _separ = new char[] { '=' };
                             string[] colNames = _joinParams[i].Split(_separ, StringSplitOptions.RemoveEmptyEntries);
                             foreach (var name in colNames)
                                 if (!name.Contains('.')) throw new Exception("ERROR: Invalid name of column. It doesn't contains dot\n");
@@ -169,7 +162,7 @@ namespace UILayer.InterpreterMethods
 
 
                         var _column = table.GetColumnByName(_colName);
-                        char[] _sep = new char[] { '(', ',',' ', ')' };
+                        char[] _sep = new char[] { '(', ',', ')' };
                         string[] _val = queryList[7].Split(_sep, StringSplitOptions.RemoveEmptyEntries);
                         object[] _values = new object[_val.Length];
                         for (int i = 0; i < _val.Length; i++)
@@ -216,7 +209,7 @@ namespace UILayer.InterpreterMethods
                         if (!table.isColumnExists(_colName)) throw new Exception($"There is no column '{_colName}' in table '{table.Name}'!\n");
 
                         var _column = table.GetColumnByName(_colName);
-                        char[] _sep = new char[] { '(', ',', ')',' ' };
+                        char[] _sep = new char[] { '(', ',', ')' };
                         string[] _val = queryList[11].Split(_sep, StringSplitOptions.RemoveEmptyEntries);
                         object[] _values = new object[_val.Length];
                         for (int i = 0; i < _val.Length; i++)
@@ -231,7 +224,7 @@ namespace UILayer.InterpreterMethods
                     {
                         if (!IsValidSyntax(queryList[9])) throw new Exception("\nERROR: Invalid query syntax in 'WHERE' params\n");
 
-                        string[] _separator = new string[] { "(", ")", GetSeparator(queryList[9])," " };
+                        string[] _separator = new string[] { "(", ")", GetSeparator(queryList[9]) };
                         string[] conditionParams = queryList[9].Split(_separator, StringSplitOptions.RemoveEmptyEntries);
                         if (!(conditionParams.Length == 2)) throw new Exception("\nERROR: Invalid query syntax in 'WHERE' params\n");
 
@@ -363,7 +356,7 @@ namespace UILayer.InterpreterMethods
             try
             {
                 if (!IsValidSyntax(queryList[1])) throw new Exception("\nERROR: Invalid query syntax in 'SELECT' params\n");
-                char[] _separator = new char[] { '(', ',',' ', ')' };
+                char[] _separator = new char[] { '(', ',', ')' };
                 string[] _params = queryList[1].Split(_separator, StringSplitOptions.RemoveEmptyEntries);
                 if (_params.Length == 0) throw new Exception("\nERROR: Invalid query syntax in 'SELECT' params\n");
                 if (IsKeyword(_params[0]))
@@ -398,7 +391,7 @@ namespace UILayer.InterpreterMethods
                     else if (_keyword == "TOP")
                     {
                         if (_params.Length != 2) throw new Exception("\nERROR: Invalid query syntax in 'SELECT' params\n");
-                        char[] _sep = new char[] { '=', ' ' };
+                        char[] _sep = new char[] { '=' };
                         string[] _temp = _params[1].Split(_sep, StringSplitOptions.None);
                         if (_temp.Length != 2) throw new Exception("\nERROR: Invalid query syntax in 'SELECT' params\n");
                         if (_temp[0] == "VALUES")

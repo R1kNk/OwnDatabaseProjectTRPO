@@ -137,7 +137,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                             if (tblProp.Name == futureName) throw new FormatException("Invalid column name. Some column in this table have same name!");
                         }
                         Columns[indexOfColumn(currentName)].Name = futureName;
-                        Columns[indexOfColumn(currentName)].UpdateSystemName();
+                        Columns[indexOfColumn(futureName)].UpdateSystemName();
                     }
                     else throw new FormatException("There is invalid symbols in column's name!");
                 }

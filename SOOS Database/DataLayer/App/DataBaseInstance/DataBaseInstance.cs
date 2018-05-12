@@ -121,7 +121,7 @@ namespace DataLayer
                     if (futureName.isThereNoUndefinedSymbols()) GetTableByName(currentName).Name = futureName;
                     else throw new ArgumentException("Your name contains undefined symbols!");
                 }
-                throw new ArgumentNullException("there is no such table in this database!");
+                else throw new ArgumentNullException("there is no such table in this database!");
             }
             catch(Exception e)
             {

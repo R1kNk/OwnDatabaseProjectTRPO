@@ -485,7 +485,7 @@ namespace UILayer
                 "\nCLEAR\n" +
                 "\nRENAME DATABASE |oldName| |newName|" +
                 "\nRENAME TABLE |oldName| |newName|" +
-                "\nRENAME COLUMN |oldName| |newName|\n" +
+                "\nRENAME COLUMN |TableName| |oldName| |newName|\n" +
                 "\nDATABASES" +
                 "\n\n----QUERY METHODS----\n" +
                 "\nSELECT (|TableName.colName|,...) FROM |tableName1| ..." +
