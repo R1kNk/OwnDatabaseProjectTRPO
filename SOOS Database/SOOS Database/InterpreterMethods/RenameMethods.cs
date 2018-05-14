@@ -56,7 +56,7 @@ namespace UILayer.InterpreterMethods
                         {
                             var _table = _inst.GetTableByName(_colNames[0]);
                             _table.RenameColumn(_colNames[1], _colNames[2]);
-                            Console.WriteLine($"\nColumn succesfully renamed from {_colNames[1]} to {_colNames[2]}\n");
+
                         }
                         else throw new NullReferenceException($"There is no table '{_colNames[0]}' in database '{_inst.Name}'!");
                     }
@@ -80,8 +80,7 @@ namespace UILayer.InterpreterMethods
                     if (_tableNames.Length == 2)
                     {
                         var _inst = Kernel.GetInstance(Interpreter.ConnectionString);
-                        _inst.RenameTable(_tableNames[0], _tableNames[1]);
-                        Console.WriteLine($"\nTable succesfully renamed from {_tableNames[0]} to {_tableNames[1]}\n");
+                        _inst.RenameTable(_tableNames[0], _tableNames[1]);    
                     }
                     else
                         throw new Exception($"\nERROR: Ivalid nuber of variables\n");
@@ -102,7 +101,7 @@ namespace UILayer.InterpreterMethods
                 if (_dbNames.Length == 2)
                 {
                     Kernel.RenameDatabase(_dbNames[0], _dbNames[1]);
-                    Console.WriteLine($"\nDatabase succesfully renamed from {_dbNames[0]} to {_dbNames[1]}\n");
+                    Interpreter.ConnectionString = null;
                 }
                 else
                     throw new Exception($"\nERROR: Ivalid nuber of variables\n");
