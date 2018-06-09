@@ -8,13 +8,14 @@ using DataLayer;
 using System.Reflection;
 using UILayer.InterpreterMethods;
 using System.Diagnostics;
-
+using System.IO;
 namespace UILayer
 {
     class Interpreter
     {
         static object _lockObj = new object();
         static Interpreter _instance;
+        static bool IsAoutomatic = false;
         public static List<string> _keywords = new List<string>()
         {
             "CREATE",
@@ -32,7 +33,8 @@ namespace UILayer
             "CASCADE",
             "SELECT",//to do
             "UPDATE",
-            "HELP"
+            "HELP",
+            "EXECUTE"
         };
         public static string ConnectionString { get; set; }
 
@@ -53,7 +55,7 @@ namespace UILayer
             return _instance;
         }
 
-        public static void Run()
+        public static void Run(string command="")
         {
             Console.Title = "SOOS Database™ Inc.";
             Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -62,21 +64,45 @@ namespace UILayer
             ConnectionString = null;
             while (true)
             {
-                string _query = default(string);
-                _query = Console.ReadLine();
-                if (_query.Any(x => char.IsLetterOrDigit(x)))
+                if (IsAoutomatic)
                 {
-                    char[] _separator = new char[] { ' ' };
-                    string _keyword = _query.Split(_separator, StringSplitOptions.RemoveEmptyEntries)[0];
-                    if (GetInstance().IsKeyword(_keyword))
+                    if (command.Any(x => char.IsLetterOrDigit(x)))
                     {
-                        var _method = GetInstance().GetType().GetMethod(_keyword, BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.IgnoreCase);
-                        object[] param = new object[] { _query };
-                        _method?.Invoke(GetInstance(), param);
+                        char[] _separator = new char[] { ' ' };
+                        string _keyword = command.Split(_separator, StringSplitOptions.RemoveEmptyEntries)[0];
+                        if (GetInstance().IsKeyword(_keyword))
+                        {
+                            var _method = GetInstance().GetType().GetMethod(_keyword, BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.IgnoreCase);
+                            object[] param = new object[] { command };
+                            _method?.Invoke(GetInstance(), param);
+                            
+                        }
+                        else
+                        {
+                            Console.WriteLine($"\nERROR: Command '{_keyword}' doesn't exist\n");
+                            
+                        }
                     }
-                    else
+
+                }
+                else
+                {
+                    string _query = default(string);
+                    _query = Console.ReadLine();
+                    if (_query.Any(x => char.IsLetterOrDigit(x)))
                     {
-                        Console.WriteLine($"\nERROR: Command '{_keyword}' doesn't exist\n");
+                        char[] _separator = new char[] { ' ' };
+                        string _keyword = _query.Split(_separator, StringSplitOptions.RemoveEmptyEntries)[0];
+                        if (GetInstance().IsKeyword(_keyword))
+                        {
+                            var _method = GetInstance().GetType().GetMethod(_keyword, BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.IgnoreCase);
+                            object[] param = new object[] { _query };
+                            _method?.Invoke(GetInstance(), param);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"\nERROR: Command '{_keyword}' doesn't exist\n");
+                        }
                     }
                 }
             }
@@ -498,6 +524,37 @@ namespace UILayer
             Console.WriteLine(info);
         }
         #endregion
+        private static void Execute(string command)
+        {
+            char[] sep = new char[] { ' ' };
+            string[] queryList = command.Split(sep, StringSplitOptions.RemoveEmptyEntries);
 
+            if (queryList.Length != 2) throw new Exception("\nERROR: Invalid number of variables\n");
+
+            using (StreamReader reader = new StreamReader(queryList[1]))
+            {
+                while(!reader.EndOfStream)
+                {
+                    string query = reader.ReadLine();
+                    if (query.Any(x => char.IsLetterOrDigit(x)))
+                    { 
+                        char[] _separator = new char[] { ' ' };
+                        string _keyword = query.Split(_separator, StringSplitOptions.RemoveEmptyEntries)[0];
+                        if (GetInstance().IsKeyword(_keyword))
+                        {
+                            var _method = GetInstance().GetType().GetMethod(_keyword, BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.IgnoreCase);
+                            object[] param = new object[] { query };
+                            _method?.Invoke(GetInstance(), param);
+
+                        }
+                        else
+                        {
+                            Console.WriteLine($"\nERROR: Command '{_keyword}' doesn't exist\n");
+
+                        }
+                    }
+                }
+            }
+        }
     }
 }

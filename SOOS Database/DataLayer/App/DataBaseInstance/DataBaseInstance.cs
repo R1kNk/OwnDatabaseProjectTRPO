@@ -24,7 +24,7 @@ namespace DataLayer
          /// <summary>
          /// DB constructor
          /// </summary>
-         /// <param name="name"></param>
+         /// <param name="name">database name</param>
          public DataBaseInstance(string name)
          {
              _name = name;
@@ -33,7 +33,7 @@ namespace DataLayer
         /// <summary>
         /// Add table to this Database
         /// </summary>
-        /// <param name="bufTable"></param>
+        /// <param name="bufTable">Table name</param>
         public void AddTable(string name)
         {
             Table bufTable = new Table(name);
@@ -43,7 +43,7 @@ namespace DataLayer
         /// <summary>
         /// adds table to db
         /// </summary>
-        /// <param name="bufTable"></param>
+        /// <param name="bufTable">table object</param>
         public void AddTable(Table bufTable)
         {
             try
@@ -64,7 +64,7 @@ namespace DataLayer
         /// <summary>
         /// Delete table by name
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">TAble name</param>
         public void DeleteTable(string name)
         {
             try
@@ -110,8 +110,8 @@ namespace DataLayer
         /// <summary>
         /// Rename table
         /// </summary>
-        /// <param name="currentName"></param>
-        /// <param name="futureName"></param>
+        /// <param name="currentName"> current table name</param>
+        /// <param name="futureName">Future table name</param>
         public void RenameTable(string currentName, string futureName)
         {
             try
@@ -132,7 +132,7 @@ namespace DataLayer
         /// <summary>
         /// check if this database already contains table with such name
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">table name</param>
         /// <returns></returns>
         public bool isTableExists(string name)
         {
@@ -148,8 +148,9 @@ namespace DataLayer
         /// <summary>
         /// Add's link many-to-one (second parameter table will be general)
         /// </summary>
-        /// <param name="tableToLink"></param>
-        /// <param name="tableToLinkWith"></param>
+        /// <param name="tableToLink">Table which will contain FK column</param>
+        /// <param name="tableToLinkWith"> General table</param>
+        /// <param name="isCascadeDelete">is there must bu cascade delete></param>
         public void LinkTables(Table tableToLink, Table tableToLinkWith, bool isCascadeDelete)
         {
             try
@@ -172,6 +173,12 @@ namespace DataLayer
             }
         } //UI (second table will be general)
         //
+        /// <summary>
+        /// Edits cascade delete option between two linked tables
+        /// </summary>
+        /// <param name="tableToEditLink">First table</param>
+        /// <param name="tableToEditLinkWith">second table</param>
+        /// <param name="isCascadeDelete">Turn on or off</param>
         public void EditCascadeDeleteOption(Table tableToEditLink, Table tableToEditLinkWith, bool isCascadeDelete)
         {
             try
@@ -208,8 +215,8 @@ namespace DataLayer
         /// <summary>
         /// Unlinks two tables
         /// </summary>
-        /// <param name="TableToUnlink"></param>
-        /// <param name="TableToUnlinkWith"></param>
+        /// <param name="TableToUnlink">First table</param>
+        /// <param name="TableToUnlinkWith">Second table</param>
         public void UnLinkTables(Table TableToUnlink, Table TableToUnlinkWith)
         {
             try
@@ -234,6 +241,11 @@ namespace DataLayer
             }
         } //UI (do not care about places of table's in parametres)
         //
+        /// <summary>
+        /// Returns index of a table
+        /// </summary>
+        /// <param name="name">Table name</param>
+        /// <returns></returns>
         int indexOfTable(string name)
         {
             if (TablesDB.Count == 0) throw new NullReferenceException();
@@ -246,7 +258,7 @@ namespace DataLayer
         /// <summary>
         /// returns table by name
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name"> table name</param>
         /// <returns></returns>
         public Table GetTableByName(string name)
         {
@@ -270,11 +282,20 @@ namespace DataLayer
         }
 
         //
+        /// <summary>
+        /// Edits table link to a new table
+        /// </summary>
+        /// <param name="oldTable"> old table object</param>
+        /// <param name="newTable">new table object</param>
         public void setNewTable(Table oldTable, Table newTable)
         {
             oldTable = newTable;
         }
         //
+        /// <summary>
+        /// Converts info about database to string
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             string info = "|DATABASE| " + Name + " contains " + TablesDB.Count + " tables ";
@@ -294,10 +315,10 @@ namespace DataLayer
         /// <summary>
         /// Condition selection
         /// </summary>
-        /// <param name="tableForSelection"></param>
-        /// <param name="columnName"></param>
-        /// <param name="selectOperator"></param>
-        /// <param name="selectObject"></param>
+        /// <param name="tableForSelection">Table in which selection will perform</param>
+        /// <param name="columnName">Name of column</param>
+        /// <param name="selectOperator">Operator</param>
+        /// <param name="selectObject">Object for select</param>
         /// <returns></returns>
         public Table QueryWhereConditionSelection(Table tableForSelection, string columnName, string selectOperator, object selectObject, ref string outResult)
         {
@@ -488,11 +509,11 @@ namespace DataLayer
         /// <summary>
         /// condition selection for complex operators
         /// </summary>
-        /// <param name="tableForSelection"></param>
-        /// <param name="columnName"></param>
-        /// <param name="selectOperator"></param>
-        /// <param name="selectObjects"></param>
-        /// <param name="outResult"></param>
+        /// <param name="tableForSelection">Table in which selection will perform</param>
+        /// <param name="columnName">Column name</param>
+        /// <param name="selectOperator">Complex select operator</param>
+        /// <param name="selectObjects">objects for select</param>
+        /// <param name="outResult"> string which returns result of query</param>
         /// <returns></returns>
         public Table QueryWhereConditionSelection(Table tableForSelection, string columnName, string selectOperator, object[] selectObjects, ref string outResult)
         {
@@ -645,8 +666,8 @@ namespace DataLayer
         /// <summary>
         /// selects columns from a table and return result
         /// </summary>
-        /// <param name="ColumnNames"></param>
-        /// <param name="tableForQuery"></param>
+        /// <param name="ColumnNames">coluns names to select</param>
+        /// <param name="tableForQuery"> table to select from</param>
         /// <returns></returns>
         public Table QueryColumnSelection(List<string> ColumnNames, Table tableForQuery, ref string outResult)
         {
@@ -677,7 +698,7 @@ namespace DataLayer
         /// <summary>
         /// Returns table with one column which contains number of records in table
         /// </summary>
-        /// <param name="tableforQuery"></param>
+        /// <param name="tableforQuery">table for query</param>
         /// <param name="outResult"></param>
         /// <returns></returns>
         public Table QueryCountSelection(Table tableforQuery, ref string outResult)
@@ -704,10 +725,10 @@ namespace DataLayer
         /// <summary>
         /// Returns first values from table according to percents or values 
         /// </summary>
-        /// <param name="tableforQuery"></param>
-        /// <param name="Value"></param>
-        /// <param name="isValueCount"></param>
-        /// <param name="outResult"></param>
+        /// <param name="tableforQuery">table fr query</param>
+        /// <param name="Value">value of percents or count of rows</param>
+        /// <param name="isValueCount">value count or percents</param>
+        /// <param name="outResult">result of query</param>
         /// <returns></returns>
         public Table QueryTopSelection(Table tableforQuery, int Value, bool isValueCount, ref string outResult)
         {
@@ -745,9 +766,9 @@ namespace DataLayer
         /// <summary>
         /// Sorts table by values in column
         /// </summary>
-        /// <param name="columnNameSortBy"></param>
-        /// <param name="tableForQuery"></param>
-        /// <param name="isAscending"></param>
+        /// <param name="columnNameSortBy">Column which would be used for sort</param>
+        /// <param name="tableForQuery"> table to sort</param>
+        /// <param name="isAscending">is ascening or descending sort</param>
         /// <returns></returns>
         public Table QuerySortTable(string columnNameSortBy, Table tableForQuery, bool isAscending, ref string outResult)
         {
@@ -814,9 +835,9 @@ namespace DataLayer
         /// <summary>
         /// Average value from column, available only for int32 and double
         /// </summary>
-        /// <param name="ColumnName"></param>
-        /// <param name="tableForQuery"></param>
-        /// <param name="outResult"></param>
+        /// <param name="ColumnName">Column name</param>
+        /// <param name="tableForQuery"> table fr query</param>
+        /// <param name="outResult">result of query</param>
         /// <returns></returns>
         public Table QueryAvgSelection(string ColumnName, Table tableForQuery, ref string outResult)
         {
@@ -857,6 +878,14 @@ namespace DataLayer
 
         }
 
+        /// <summary>
+        /// Agregate functions for tables, returns min, max, or sum from column
+        /// </summary>
+        /// <param name="ColumnName"></param>
+        /// <param name="tableForQuery"></param>
+        /// <param name="Action"></param>
+        /// <param name="outResult"></param>
+        /// <returns></returns>
         public Table QueryMINMAXSUMSelection(string ColumnName, Table tableForQuery, string Action, ref string outResult)
         {
             try
@@ -1797,7 +1826,11 @@ namespace DataLayer
             queryFirstTable.DeleteAllData();
             querySecondTable.DeleteAllData();
             for (int i = 0; i < querySecondTable.Columns.Count; i++)
-                    queryFirstTable.Columns.Add(new Column(querySecondTable.Columns[i], querySecondTable));
+            {
+
+                queryFirstTable.Columns.Add(new Column(querySecondTable.Columns[i], querySecondTable));
+
+            }
             for (int i = 0; i < finalData.Count; i++)
             {
                     List<object> currentRow = finalData[i];

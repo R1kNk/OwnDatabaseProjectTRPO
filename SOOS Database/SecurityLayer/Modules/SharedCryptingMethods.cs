@@ -12,6 +12,11 @@ namespace SecurityLayer.Modules
 {
     internal class SharedCryptingMethods
     {
+        /// <summary>
+        /// Convert database object to byte array
+        /// </summary>
+        /// <param name="_obj"></param>
+        /// <returns></returns>
         static internal byte[] DatabaseObjectToByteArray(DataLayer.DataBaseInstance _obj)
         {
             if (_obj == null)
@@ -23,6 +28,11 @@ namespace SecurityLayer.Modules
                 return ms.ToArray();
             }
         }
+        /// <summary>
+        /// Convert byte array to database object
+        /// </summary>
+        /// <param name="dbObjectArray"></param>
+        /// <returns></returns>
         static internal DataLayer.DataBaseInstance ByteArrayToDatabaseObject(byte[] dbObjectArray)
         {if (dbObjectArray == null) return null;
             MemoryStream memStream = new MemoryStream(dbObjectArray);
@@ -31,6 +41,11 @@ namespace SecurityLayer.Modules
             return (DataLayer.DataBaseInstance)formatter.Deserialize(memStream);
         }
         //
+        /// <summary>
+        /// database object shell to byte array
+        /// </summary>
+        /// <param name="_obj"></param>
+        /// <returns></returns>
         static internal byte[] DatabaseObjectShellToByteArray(DataBaseObjectShell _obj)
         {
             if (_obj == null)
@@ -42,6 +57,11 @@ namespace SecurityLayer.Modules
                 return ms.ToArray();
             }
         }
+        /// <summary>
+        /// Convert Byte array to database object shell
+        /// </summary>
+        /// <param name="dbObjectArray"></param>
+        /// <returns></returns>
         static internal DataBaseObjectShell ByteArrayToDatabaseObjectShell(byte[] dbObjectArray)
         {
             try
@@ -56,6 +76,12 @@ namespace SecurityLayer.Modules
             }
         }
         //
+        /// <summary>
+        /// Xor string 
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
         static internal string xorString(string input, string key)
         {
             StringBuilder sb = new StringBuilder();
@@ -65,18 +91,31 @@ namespace SecurityLayer.Modules
 
             return result;
         }
+        /// <summary>
+        /// Convert key to bytes
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         static internal byte[] GetKeyBytes(string key)
         {
             byte[] passBytes = new UTF8Encoding().GetBytes(key);
 
             return ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(passBytes);
         }
-
+        /// <summary>
+        /// Secret key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         static internal string SecretCryptKeyFormula(string key)
         {
             return xorString(key, "hardbass");
         }
-
+        /// <summary>
+        /// Encrypt database bytes to database object shell
+        /// </summary>
+        /// <param name="dbInstanceBytes"></param>
+        /// <returns></returns>
         static internal byte[] EncryptDatabaseBytesToDatabaseObjectShellArray(byte[] dbInstanceBytes)
         {
             using (var myAes = Aes.Create())
@@ -90,6 +129,11 @@ namespace SecurityLayer.Modules
                 return DatabaseObjectShellToByteArray(new DataBaseObjectShell(secretPassword, encryptedDbInstance, myAes.IV));
             }
         }
+        /// <summary>
+        /// Convert bytes of database object shell to database bytes 
+        /// </summary>
+        /// <param name="dbShellbytes"></param>
+        /// <returns></returns>
         static internal byte[] DecryptDatabaseObjectShellArrayToDatabaseBytes(byte[] dbShellbytes)
         {
             DataBaseObjectShell shellObject = ByteArrayToDatabaseObjectShell(dbShellbytes);if (shellObject == null) return null;

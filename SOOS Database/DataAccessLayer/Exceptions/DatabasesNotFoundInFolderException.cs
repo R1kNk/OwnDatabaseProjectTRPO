@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayer.Exceptions
 {
+    /// <summary>
+    /// Exception which handles situation if folder for databases doesn't exist
+    /// </summary>
     public class DatabasesNotFoundInFolderException : Exception
     {
         public DatabasesNotFoundInFolderException()

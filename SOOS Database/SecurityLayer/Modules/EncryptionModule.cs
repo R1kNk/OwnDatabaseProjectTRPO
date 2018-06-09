@@ -11,6 +11,11 @@ namespace SecurityLayer.Modules
 {
     internal class EncryptionModule
     {
+        /// <summary>
+        /// Encrypt db instane to byte array
+        /// </summary>
+        /// <param name="_dataToCrypt"></param>
+        /// <returns></returns>
         static public MemoryStream EncryptDataBase(DataLayer.DataBaseInstance _dataToCrypt)
         {
             byte[] _outputData = SharedCryptingMethods.DatabaseObjectToByteArray(_dataToCrypt);

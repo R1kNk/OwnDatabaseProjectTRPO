@@ -14,6 +14,16 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
     public class LinkColumn : Column
     {
         Column linkedColumn;
+        /// <summary>
+        /// General constructor for Fkey Column
+        /// </summary>
+        /// <param name="name">Columns Name</param>
+        /// <param name="DataType">Type of column</param>
+        /// <param name="allowsnull">Is it allows null</param>
+        /// <param name="def">Default column object</param>
+        /// <param name="thisTable">Table which will contain this </param>
+        /// <param name="linkedcolumn"></param>
+        /// <exception cref="ArgumentException">Throws when you trying connect not Pkey column </exception>
         public LinkColumn(string name, Type DataType, bool allowsnull, object def, Table thisTable, Column linkedcolumn) : base(name, DataType, allowsnull, def, thisTable)
         {
             try
@@ -38,7 +48,16 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
 
         }
-
+        /// <summary>
+        /// Overriden edit clumn element by primary key method
+        /// </summary>
+        /// <param name="key">Pkey of element</param>
+        /// <param name="arguments">Objet array with single argument</param>
+        /// <exception cref="ArgumentException">Throws when you trying t ochange value of FK column to null</exception>
+        /// <exception cref="ArgumentException">Throws where is no such pk in table</exception>
+        /// <exception cref="ArgumentException">Throws when there is no such argument in linked column</exception>
+        /// <exception cref="ArgumentException">Throws then the type of argument os not similar to clumn type</exception>
+        /// <exception cref="NullReferenceException">Throws when table doesn't contain data</exception>
         public override void EditColumnElementByPrimaryKey(int key, object[] arguments)
         {
             try
@@ -68,6 +87,16 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
         }
         //
+        /// <summary>
+        /// Overriden method to edit column element by index
+        /// </summary>
+        /// <param name="index">Index of element</param>
+        /// <param name="arguments">Index of element</param>
+        /// <exception cref="ArgumentException">Throws when you can't change value of FK column to null</exception>
+        /// <exception cref="ArgumentException">Throws where is no such pk in table</exception>
+        /// <exception cref="ArgumentException">Throws when there is no such argument in linked column</exception>
+        /// <exception cref="ArgumentException">Throws then the type of argument os not similar to column type</exception>
+        /// <exception cref="NullReferenceException">Throws when there is no such Primary Key in this table</exception>
         public override void  EditColumnElementByIndex(int index, object[] arguments)
         {
             try
@@ -97,6 +126,11 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
         } //UI 
         //
+        /// <summary>
+        /// Adds element to column
+        /// </summary>
+        /// <param name="argument">Obect to add</param>
+        /// <exception cref="ArgumentException">Throws whem is no such argument in linked column</exception>
         public override void AddDataElement(object argument)
         {
             try
@@ -114,6 +148,11 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
 
             }
         }
+        /// <summary>
+        /// Overridden method for Fkey column which checks is linked column contains such value
+        /// </summary>
+        /// <param name="value">Object to check</param>
+        /// <returns></returns>
      public override bool isLinkedColumnContainsSuchValue(object value)
         {
 

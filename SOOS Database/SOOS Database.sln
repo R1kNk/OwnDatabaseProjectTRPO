@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLayer", "DataLayer\Data
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SOOS Database", "SOOS Database\SOOS Database.csproj", "{5FF17D98-DB95-4A23-8864-6051BDAB010F}"
 EndProject
+Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "Documentation", "Documentation\Documentation.shfbproj", "{D4B0B570-C37A-4E4B-ADF9-EF18CD3FC4FB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{5FF17D98-DB95-4A23-8864-6051BDAB010F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5FF17D98-DB95-4A23-8864-6051BDAB010F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5FF17D98-DB95-4A23-8864-6051BDAB010F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4B0B570-C37A-4E4B-ADF9-EF18CD3FC4FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4B0B570-C37A-4E4B-ADF9-EF18CD3FC4FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4B0B570-C37A-4E4B-ADF9-EF18CD3FC4FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4B0B570-C37A-4E4B-ADF9-EF18CD3FC4FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

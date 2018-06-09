@@ -12,6 +12,11 @@ namespace SecurityLayer.Modules
 {
     internal class DecryptionModule
     {
+        /// <summary>
+        /// Decrypt bytes to database instance
+        /// </summary>
+        /// <param name="_dataToDeCrypt"></param>
+        /// <returns></returns>
         static public DataLayer.DataBaseInstance DecryptDataBase(byte[] _dataToDeCrypt)
         {
             byte[] _dbInstanceBytes = SharedCryptingMethods.DecryptDatabaseObjectShellArrayToDatabaseBytes(_dataToDeCrypt);

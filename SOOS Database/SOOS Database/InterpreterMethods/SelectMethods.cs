@@ -72,7 +72,7 @@ namespace UILayer.InterpreterMethods
                     if (_status != "OK") throw new Exception(_status);
                     _table = QuerySelect(_inst, _table, _queryList);
                     if (_status != "OK") throw new Exception(_status);
-                    Console.WriteLine("\n" + _table.QueryOutTable());
+                    Console.WriteLine("\n" + _table.OutTable());
                 }
                 else throw new Exception("\nERROR: Invalid command syntax\n");
                 _status = null;

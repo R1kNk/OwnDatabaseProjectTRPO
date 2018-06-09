@@ -21,6 +21,9 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         int currentPrimaryKey;
         List<Column> _columns;
         //
+        /// <summary>
+        /// Event which handles cascade delete
+        /// </summary>
         public event EventHandler<CascadeDeleteEventArgs> cascadeDelete;
         //
         //properties
@@ -28,6 +31,10 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         //
         public List<Column> Columns { get => _columns; private set => _columns = value; }
         public int CurrentPrimaryKey { get => currentPrimaryKey; private set => currentPrimaryKey = value; }
+        /// <summary>
+        /// Generates new Primary Key
+        /// </summary>
+        /// <returns></returns>
         public int newPrimaryKey()
         {
             CurrentPrimaryKey += 1;
@@ -37,7 +44,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <summary>
         /// Table constructor
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">Table name</param>
         public Table(string name)
         {
             Name = name;
@@ -49,6 +56,11 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                 Columns.Add(PrimaryKey);
         }
         //
+        /// <summary>
+        /// Another constructos which gives you a choise if Pkey is Need
+        /// </summary>
+        /// <param name="name">Name of table</param>
+        /// <param name="isPKNeed">Bool value</param>
         public Table(string name, bool isPKNeed)
         {
             Name = name;
@@ -62,6 +74,11 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                 Columns.Add(PrimaryKey);
             }
         }
+        /// <summary>
+        /// Returns new table which was copied from another table
+        /// </summary>
+        /// <param name="copyTable">table to copy</param>
+        /// <param name="inner">Variable for Inner join query (True if you use method in InnerJoin)</param>
         public Table(Table copyTable, bool inner=false)
         {
             Name = copyTable.Name;
@@ -115,14 +132,23 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
 
         }  
 
+        /// <summary>
+        /// Constructor for column
+        /// </summary>
+        /// <param name="name">Name of column</param>
+        /// <param name="DataType">Type of data in column</param>
+        /// <param name="allowsnull">is this column will allow null</param>
+        /// <param name="def">Default object for column</param>
         public void AddColumn(string name, Type DataType, bool allowsnull, object def)
         {
             AddColumn(new Column(name, DataType, allowsnull, def, this));
         } //UI done
-        //
-        /// <summary>
-        /// Edit's column name
-        /// </summary>
+          //
+          /// <summary>
+          /// Edit's column name
+          /// </summary>
+          /// <param name="currentName">Current name of column to find</param>
+          /// <param name="futureName">Future name of finded column</param>
         public void RenameColumn(string currentName, string futureName)
         {
             try
@@ -152,7 +178,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <summary>
         /// Add element to Table!
         /// </summary>
-        /// <param name="arguments"></param> 
+        /// <param name="arguments">Element array</param> 
         public void AddTableElement(object[] arguments)
         {
             try
@@ -210,9 +236,9 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         } //UI done
         //
         /// <summary>
-        /// removes row of data according to primary key
+        /// Eemoves row of data according to primary key
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="key">Primary key of a row of data</param>
         public void DeleteTableElementByPrimaryKey(int key)
         {
             try
@@ -232,7 +258,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <summary>
         /// removes row of data by index
         /// </summary>
-        /// <param name="index"></param>
+        /// <param name="index"> index of row</param>
       public  void DeleteTableElementByIndex(int index)
         {
             try
@@ -254,7 +280,9 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         }
         //
 
-        //
+        /// <summary>
+        /// Deletes all data from table
+        /// </summary>
         public void DeleteAllData()
         {
            
@@ -268,8 +296,8 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <summary>
         /// edit table row by primary key
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="args"></param>
+        /// <param name="key">PK of row</param>
+        /// <param name="args">Argumnets for editing</param>
         public void EditTableElementByPrimaryKey(int key, object[] args)
         {
             try
@@ -296,6 +324,11 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
         } //UI
         //
+        /// <summary>
+        /// Edit table row by index
+        /// </summary>
+        /// <param name="index">Index of row</param>
+        /// <param name="args">Arguments for editing</param>
         public void EditTableElementByIndex(int index, object[] args) // ignores pk 
         {
             try
@@ -318,6 +351,11 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
         }
         //
+        /// <summary>
+        /// Edit table row by index using Dataobject arguments
+        /// </summary>
+        /// <param name="index">index of row</param>
+        /// <param name="args">Objects for edit</param>
         public void EditTableElementByIndex(int index, DataObject[] args) // ignores pk 
         {
             try
@@ -340,9 +378,9 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         }
         //
         /// <summary>
-        /// delete column by name
+        /// Delete column by name
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">Name of column</param>
         public void DeleteColumn(string name)
         {
             try
@@ -365,7 +403,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <summary>
         /// get index of column by name
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">Name of column</param>
         /// <returns></returns>
         int indexOfColumn(string name)
         {
@@ -390,7 +428,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <summary>
         /// return's technical index of row
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="key">Primary key of row</param>
         /// <returns></returns>
         public int returnIndexOfPrimaryKey(int key)
         {
@@ -413,7 +451,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <summary>
         /// return's primary key of index
         /// </summary>
-        /// <param name="index"></param>
+        /// <param name="index">index of row</param>
         /// <returns></returns>
         public int returnPrimaryKeyOfIndex(int index)
         {
@@ -432,7 +470,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <summary>
         /// get data by Primary key
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="key">pk</param>
         /// <returns></returns>
         public DataObject[] GetDataByPrimaryKey(int key)
         {
@@ -448,6 +486,11 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
         } //UI ??? (under question)
         //
+        /// <summary>
+        /// Return column finded by it's name
+        /// </summary>
+        /// <param name="name">Name of column</param>
+        /// <returns></returns>
         public Column GetColumnByName(string name)
         {
             try
@@ -471,7 +514,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <summary>
         /// returns data by index
         /// </summary>
-        /// <param name="index"></param>
+        /// <param name="index">index of row</param>
         /// <returns></returns>
          public DataObject[] GetDataByIndex(int index)
         {
@@ -500,8 +543,8 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <summary>
         /// method for cascade delete event
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender"> object sender</param>
+        /// <param name="e"> event arguments</param>
         public void ExecuteCascadeDelete(Object sender, CascadeDeleteEventArgs e)
         {
             Column linkedcolumn = GetColumnByName(e.ColumnName);
@@ -528,14 +571,21 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         } 
         //
        
-        //
+        /// <summary>
+        /// Checks is table contains atleast one column
+        /// </summary>
+        /// <returns></returns>
         bool isTableContainsColumns()
         {
             if (Columns.Count == 1) return false;
             return true;
         }
         //
-        //
+
+        /// <summary>
+        ///Out's table's info to console 
+        /// </summary>
+        /// <returns></returns>
         public string OutTable()
         {
             int[] maxCharSizesArray = new int[Columns.Count];
@@ -593,6 +643,10 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             return MainFrame + "\n" + ColumnNamesFrame + "\n" + MainFrame + Data + "\n" + MainFrame;
         }
         //
+        /// <summary>
+        /// Out's table's info to console in Querymethods
+        /// </summary>
+        /// <returns></returns>
         public string QueryOutTable()
         {
             int[] maxCharSizesArray = new int[Columns.Count];
@@ -650,12 +704,22 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             return MainFrame + "\n" + ColumnNamesFrame + "\n" + MainFrame + Data + "\n" + MainFrame;
         }
         //
+        /// <summary>
+        /// Checks is this column exists
+        /// </summary>
+        /// <param name="name">Column name</param>
+        /// <returns></returns>
         public bool isColumnExists(string name)
         {
             foreach (Column column in Columns) if (column.SystemName == name || column.Name == name) return true;
             return false;
         }
         //
+        /// <summary>
+        /// Returns column index
+        /// </summary>
+        /// <param name="name">Column name</param>
+        /// <returns></returns>
         public int getIndexOfColumn(string name)
         {
             for(int i =0; i< Columns.Count; i++)
@@ -664,26 +728,21 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
             return -1;
         }
-        public string ColumnType()
-        {
-            string result = default(string);
-            if (isTableContainsColumns())
-            {
-                foreach(Column column in Columns)
-                {
-                    if(!column.IsPkey)
-                    result += column.Name +" - "+column.TypeToString+"\n";
-                }
-                return result;
-            }
-            return "There is no columns in this table";
-        }
+
+        /// <summary>
+        /// Sets currnet Primary key to another
+        /// </summary>
+        /// <param name="newKey"> new Pk</param>
         public void setCurrentPrimaryKey(int newKey)
         {
             CurrentPrimaryKey = newKey;
         }
         //
       //  public Column GetColumn(string name)
+        /// <summary>
+        /// returns string info about table
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             string tableInfo = "\n<TABLE> " + Name + " contains " + Columns.Count+" columns.";

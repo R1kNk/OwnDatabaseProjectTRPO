@@ -15,6 +15,11 @@ namespace DataLayer.Shared.ExtentionMethods
         static string[] selectOperators = new string[] {"=","!=",">","<",">=","<="};
         static string[] selectComplexOperators = new string[] { "BETWEEN", "IN", "NOT_BETWEEN", "NOT_IN" };
 
+        /// <summary>
+        /// Checks is string contains undefined symbols
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
        static public bool isThereNoUndefinedSymbols(this string str)
         {
            if (str.Contains("ID")|| str.Contains("FK")) return false;
@@ -24,11 +29,21 @@ namespace DataLayer.Shared.ExtentionMethods
             }
             return true;    
         }
+        /// <summary>
+        /// Checks is this string is a select operator
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
         static public bool isSelectOperator(this string str)
         {
             foreach (string op in selectOperators) if (str == op) return true;
             return false;
         }
+        /// <summary>
+        /// Checks is this string is a select complex operator
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
         static public bool isSelectComplexOperator(this string str)
         {
             foreach (string op in selectComplexOperators) if (str == op) return true;

@@ -30,12 +30,28 @@ namespace DataAccessLayer.Modules
         }
         #endregion
         #region Extention methods
+
+        /// <summary>
+        /// Checks Is such databases exists in list
+        /// </summary>
+        /// <param name="list">list with databases</param>
+        /// <param name="Name">NAme of database to check</param>
+        /// <returns></returns>
         static internal bool isDatabaseExistsInList(this List<DataLayer.DataBaseInstance> list,string Name)
         {
             foreach (DataLayer.DataBaseInstance db in list)
                 if (db.Name == Name) return true;
             return false;
         }
+
+        /// <summary>
+        /// Returns index of database by name in provided list
+        /// </summary>
+        /// <param name="list">List with databases to search in</param>
+        /// <param name="Name">Name of database</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">There is no such Database in list!</exception>
+
         static internal int IndexOfDatabase(this List<DataLayer.DataBaseInstance> list, string Name)
         {
             try

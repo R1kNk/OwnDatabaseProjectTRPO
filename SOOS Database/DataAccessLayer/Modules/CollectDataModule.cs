@@ -15,8 +15,9 @@ namespace DataAccessLayer.Modules
         /// <summary>
         /// Search for such db file in folder and load it
         /// </summary>
-        /// <param name="DBName"></param>
+        /// <param name="DBName">Name of database</param>
         /// <returns></returns>
+        /// <exception cref="DatabasesNotFoundInFolderException">Throws ehen there is no databases folder</exception>
         static internal DataBaseInstance LoadDataBase(string DBName)
         {
             try
@@ -42,6 +43,8 @@ namespace DataAccessLayer.Modules
         /// Delete all db instances from list and adds all db files that contains folder
         /// </summary>
         /// <returns></returns>
+        /// <exception cref="DatabasesNotFoundInFolderException">Throws ehen there is no databases folder</exception>
+
         static internal List<DataBaseInstance> LoadAllDataBases()
         {
 
@@ -61,7 +64,7 @@ namespace DataAccessLayer.Modules
         /// <summary>
         /// Taking all db's from folder and adds them to the list, if list doesn't contains db with such name - adds it. Otherwise saves old db object in list (P.S. NO INFO DELETE, ONLY ADDING)
         /// </summary>
-        /// <param name="list"></param>
+        /// <param name="list">List with databases</param>
         /// <returns></returns>
         static internal List<DataBaseInstance> UpdatativeDatabasesLoad(List<DataBaseInstance> list)
         {
@@ -87,6 +90,11 @@ namespace DataAccessLayer.Modules
             return bufList;
         }
 
+        /// <summary>
+        /// Takes a path to file and perform it to database instance
+        /// </summary>
+        /// <param name="filePathToDecrypt"></param>
+        /// <returns></returns>
         static private DataBaseInstance DecryptDataBaseFromPath(string filePathToDecrypt)
         {
             byte[] _array = File.ReadAllBytes(filePathToDecrypt);

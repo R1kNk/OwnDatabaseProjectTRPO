@@ -123,7 +123,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <summary>
         /// Edit type of the column's data
         /// </summary>
-        /// <param name="newColumnType"></param>
+        /// <param name="newColumnType">Future Type of the column</param>
         public void EditColumnType(Type newColumnType )
         {
             try
@@ -148,7 +148,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <summary>
         /// Change Nullable property
         /// </summary>
-        /// <param name="isNullable"></param>
+        /// <param name="isNullable">Value is Nullable?</param>
         public void SetNullableProperty(bool isNullable)
         {
             try
@@ -168,7 +168,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <summary>
         /// set another default object
         /// </summary>
-        /// <param name="defaultObject"></param>
+        /// <param name="defaultObject">Future default object for this column</param>
         public void SetDefaultObject(object defaultObject)
         {
             try
@@ -213,26 +213,33 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// <summary>
         /// Set's Fkey property
         /// </summary>
-        /// <param name="Fkey"></param>
+        /// <param name="Fkey">Is this column FKey?</param>
         public void SetFkeyProperty(bool Fkey)
         {
             IsFkey = Fkey;
         }
         //
         /// <summary>
-        /// Set's Fkey property
+        /// Set's Pkey property
         /// </summary>
-        /// <param name="Fkey"></param>
+        /// <param name="Fkey">Is this column Pkey?</param>
         public void SetPkeyProperty(bool Pkey)
         {
             IsPkey = Pkey;
         }
         //
+        /// <summary>
+        /// Updates System name of column
+        /// </summary>
         public void UpdateSystemName()
         {
             SystemName = ThisTable.Name + "." + Name;
         }
         //
+        /// <summary>
+        /// Adds object to dataList
+        /// </summary>
+        /// <param name="argument">object to Add</param>
         public virtual void AddDataElement(object argument)
         {
             DataList.Add(new DataObject(GetHashCode(), argument));
@@ -240,11 +247,16 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         }
         //
         /// <summary>
-        /// edit data of single clumn by primary key
+        ///  Edits data of single column element by primary key
         /// </summary>
-        /// <param name="ColumnName"></param>
-        /// <param name="index"></param>
-        /// <param name="argument"></param>
+        /// <param name="key">Primary key of elements row</param>
+        /// <param name="arguments">Object array which must contain 1 value in it</param>
+        /// <exception cref="ArgumentException">Throws when there is more than 1 value</exception>
+        /// <exception cref="ArgumentException">Throws when you trying to change column data</exception>
+        /// <exception cref="ArgumentException">Throws when there is no such Primary Key in this table</exception>
+        /// <exception cref="ArgumentException">Throws when type of argument is not similar to Column type</exception>
+        /// <exception cref="NullReferenceException">Throws when table doesn't contain any data</exception>
+
         virtual public void EditColumnElementByPrimaryKey(int key, object[] arguments)
         {
             try
@@ -276,6 +288,15 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
         } //UI 
         //
+        /// <summary>
+        /// Edits column element by its index
+        /// </summary>
+        /// <param name="index">Index of element</param>
+        /// <param name="arguments">Object array which must contain 1 value</param>
+        /// <exception cref="ArgumentException">Throws when you can't change the PrimaryKey Column Data</exception>
+        /// <exception cref="NullReferenceException">Throws when invalid index is entered</exception>
+        /// <exception cref="ArgumentException">Throws when Type of argument is not similar to Column type</exception>
+        /// <exception cref="NullReferenceException">Throws when Table doesn't contain any data</exception>
         virtual public void EditColumnElementByIndex(int index, object[] arguments)
         {
             try
@@ -305,6 +326,10 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
         } //UI 
         //
+        /// <summary>
+        /// Creates new list of data according to data in this column
+        /// </summary>
+        /// <returns></returns>
         public List<DataObject> CloneData()
         {
             List<DataObject> list = new List<DataObject>();
@@ -313,16 +338,29 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             return list;
         }
         //
+        /// <summary>
+        /// Checks if Linked column contains such
+        /// </summary>
+        /// <param name="value">Object to check</param>
+        /// <returns></returns>
         public virtual bool isLinkedColumnContainsSuchValue(object value)
         {
             return true;
         }
         //
+        /// <summary>
+        /// Overriden equals methos
+        /// </summary>
+        /// <param name="obj">Object to check</param>
+        /// <returns></returns>
         public override bool Equals(object obj)
         {
             return (this.GetHashCode() + DataList.Count == obj.GetHashCode() + DataList.Count);
         }
-
+        /// <summary>
+        /// Gets column HashCode
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             int NameHashCode = 1;
@@ -345,6 +383,10 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             return NameHashCode * TypeHashCode * parentTableHash * AllowsNullHashCode;
         }
 
+        /// <summary>
+        /// Performs column object to string
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             string columnInfo = "[COLUMN] " +"<"+Name + "> DataType = " + DataType.Name + ",";

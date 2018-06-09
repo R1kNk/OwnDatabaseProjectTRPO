@@ -9,10 +9,9 @@ namespace DataAccessLayer.Modules
     static class CacheModule
     {
        /// <summary>
-       /// DataBase file saving
+       /// DataBase file saving (takes all databasess from instance and saves it to folder)
        /// </summary>
-       /// <param name="_dataToSave"></param>
-       /// <param name="_dataBaseName"></param>
+       /// <param name="db"> instance which contains databases</param>
         static internal void SaveDataBaseToFolder(this DataBaseInstance db)
         {
             CreateDirectoryForDataBaseIfThereAreNoOne();
@@ -32,7 +31,7 @@ namespace DataAccessLayer.Modules
         /// Call EncryptionModule.EncryptDataBase for encryption purposes then save encrypted DB to file.
         /// </summary>
         /// <param name="fileStream">Stay at open state after method call </param>
-        /// <param name="dataBaseToWrite"></param>
+        /// <param name="dataBaseToWrite">instance to write databases into</param>
         private static void EncryptAndWriteDbToFile(FileStream fileStream, DataBaseInstance dataBaseToWrite)
         {
 
@@ -43,8 +42,10 @@ namespace DataAccessLayer.Modules
 
         //
         /// <summary>
-        /// Saves or updates all databases from _instance list to folder
+        /// saves all databases to directory
         /// </summary>
+        /// <param name="listDB">List with databases</param>
+        /// <exception cref="ArgumentException">Throws when is no Databases to save!</exception>
         internal static void SaveAllDatabases(List<DataBaseInstance> listDB)
         {
             try
@@ -68,6 +69,9 @@ namespace DataAccessLayer.Modules
             }
         }
 
+        /// <summary>
+        /// Creates directory for databases if there are no one
+        /// </summary>
         private static void CreateDirectoryForDataBaseIfThereAreNoOne()
         {
             if (!SharedDataAccessMethods.isDirectoryExists())

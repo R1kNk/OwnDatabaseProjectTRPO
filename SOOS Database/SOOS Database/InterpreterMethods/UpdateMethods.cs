@@ -97,7 +97,6 @@ namespace UILayer.InterpreterMethods
                                     object data = GetData(value, _column, out status);
                                     _column.EditColumnElementByPrimaryKey(_elementId, new object[] { data });
                                 }                   
-                                Console.WriteLine();
                             }
                             else throw new Exception("\nERROR: Invalid command syntax\n");
                         }
@@ -128,7 +127,6 @@ namespace UILayer.InterpreterMethods
                                     for (int i = 0; i < _column.DataList.Count; i++)
                                         _column.EditColumnElementByPrimaryKey(_table.returnPrimaryKeyOfIndex(i), new object[] { data });
                                 }
-                                Console.WriteLine();
                             }
                             else throw new Exception("\nERROR: Invalid command syntax\n");
                         }

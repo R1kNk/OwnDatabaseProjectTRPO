@@ -15,7 +15,10 @@ namespace DataLayer
     {
         private static List<DataBaseInstance> instance;
         private static object lockObject = new Object();
-
+        /// <summary>
+        /// Gets singletone main instance
+        /// </summary>
+        /// <returns></returns>
         internal static List<DataBaseInstance> GetInstance()
         {
             if (instance == null)
@@ -37,7 +40,11 @@ namespace DataLayer
             }
             return instance;
         }
-
+        /// <summary>
+        /// Returns database instance by name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static DataBaseInstance GetInstance(string name)
         {
 
@@ -58,6 +65,9 @@ namespace DataLayer
 
         }
         
+        /// <summary>
+        /// Outs info about all databases to console
+        /// </summary>
         public static void OutDatabaseInfo()
         {
             try
@@ -73,11 +83,18 @@ namespace DataLayer
                 Console.WriteLine(e);
             }
         }
+        /// <summary>
+        ///  Outs info about  database to console
+        /// </summary>
+        /// <param name="name">Name of database</param>
         public static void OutDatabaseInfo(string name)
         {
             int index = SharedDataAccessMethods.IndexOfDatabase(GetInstance(), name);
             Console.WriteLine(GetInstance()[index].ToString());
         }
+        /// <summary>
+        /// Outs names of eisting database to  console
+        /// </summary>
         public static void OutNamesOfExistingDBs()
         {
             try
@@ -98,6 +115,10 @@ namespace DataLayer
                 Console.WriteLine(e);
             }
         } //UI done
+        /// <summary>
+        /// Load database to instance by name
+        /// </summary>
+        /// <param name="name">Database Name</param>
         internal static void LoadDatabase(string name)
         {
             try
@@ -115,11 +136,20 @@ namespace DataLayer
             }
         }
         
+        /// <summary>
+        /// Checks s database exists
+        /// </summary>
+        /// <param name="name">Database Name</param>
+        /// <returns></returns>
         internal static bool isDatabaseExists(string name)
         {
             return SharedDataAccessMethods.isDatabaseExistsInList(GetInstance(), name);
         }
-
+        /// <summary>
+        /// Renames database
+        /// </summary>
+        /// <param name="currentName">Current DB name</param>
+        /// <param name="futureName">Future DB name</param>
         internal static void RenameDatabase(string currentName, string futureName)
         {
             try
@@ -139,12 +169,20 @@ namespace DataLayer
                 Console.WriteLine(e);
             }
         } //UI done
+        /// <summary>
+        /// Adds new database
+        /// </summary>
+        /// <param name="name">DB name</param>
         internal static void AddDBInstance(string name)
         {
             DataBaseInstance bufInst = new DataBaseInstance(name);
             AddDBInstance(bufInst);
         } //UI done
         //
+        /// <summary>
+        /// Adds instance of database
+        /// </summary>
+        /// <param name="inst">instance object</param>
         internal static void AddDBInstance(DataBaseInstance inst)
         {
             try
@@ -159,14 +197,25 @@ namespace DataLayer
                 Console.WriteLine(e);
             }
         }
+        /// <summary>
+        /// Save databases to folder
+        /// </summary>
+        /// <param name="inst">instance to save</param>
         internal static void SaveDataBaseInstanceToFolder(this DataBaseInstance inst)
         {
             CacheModule.SaveDataBaseToFolder(inst);
         } //UI done
+        /// <summary>
+        /// Saves all databases to folder
+        /// </summary>
         public static void SaveAllDatabases()
         {
             CacheModule.SaveAllDatabases(GetInstance());
         } //UI done
+        /// <summary>
+        /// Deletes database by name
+        /// </summary>
+        /// <param name="name">DB Name</param>
         internal static void DeleteDatabase(string name)
         {
             try
@@ -189,6 +238,10 @@ namespace DataLayer
                 Console.WriteLine(e.Message);
             }
         }
+        /// <summary>
+        /// Loads all databases from folder using regular or updatative load
+        /// </summary>
+        /// <param name="isUpdatativeLoad">Is we must use updatative load?</param>
         internal static void LoadAllDatabases(bool isUpdatativeLoad)
         {
             if (!isUpdatativeLoad) instance = CollectDataModule.LoadAllDataBases();

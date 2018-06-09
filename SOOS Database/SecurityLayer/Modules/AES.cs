@@ -10,7 +10,13 @@ namespace SecurityLayer.Modules
 {
     public static class AES
     {
-
+        /// <summary>
+        /// Encrypts bytes of database using Key and IV
+        /// </summary>
+        /// <param name="plain">bytes of database</param>
+        /// <param name="Key">AES key</param>
+        /// <param name="IV">IV</param>
+        /// <returns></returns>
         public static byte[] encryptStream(byte[] plain, byte[] Key, byte[] IV)
         {
             byte[] encrypted;
@@ -28,6 +34,13 @@ namespace SecurityLayer.Modules
             }
             return encrypted;
         }
+        /// <summary>
+        /// Decrypts encrypted database bytes using AES key and IV
+        /// </summary>
+        /// <param name="encrypted"></param>
+        /// <param name="Key"></param>
+        /// <param name="IV"></param>
+        /// <returns></returns>
         public static byte[] decryptStream(byte[] encrypted, byte[] Key, byte[] IV)
         {
             byte[] plain;
