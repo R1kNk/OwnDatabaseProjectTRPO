@@ -10,7 +10,9 @@ using System.Linq;
 
 namespace DataLayer
 {
-    
+    /// <summary>
+    /// Object that contains whole databaes in it. Including table and columns
+    /// </summary>
      [Serializable]
      public class DataBaseInstance
      {
@@ -44,6 +46,9 @@ namespace DataLayer
         /// adds table to db
         /// </summary>
         /// <param name="bufTable">table object</param>
+        /// <exception cref="FormatException">Throws when there is invalid table name</exception>
+        /// <exception cref="FormatException">Throws when there is invalid symbols in table name</exception>
+
         public void AddTable(Table bufTable)
         {
             try
@@ -60,11 +65,13 @@ namespace DataLayer
                 Console.WriteLine(e.Message);
             }
         } //UI done
-        //
-        /// <summary>
-        /// Delete table by name
-        /// </summary>
-        /// <param name="name">TAble name</param>
+          //
+          /// <summary>
+          /// Delete table by name
+          /// </summary>
+          /// <param name="name">TAble name</param>
+          /// <exception cref="NullReferenceException">Throws when there is no tables in this database</exception>
+          /// <exception cref="NullReferenceException">Throws when there is no such table in this database</exception>
         public void DeleteTable(string name)
         {
             try
@@ -106,12 +113,15 @@ namespace DataLayer
                 Console.WriteLine(e.Message);
             }
         } //UI done
-        //
-        /// <summary>
-        /// Rename table
-        /// </summary>
-        /// <param name="currentName"> current table name</param>
-        /// <param name="futureName">Future table name</param>
+          //
+          /// <summary>
+          /// Rename table
+          /// </summary>
+          /// <param name="currentName"> current table name</param>
+          /// <param name="futureName">Future table name</param>
+          /// <exception cref="ArgumentException">Throws when your name contains undefined symbols</exception>
+          /// <exception cref="ArgumentNullException">Throws when there is no such table in this database</exception>
+
         public void RenameTable(string currentName, string futureName)
         {
             try
@@ -151,6 +161,8 @@ namespace DataLayer
         /// <param name="tableToLink">Table which will contain FK column</param>
         /// <param name="tableToLinkWith"> General table</param>
         /// <param name="isCascadeDelete">is there must bu cascade delete></param>
+        /// <exception cref="Exception">Throws when those tables already linked</exception>
+
         public void LinkTables(Table tableToLink, Table tableToLinkWith, bool isCascadeDelete)
         {
             try
@@ -172,13 +184,15 @@ namespace DataLayer
                 Console.WriteLine("Critical Error: " + e.Message+"\n");
             }
         } //UI (second table will be general)
-        //
-        /// <summary>
-        /// Edits cascade delete option between two linked tables
-        /// </summary>
-        /// <param name="tableToEditLink">First table</param>
-        /// <param name="tableToEditLinkWith">second table</param>
-        /// <param name="isCascadeDelete">Turn on or off</param>
+          //
+          /// <summary>
+          /// Edits cascade delete option between two linked tables
+          /// </summary>
+          /// <param name="tableToEditLink">First table</param>
+          /// <param name="tableToEditLinkWith">second table</param>
+          /// <param name="isCascadeDelete">Turn on or off</param>
+          /// <exception cref="NullReferenceException">Throws when there is no link between this tables </exception>
+
         public void EditCascadeDeleteOption(Table tableToEditLink, Table tableToEditLinkWith, bool isCascadeDelete)
         {
             try
@@ -212,11 +226,13 @@ namespace DataLayer
                 Console.WriteLine(e.Message);
             }
         } //UI (do not care about what table is on the first place and what table on the second)
-        /// <summary>
-        /// Unlinks two tables
-        /// </summary>
-        /// <param name="TableToUnlink">First table</param>
-        /// <param name="TableToUnlinkWith">Second table</param>
+          /// <summary>
+          /// Unlinks two tables
+          /// </summary>
+          /// <param name="TableToUnlink">First table</param>
+          /// <param name="TableToUnlinkWith">Second table</param>
+          /// <exception cref="NullReferenceException">Throws when there is no link between this tables</exception>
+
         public void UnLinkTables(Table TableToUnlink, Table TableToUnlinkWith)
         {
             try
@@ -240,12 +256,13 @@ namespace DataLayer
                 Console.WriteLine(e.Message);
             }
         } //UI (do not care about places of table's in parametres)
-        //
-        /// <summary>
-        /// Returns index of a table
-        /// </summary>
-        /// <param name="name">Table name</param>
-        /// <returns></returns>
+          //
+          /// <summary>
+          /// Returns index of a table
+          /// </summary>
+          /// <param name="name">Table name</param>
+          /// <returns></returns>
+          /// <exception cref="NullReferenceException">Throws when there is no tables in database</exception>
         int indexOfTable(string name)
         {
             if (TablesDB.Count == 0) throw new NullReferenceException();
@@ -260,6 +277,8 @@ namespace DataLayer
         /// </summary>
         /// <param name="name"> table name</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException">Throws when there is no such table in database</exception>
+        /// <exception cref="NullReferenceException">Throws when there is no tables in database</exception>
         public Table GetTableByName(string name)
         {
             try
@@ -320,6 +339,9 @@ namespace DataLayer
         /// <param name="selectOperator">Operator</param>
         /// <param name="selectObject">Object for select</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException">Throws when there is no such column in table for selection!</exception>
+        /// <exception cref="ArgumentException">Throws when you trying to use incompatible type with operator!</exception>
+        /// <exception cref="ArgumentException">Throws when there is invalid object for select!</exception>
         public Table QueryWhereConditionSelection(Table tableForSelection, string columnName, string selectOperator, object selectObject, ref string outResult)
         {
             if (!outResult.isStatusCodeOk()) return null;
@@ -515,6 +537,10 @@ namespace DataLayer
         /// <param name="selectObjects">objects for select</param>
         /// <param name="outResult"> string which returns result of query</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException">Throws when there is no objects to  select!</exception>
+        /// <exception cref="ArgumentException">Throws when you trying to use incompatible type with operator!</exception>
+        /// <exception cref="ArgumentException">Throws when there is invalid object for select!</exception>
+        /// 
         public Table QueryWhereConditionSelection(Table tableForSelection, string columnName, string selectOperator, object[] selectObjects, ref string outResult)
         {
             if (!outResult.isStatusCodeOk()) return null;
@@ -669,6 +695,7 @@ namespace DataLayer
         /// <param name="ColumnNames">coluns names to select</param>
         /// <param name="tableForQuery"> table to select from</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException">Throws when there is invalid column name!</exception>
         public Table QueryColumnSelection(List<string> ColumnNames, Table tableForQuery, ref string outResult)
         {
             try
@@ -701,6 +728,7 @@ namespace DataLayer
         /// <param name="tableforQuery">table for query</param>
         /// <param name="outResult"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException">Throws when table doesn't contains any columns!</exception>
         public Table QueryCountSelection(Table tableforQuery, ref string outResult)
         {
             try
@@ -721,7 +749,7 @@ namespace DataLayer
                 return null;
             }
         }
-        
+
         /// <summary>
         /// Returns first values from table according to percents or values 
         /// </summary>
@@ -730,6 +758,8 @@ namespace DataLayer
         /// <param name="isValueCount">value count or percents</param>
         /// <param name="outResult">result of query</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException">Throws when value must be more than zero to select!</exception>
+        /// <exception cref="ArgumentException">Throws when you trying to enter percents less 0 or more than 100!</exception>
         public Table QueryTopSelection(Table tableforQuery, int Value, bool isValueCount, ref string outResult)
         {
             try
@@ -770,6 +800,7 @@ namespace DataLayer
         /// <param name="tableForQuery"> table to sort</param>
         /// <param name="isAscending">is ascening or descending sort</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException">Throws when there is no such column in this table!</exception>
         public Table QuerySortTable(string columnNameSortBy, Table tableForQuery, bool isAscending, ref string outResult)
         {
             if (!outResult.isStatusCodeOk()) return null;
@@ -839,6 +870,8 @@ namespace DataLayer
         /// <param name="tableForQuery"> table fr query</param>
         /// <param name="outResult">result of query</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException">Throws when you enter invalid column name!</exception>
+        /// <exception cref="ArgumentException">Throws when you trying to use method with incompatible types!</exception>
         public Table QueryAvgSelection(string ColumnName, Table tableForQuery, ref string outResult)
         {
             try
@@ -886,6 +919,10 @@ namespace DataLayer
         /// <param name="Action"></param>
         /// <param name="outResult"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException">Throws when you enter invalid column name!</exception>
+        /// <exception cref="ArgumentException">Throws when you trying to use method with incompatible types!</exception>
+        /// <exception cref="ArgumentException">Throws when there is no data in table!</exception>
+        /// <exception cref="ArgumentException">Throws when you trying to use invalid data type!</exception>
         public Table QueryMINMAXSUMSelection(string ColumnName, Table tableForQuery, string Action, ref string outResult)
         {
             try
@@ -949,6 +986,10 @@ namespace DataLayer
         /// <param name="selectOperator"></param>
         /// <param name="selectObject"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException">Throws when names of columns isn't similar to count of values!</exception>
+        /// <exception cref="ArgumentException">Throws when names of columns isn't similar to count of values!</exception>
+        /// <exception cref="ArgumentException">Throws when one of arguments types isn't similat with type of column!</exception>
+        /// <exception cref="ArgumentException">Throws when there is invalid object for select!</exception>
         public void QueryWhereConditionUpdate(Table tableForSelection, string columnName, string selectOperator, object selectObject, string[] columnsName, object[] values, ref string outResult)
         {
             if (!outResult.isStatusCodeOk()) return;
@@ -1200,6 +1241,9 @@ namespace DataLayer
         /// <param name="selectObjects"></param>
         /// <param name="outResult"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException">Throws when names of columns isn't similar to count of values!</exception>
+        /// <exception cref="ArgumentException">Throws when one of arguments types isn't similat with type of column!</exception>
+        /// <exception cref="ArgumentException">Throws when there is invalid object for select!</exception>
         public void QueryWhereConditionUpdate(Table tableForSelection, string columnName, string selectOperator, object[] selectObjects, string[] columnsName, object[] values, ref string outResult)
         {
             if (!outResult.isStatusCodeOk()) return;
@@ -1410,6 +1454,10 @@ namespace DataLayer
         /// <param name="selectOperator"></param>
         /// <param name="selectObject"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException">Throws when names of columns isn't similar to count of values!</exception>
+        /// <exception cref="ArgumentException">Throws when one of arguments types isn't similat with type of column!</exception>
+        /// <exception cref="ArgumentException">Throws when there is invalid object for select!</exception>
+        /// <exception cref="ArgumentNullException">Throws when you trying to use invalid object </exception>
         public void QueryWhereConditionDelete(Table tableForSelection, string columnName, string selectOperator, object selectObject, ref string outResult)
         {
             if (!outResult.isStatusCodeOk()) return;
@@ -1603,6 +1651,10 @@ namespace DataLayer
         /// <param name="selectObjects"></param>
         /// <param name="outResult"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException">Throws when names of columns isn't similar to count of values!</exception>
+        /// <exception cref="ArgumentException">Throws when one of arguments types isn't similat with type of column!</exception>
+        /// <exception cref="ArgumentException">Throws when there is invalid object for select!</exception>
+        /// <exception cref="ArgumentNullException">Throws when you trying to use invalid object </exception>
         public void QueryWhereConditionDelete(Table tableForSelection, string columnName, string selectOperator, object[] selectObjects, ref string outResult)
         {
             if (!outResult.isStatusCodeOk()) return;
@@ -1765,6 +1817,11 @@ namespace DataLayer
         /// <param name="secondTableToJoin"></param>
         /// <param name="columnNames"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException">Throws when numbers of columns not equal 2</exception>
+        /// <exception cref="ArgumentException">Throws when names of columns isn't similar to count of values!</exception>
+        /// <exception cref="ArgumentException">Throws when one of arguments types isn't similat with type of column!</exception>
+        /// <exception cref="ArgumentException">Throws when there is invalid object for select!</exception>
+        /// <exception cref="ArgumentNullException">Throws when you trying to use invalid object </exception>
         public Table QueryInnerJoinSelection(Table firstTableToJoin, Table secondTableToJoin, List<string> ColumnNames, ref string outResult)
         {
             if (!outResult.isStatusCodeOk()) return null;

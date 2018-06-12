@@ -10,6 +10,9 @@ using DataLayer.Shared.ExtentionMethods;
 
 namespace DataModels.App.InternalDataBaseInstanceComponents
 {
+    /// <summary>
+    /// Class that contains logic and methods for linked column
+    /// </summary>
     [Serializable]
     public class LinkColumn : Column
     {

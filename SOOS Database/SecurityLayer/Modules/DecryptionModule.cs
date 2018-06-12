@@ -10,6 +10,9 @@ using System.Security.Cryptography;
 
 namespace SecurityLayer.Modules
 {
+    /// <summary>
+    /// Class contains method for database decryption
+    /// </summary>
     internal class DecryptionModule
     {
         /// <summary>

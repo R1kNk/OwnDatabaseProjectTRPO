@@ -7,6 +7,9 @@ using System.IO;
 
 namespace DataAccessLayer.Modules
 {
+    /// <summary>
+    /// Class represents shared methods for saving and loading
+    /// </summary>
     static class SharedDataAccessMethods
     {
         #region Directly call methods

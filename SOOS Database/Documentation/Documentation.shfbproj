@@ -36,8 +36,8 @@
       <DocumentationSource sourceFile="..\SecurityLayer\bin\Debug\SecurityLayer.xml" />
       <DocumentationSource sourceFile="..\SecurityLayer\bin\Debug\SecurityLayer.dll" />
     </DocumentationSources>
-    <HelpFileFormat>Website</HelpFileFormat>
-    <SyntaxFilters>None</SyntaxFilters>
+    <HelpFileFormat>HtmlHelp1</HelpFileFormat>
+    <SyntaxFilters>C#</SyntaxFilters>
     <PresentationStyle>VS2013</PresentationStyle>
     <CleanIntermediates>True</CleanIntermediates>
     <KeepLogFile>True</KeepLogFile>

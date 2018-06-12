@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace SecurityLayer.Modules
 {
+    /// <summary>
+    /// Class that represents AES methods for crypt
+    /// </summary>
     public static class AES
     {
         /// <summary>

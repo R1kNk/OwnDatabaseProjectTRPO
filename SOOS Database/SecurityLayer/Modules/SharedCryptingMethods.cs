@@ -10,6 +10,9 @@ using System.Security.Cryptography;
 
 namespace SecurityLayer.Modules
 {
+    /// <summary>
+    /// Class represents shared crypting methods
+    /// </summary>
     internal class SharedCryptingMethods
     {
         /// <summary>

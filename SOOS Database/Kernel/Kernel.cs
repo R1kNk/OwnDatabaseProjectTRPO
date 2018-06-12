@@ -45,6 +45,7 @@ namespace DataLayer
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
+        /// <exception cref="IndexOutOfRangeException">Throws when instance is null</exception>
         public static DataBaseInstance GetInstance(string name)
         {
 
@@ -68,6 +69,7 @@ namespace DataLayer
         /// <summary>
         /// Outs info about all databases to console
         /// </summary>
+        /// <exception cref="NullReferenceException">Throws when there is no Databases in list</exception>
         public static void OutDatabaseInfo()
         {
             try
@@ -95,6 +97,7 @@ namespace DataLayer
         /// <summary>
         /// Outs names of eisting database to  console
         /// </summary>
+        /// <exception cref="NullReferenceException">There is no Databases in list</exception>
         public static void OutNamesOfExistingDBs()
         {
             try
@@ -119,6 +122,7 @@ namespace DataLayer
         /// Load database to instance by name
         /// </summary>
         /// <param name="name">Database Name</param>
+        /// <exception cref="ArgumentException">Throws when there is no such database in folder</exception>
         internal static void LoadDatabase(string name)
         {
             try
@@ -150,6 +154,8 @@ namespace DataLayer
         /// </summary>
         /// <param name="currentName">Current DB name</param>
         /// <param name="futureName">Future DB name</param>
+        /// <exception cref="ArgumentException">Throws when your name contains undefined symbols</exception>
+        /// <exception cref="NullReferenceException">Throws when there is no such database in list</exception>
         internal static void RenameDatabase(string currentName, string futureName)
         {
             try
@@ -183,6 +189,7 @@ namespace DataLayer
         /// Adds instance of database
         /// </summary>
         /// <param name="inst">instance object</param>
+        /// <exception cref="ArgumentException">Throws when there is invalid name of database</exception>
         internal static void AddDBInstance(DataBaseInstance inst)
         {
             try
@@ -216,6 +223,7 @@ namespace DataLayer
         /// Deletes database by name
         /// </summary>
         /// <param name="name">DB Name</param>
+        /// <exception cref="NullReferenceException">Throws when database doesn't exist</exception>
         internal static void DeleteDatabase(string name)
         {
             try

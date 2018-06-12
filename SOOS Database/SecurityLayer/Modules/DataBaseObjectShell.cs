@@ -7,6 +7,9 @@ using DataLayer;
 
 namespace SecurityLayer.Modules
 {
+    /// <summary>
+    /// Class represents the shell of database
+    /// </summary>
     [Serializable]
     internal class DataBaseObjectShell
     {

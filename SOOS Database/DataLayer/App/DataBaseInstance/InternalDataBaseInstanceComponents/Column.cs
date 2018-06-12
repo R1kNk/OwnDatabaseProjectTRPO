@@ -10,6 +10,9 @@ using DataLayer.Shared.ExtentionMethods;
 
 namespace DataModels.App.InternalDataBaseInstanceComponents
 {
+    /// <summary>
+    /// Class contains all logic and methods connected with column
+    /// </summary>
     [Serializable]
     public class Column
     {

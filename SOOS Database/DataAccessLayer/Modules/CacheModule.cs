@@ -6,6 +6,9 @@ using System.IO;
 
 namespace DataAccessLayer.Modules
 {
+    /// <summary>
+    /// Class represents methods for databases saving
+    /// </summary>
     static class CacheModule
     {
        /// <summary>

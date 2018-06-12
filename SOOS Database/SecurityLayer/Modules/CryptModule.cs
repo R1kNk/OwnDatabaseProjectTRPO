@@ -10,6 +10,9 @@ using System.IO;
 
 namespace SecurityLayer
 {
+    /// <summary>
+    /// Class for converting data to bytes and bytes to data
+    /// </summary>
     internal class CryptModule
     {
         /// <summary>

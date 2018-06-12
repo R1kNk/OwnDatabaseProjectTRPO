@@ -10,6 +10,9 @@ using DataLayer;
 
 namespace DataAccessLayer.Modules
 {
+    /// <summary>
+    /// Class represents methods for database loading
+    /// </summary>
     static class CollectDataModule
     {
         /// <summary>

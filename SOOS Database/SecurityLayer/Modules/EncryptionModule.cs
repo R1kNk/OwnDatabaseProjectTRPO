@@ -9,6 +9,9 @@ using SecurityLayer.Modules;
 
 namespace SecurityLayer.Modules
 {
+    /// <summary>
+    /// Class represents method for database encryption
+    /// </summary>
     internal class EncryptionModule
     {
         /// <summary>

@@ -103,6 +103,8 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// Adds new column to current table!
         /// </summary>
         /// <param name="newTable"></param>
+        /// <exception cref="FormatException">Throws when Some column in this table have same name</exception>
+        /// <exception cref="FormatException">Throws when There are invalid symbols in column's name</exception>
         public void AddColumn(Column newColumn)
         {
             try
@@ -149,6 +151,10 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
           /// </summary>
           /// <param name="currentName">Current name of column to find</param>
           /// <param name="futureName">Future name of finded column</param>
+          /// <exception cref="ArgumentException">Throws when you trying to rename PK or FK column</exception>
+          /// <exception cref="FormatException">Throws when column name is invalid</exception>
+          /// <exception cref="FormatException">Throws when there are invalid symbols in column name</exception>
+          /// <exception cref="NullReferenceException">Throws when there is no column with such name</exception>
         public void RenameColumn(string currentName, string futureName)
         {
             try
@@ -179,6 +185,9 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// Add element to Table!
         /// </summary>
         /// <param name="arguments">Element array</param> 
+        /// <exception cref="ArgumentException">Throws when there is no such argument in linked column</exception>
+        /// <exception cref="FormatException">Throws when there is incorrect data type for some column</exception>
+        /// <exception cref="IndexOutOfRangeException">Throws when arguments array isn't similar to count of columns in table </exception>
         public void AddTableElement(object[] arguments)
         {
             try
@@ -239,6 +248,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// Eemoves row of data according to primary key
         /// </summary>
         /// <param name="key">Primary key of a row of data</param>
+        /// <exception cref="NullReferenceException">Throws when there is no such Primary Key in this table</exception>
         public void DeleteTableElementByPrimaryKey(int key)
         {
             try
@@ -254,12 +264,13 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                 Console.WriteLine(e.Message);
             }
         } //UI done
-        //
-        /// <summary>
-        /// removes row of data by index
-        /// </summary>
-        /// <param name="index"> index of row</param>
-      public  void DeleteTableElementByIndex(int index)
+          //
+          /// <summary>
+          /// removes row of data by index
+          /// </summary>
+          /// <param name="index"> index of row</param>
+          /// <exception cref="NullReferenceException">Throws when there is no data in table</exception>
+        public void DeleteTableElementByIndex(int index)
         {
             try
             {
@@ -298,6 +309,9 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// </summary>
         /// <param name="key">PK of row</param>
         /// <param name="args">Argumnets for editing</param>
+        ///  <exception cref="ArgumentException">Throws when count os arguments isn't similar to count of tables</exception>
+        ///  <exception cref="ArgumentException">Throws when type of argument isn't the same as type of column</exception>
+        ///  <exception cref="ArgumentException">Throws when table doesn't contain PKey</exception>
         public void EditTableElementByPrimaryKey(int key, object[] args)
         {
             try
@@ -329,6 +343,8 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// </summary>
         /// <param name="index">Index of row</param>
         /// <param name="args">Arguments for editing</param>
+        /// <exception cref="ArgumentException">Throws when count of argument isn't similar to count of tables</exception>
+        /// <exception cref="ArgumentException">Throws when type of argument isn't the same as type of column</exception>
         public void EditTableElementByIndex(int index, object[] args) // ignores pk 
         {
             try
@@ -356,6 +372,8 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// </summary>
         /// <param name="index">index of row</param>
         /// <param name="args">Objects for edit</param>
+        /// <exception cref="ArgumentException">Throws when count of argument isn't similar to count of tables</exception>
+        /// <exception cref="ArgumentException">Throws when type of argument isn't the same as type of column</exception>
         public void EditTableElementByIndex(int index, DataObject[] args) // ignores pk 
         {
             try
@@ -381,6 +399,9 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// Delete column by name
         /// </summary>
         /// <param name="name">Name of column</param>
+        /// <exception cref="NullReferenceException">Throws when there is no columns in this table</exception>
+        /// <exception cref="ArgumentException">Throws when you trying to delete PK or FK column</exception>
+        /// <exception cref="NullReferenceException">Throws when there is no such column in table</exception>
         public void DeleteColumn(string name)
         {
             try
@@ -399,12 +420,13 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
             }
 
         } //UI done
-        //
-        /// <summary>
-        /// get index of column by name
-        /// </summary>
-        /// <param name="name">Name of column</param>
-        /// <returns></returns>
+          //
+          /// <summary>
+          /// get index of column by name
+          /// </summary>
+          /// <param name="name">Name of column</param>
+          /// <returns></returns>
+          /// <exception cref="NullReferenceException">Throws when there is no columns in this table</exception>
         int indexOfColumn(string name)
         {
             try
@@ -430,6 +452,9 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// </summary>
         /// <param name="key">Primary key of row</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException">Throws when key is invalid</exception>
+        /// <exception cref="ArgumentException">Throws when there is no such key </exception>
+
         public int returnIndexOfPrimaryKey(int key)
         {
             try
@@ -453,6 +478,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// </summary>
         /// <param name="index">index of row</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException">Throws when key is invalid</exception>
         public int returnPrimaryKeyOfIndex(int index)
         {
             try
@@ -472,6 +498,7 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// </summary>
         /// <param name="key">pk</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException">Throws when there is no such PK in this table</exception>
         public DataObject[] GetDataByPrimaryKey(int key)
         {
             try
@@ -485,12 +512,14 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
                 return null;
             }
         } //UI ??? (under question)
-        //
-        /// <summary>
-        /// Return column finded by it's name
-        /// </summary>
-        /// <param name="name">Name of column</param>
-        /// <returns></returns>
+          //
+          /// <summary>
+          /// Return column finded by it's name
+          /// </summary>
+          /// <param name="name">Name of column</param>
+          /// <returns></returns>
+          /// <exception cref="NullReferenceException">Throws when there's no such column</exception>
+          /// <exception cref="NullReferenceException">Throws when there's no columns in table</exception>
         public Column GetColumnByName(string name)
         {
             try
@@ -516,7 +545,9 @@ namespace DataModels.App.InternalDataBaseInstanceComponents
         /// </summary>
         /// <param name="index">index of row</param>
         /// <returns></returns>
-         public DataObject[] GetDataByIndex(int index)
+        /// <exception cref="NullReferenceException">Throws when there is no such Primary Key in table</exception>
+        /// <exception cref="NullReferenceException">Throws when there's no data in table</exception>
+        public DataObject[] GetDataByIndex(int index)
         {
             try
             {
